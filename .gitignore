@@ -1,0 +1,12 @@
+# package directories
+node_modules
+jspm_packages
+package-lock.json
+.nvmrc
+
+# Serverless directories
+.serverless
+environment-variables.yml
+
+# IDE specific directories
+.idea

@@ -1,0 +1,9 @@
+{
+    "TranscriptionJobName": "sat-TPSLBD02-1-1596674857343",
+    "LanguageCode": "en-US",
+    "MediaSampleRateHertz": 48000,
+    "MediaFormat": "mp3",
+    "Media": {
+        "MediaFileUri": "s3://sat-audio-authoring/source/TPSLBD02-1.mp3"
+    }
+}

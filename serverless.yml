@@ -1,0 +1,45 @@
+service: sat-anti-luddite
+frameworkVersion: '>=1.0.0 <2.0.0'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  profile: ipf
+  region: ap-northeast-2
+  timeout: 15
+  tags:
+    service: sat
+    environment: common
+    owner: hpark
+  role: arn:aws:iam::572836591883:role/sat-anti-luddite-lambda
+  environment: ${file(environment-variables.yml)}
+  stackName: sat-anti-luddite-stack
+  stackTags:
+    service: sat
+    environment: common
+    owner: hpark
+  deploymentBucket:
+    name: ipf-release-ci-seoul
+    tags:
+      service: sat
+      environment: common
+      owner: hpark
+
+functions:
+  request-stt-analysis:
+    handler: src/request-stt-analysis.handler
+  process-stt-analysis-result:
+    handler: src/process-stt-analysis-result.handler
+    events:
+      - cloudwatchEvent:
+          event:
+            source:
+              - 'aws.transcribe'
+            detail-type:
+              - 'Transcribe Job State Change'
+            detail:
+              TranscriptionJobStatus:
+                - COMPLETED
+package:
+  exclude:
+    - '*.yml'

@@ -1,0 +1,65 @@
+{
+    "mappings": {
+        "properties": {
+            "bid": {
+                "type":  "keyword"
+              },
+            "page": {
+                "type":  "integer"
+              },
+            "result": {
+                "type": "nested",
+                "properties": {
+                    "BlockType": {
+                        "type": "keyword"
+                    },
+                    "Geometry": {
+                        "properties": {
+                            "BoundingBox": {
+                                "properties": {
+                                    "Width": {
+                                        "type": "integer"
+                                    },
+                                    "Height": {
+                                        "type": "integer"
+                                    },
+                                    "Left": {
+                                        "type": "integer"
+                                    },
+                                    "Top": {
+                                        "type": "integer"
+                                    }
+                                }
+                            },
+                            "Polygon": {
+                                "type": "nested",
+                                "properties": {
+                                    "X": {
+                                        "type": "double"
+                                    },
+                                    "Y": {
+                                        "type": "double"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "Id": {
+                        "type": "keyword"
+                    },
+                    "Relationships": {
+                        "type": "nested",
+                        "properties": {
+                            "Type": {
+                                "type": "keyword"
+                            },
+                            "Ids": {
+                                "type": "keyword"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

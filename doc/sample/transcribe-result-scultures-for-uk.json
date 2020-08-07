@@ -1,0 +1,208 @@
+{
+  "jobName": "scultures-for-uk",
+  "accountId": "572836591883",
+  "results": {
+    "transcripts": [
+      {
+        "transcript": "Oxford Reading Tree, Explore with Biff Chip on Kipper sculptures for The Emperor, written by Roderick Hunt, illustrated by Alex Prechter. Siri's created by Roderick Hunt and Alex Prechter."
+      }
+    ],
+    "items": [
+      {
+        "start_time": "1.04",
+        "end_time": "1.57",
+        "alternatives": [{ "confidence": "1.0", "content": "Oxford" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "1.57",
+        "end_time": "2.01",
+        "alternatives": [{ "confidence": "0.9959", "content": "Reading" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "2.01",
+        "end_time": "2.47",
+        "alternatives": [{ "confidence": "0.9839", "content": "Tree" }],
+        "type": "pronunciation"
+      },
+      {
+        "alternatives": [{ "confidence": "0.0", "content": "," }],
+        "type": "punctuation"
+      },
+      {
+        "start_time": "3.19",
+        "end_time": "3.94",
+        "alternatives": [{ "confidence": "1.0", "content": "Explore" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "3.94",
+        "end_time": "4.22",
+        "alternatives": [{ "confidence": "1.0", "content": "with" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "4.23",
+        "end_time": "4.68",
+        "alternatives": [{ "confidence": "0.9194", "content": "Biff" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "4.8",
+        "end_time": "5.39",
+        "alternatives": [{ "confidence": "1.0", "content": "Chip" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "5.49",
+        "end_time": "5.69",
+        "alternatives": [{ "confidence": "0.8828", "content": "on" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "5.7",
+        "end_time": "6.25",
+        "alternatives": [{ "confidence": "0.6749", "content": "Kipper" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "7.54",
+        "end_time": "8.38",
+        "alternatives": [{ "confidence": "0.9286", "content": "sculptures" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "8.38",
+        "end_time": "8.63",
+        "alternatives": [{ "confidence": "1.0", "content": "for" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "8.63",
+        "end_time": "8.78",
+        "alternatives": [{ "confidence": "1.0", "content": "The" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "8.78",
+        "end_time": "9.35",
+        "alternatives": [{ "confidence": "1.0", "content": "Emperor" }],
+        "type": "pronunciation"
+      },
+      {
+        "alternatives": [{ "confidence": "0.0", "content": "," }],
+        "type": "punctuation"
+      },
+      {
+        "start_time": "9.99",
+        "end_time": "10.49",
+        "alternatives": [{ "confidence": "1.0", "content": "written" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "10.49",
+        "end_time": "10.74",
+        "alternatives": [{ "confidence": "1.0", "content": "by" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "10.75",
+        "end_time": "11.31",
+        "alternatives": [{ "confidence": "0.9321", "content": "Roderick" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "11.31",
+        "end_time": "11.75",
+        "alternatives": [{ "confidence": "0.9845", "content": "Hunt" }],
+        "type": "pronunciation"
+      },
+      {
+        "alternatives": [{ "confidence": "0.0", "content": "," }],
+        "type": "punctuation"
+      },
+      {
+        "start_time": "12.38",
+        "end_time": "13.29",
+        "alternatives": [{ "confidence": "1.0", "content": "illustrated" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "13.4",
+        "end_time": "13.69",
+        "alternatives": [{ "confidence": "1.0", "content": "by" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "13.7",
+        "end_time": "14.18",
+        "alternatives": [{ "confidence": "0.9962", "content": "Alex" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "14.18",
+        "end_time": "14.75",
+        "alternatives": [{ "confidence": "0.8997", "content": "Prechter" }],
+        "type": "pronunciation"
+      },
+      {
+        "alternatives": [{ "confidence": "0.0", "content": "." }],
+        "type": "punctuation"
+      },
+      {
+        "start_time": "15.94",
+        "end_time": "16.51",
+        "alternatives": [{ "confidence": "0.5582", "content": "Siri's" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "16.51",
+        "end_time": "17.15",
+        "alternatives": [{ "confidence": "1.0", "content": "created" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "17.15",
+        "end_time": "17.36",
+        "alternatives": [{ "confidence": "0.9991", "content": "by" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "17.36",
+        "end_time": "17.95",
+        "alternatives": [{ "confidence": "0.9127", "content": "Roderick" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "17.95",
+        "end_time": "18.39",
+        "alternatives": [{ "confidence": "0.986", "content": "Hunt" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "18.62",
+        "end_time": "18.83",
+        "alternatives": [{ "confidence": "0.7046", "content": "and" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "18.83",
+        "end_time": "19.26",
+        "alternatives": [{ "confidence": "0.695", "content": "Alex" }],
+        "type": "pronunciation"
+      },
+      {
+        "start_time": "19.26",
+        "end_time": "19.85",
+        "alternatives": [{ "confidence": "0.9962", "content": "Prechter" }],
+        "type": "pronunciation"
+      },
+      {
+        "alternatives": [{ "confidence": "0.0", "content": "." }],
+        "type": "punctuation"
+      }
+    ]
+  },
+  "status": "COMPLETED"
+}

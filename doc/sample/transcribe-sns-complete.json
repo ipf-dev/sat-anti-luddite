@@ -1,0 +1,14 @@
+{
+    "version": "0",
+    "id": "c3c3a318-72da-68b3-f566-fe62995310fd",
+    "detail-type": "Transcribe Job State Change",
+    "source": "aws.transcribe",
+    "account": "572836591883",
+    "time": "2020-08-06T00:49:17Z",
+    "region": "ap-northeast-2",
+    "resources": [],
+    "detail": {
+        "TranscriptionJobName": "sat-TPSLBD02-1-1596674857343",
+        "TranscriptionJobStatus": "COMPLETED"
+    }
+}
