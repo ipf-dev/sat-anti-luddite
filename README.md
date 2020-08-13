@@ -19,6 +19,12 @@ serverless invoke local --function request-stt-analysis --data '{"Records":[{"s3
 ### 2. process-stt-analysis-result
 Transcribe 작업 완료 이벤트를 수신하여, 분석 결과물인 JSON 파일을 Elastic Search의 `stt-result` index에 저장합니다. 별도의 CloudWatch 이벤트 설정이 필요 없습니다.
 
+로컬 환경에서 함수 호출 시에는 아래의 명령어를 사용합니다.
+
+```
+serverless invoke local --function process-stt-analysis-result --data '{"detail": {"TranscriptionJobStatus": "COMPLETED","TranscriptionJobName": "your-transcription-job-name"}}'
+```
+
 ## Environment variables
 
 어플리케이션에서 사용중인 환경변수는 아래와 같습니다. 로컬 환경 실행을 위해서는 프로젝트 루트 디렉토리에 환경변수 설정파일(`environment-variables.yml`)을 추가해야 합니다.

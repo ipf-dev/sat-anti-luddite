@@ -1,10 +1,10 @@
 const assert = require('assert');
-const awsSdk = require('aws-sdk');
 
 const ElasticSearch = require('./module/elastic-search');
+const S3 = require('./module/s3');
 
-const s3 = new awsSdk.S3();
-const elasticSearch = new ElasticSearch();
+const es = new ElasticSearch();
+const s3 = new S3();
 
 module.exports.handler = async (event, context, callback) => {
     const jobStatus = event.detail.TranscriptionJobStatus;
@@ -12,27 +12,33 @@ module.exports.handler = async (event, context, callback) => {
 
     assert(jobStatus === 'COMPLETED', `Invalid job status: ${jobStatus}`);
 
-    const transcriptionResult = await getTranscriptionResult(jobName);
+    const sttResult = await getSTTResult(jobName);
     // eslint-disable-next-line prefer-destructuring
-    const bid = jobName.split('-')[0];
-    const document = {
-        bid: bid,
-        jobName: transcriptionResult.jobName,
-        result: transcriptionResult.results,
-    };
+    const documentId = jobName.split('-')[0];
+    // eslint-disable-next-line prefer-destructuring
+    const bid = documentId.split('_')[0];
 
-    await elasticSearch.index({ id: bid, index: 'stt-result', body: document })
-        .then(() => {
-            callback(null, { message: 'STT result saved to Elasticsearch successfully' });
-        })
-        .catch((err) => {
-            console.log('Error saving STT result to Elasticsearch:', JSON.stringify(err));
-            callback(err, { message: 'Error saving STT result to Elasticsearch' });
+    try {
+        await es.index({ // TODO: 발음 정보, 페이지 정보도 함께 저장
+            id: documentId,
+            index: 'stt-result',
+            body: {
+                bid: bid,
+                jobName: sttResult.jobName,
+                result: sttResult.results,
+            },
         });
+        callback(null, { message: 'STT result saved to Elasticsearch successfully' });
+    } catch (err) {
+        console.log('Error saving STT result to Elasticsearch:', JSON.stringify(err));
+        callback(err, { message: 'Error saving STT result to Elasticsearch' });
+    }
 };
 
-async function getTranscriptionResult(jobName) {
-    const data = await s3.getObject({ Bucket: process.env.STT_OUTPUT_BUCKET, Key: `${jobName}.json` }).promise();
-    const dataString = data.Body.toString('utf-8');
-    return JSON.parse(dataString);
+async function getSTTResult(jobName) {
+    const data = await s3.getObject({
+        bucket: process.env.STT_OUTPUT_BUCKET,
+        key: `${jobName}.json`,
+    });
+    return JSON.parse(data);
 }

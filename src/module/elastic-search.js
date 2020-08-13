@@ -15,12 +15,13 @@ module.exports = class ElasticSearch {
     }
 
     index({ id, index, body }) {
-        return this.client.index({
-            id: id,
+        const params = {
             index: index,
             op_type: 'index',
             timeout: '15000ms',
             body: body,
-        });
+        };
+        if (id !== undefined) params.id = id;
+        return this.client.index(params);
     }
 };
