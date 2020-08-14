@@ -17,17 +17,14 @@ module.exports.handler = async (event, context, callback) => {
     const documentId = jobName.split('-')[0];
     // eslint-disable-next-line prefer-destructuring
     const bid = documentId.split('_')[0];
+    const body = {
+        bid: bid,
+        jobName: sttResult.jobName,
+        result: sttResult.results,
+    };
 
     try {
-        await es.index({ // TODO: 발음 정보, 페이지 정보도 함께 저장
-            id: documentId,
-            index: 'stt-result',
-            body: {
-                bid: bid,
-                jobName: sttResult.jobName,
-                result: sttResult.results,
-            },
-        });
+        await es.index('stt-result', body, documentId);
         callback(null, { message: 'STT result saved to Elasticsearch successfully' });
     } catch (err) {
         console.log('Error saving STT result to Elasticsearch:', JSON.stringify(err));

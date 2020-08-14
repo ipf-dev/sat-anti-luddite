@@ -31,8 +31,8 @@ provider:
 functions:
   request-stt-analysis:
     handler: src/request-stt-analysis.handler
-  process-stt-analysis-result:
-    handler: src/process-stt-analysis-result.handler
+  process-stt-result:
+    handler: src/process-stt-result.handler
     events:
       - cloudwatchEvent:
           event:

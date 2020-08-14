@@ -2,7 +2,17 @@ const AWS = require('aws-sdk');
 const { Client } = require('@elastic/elasticsearch');
 const AWSConnector = require('aws-elasticsearch-connector');
 
+interface IndexParam {
+    id?: string,
+    index: string,
+    op_type: 'index' | 'create',
+    timeout: string,
+    body: object,
+}
+
 module.exports = class ElasticSearch {
+    client: any;
+
     constructor() {
         AWS.config.update({
             region: 'ap-northeast-2',
@@ -14,8 +24,8 @@ module.exports = class ElasticSearch {
         });
     }
 
-    index({ id, index, body }) {
-        const params = {
+    async index(index: string, body: object, id: string | undefined): Promise<object> {
+        const params: IndexParam = {
             index: index,
             op_type: 'index',
             timeout: '15000ms',
@@ -25,3 +35,4 @@ module.exports = class ElasticSearch {
         return this.client.index(params);
     }
 };
+
