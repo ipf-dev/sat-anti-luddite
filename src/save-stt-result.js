@@ -1,7 +1,7 @@
 const assert = require('assert');
 
-const ElasticSearch = require('./module/elastic-search');
-const S3 = require('./module/s3');
+const ElasticSearch = require('./module/aws/elastic-search');
+const S3 = require('./module/aws/s3');
 
 const es = new ElasticSearch();
 const s3 = new S3();

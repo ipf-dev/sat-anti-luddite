@@ -1,5 +1,5 @@
-const Textract = require('./module/textract');
-const ElasticSearch = require('./module/elastic-search');
+const Textract = require('./module/aws/textract');
+const ElasticSearch = require('./module/aws/elastic-search');
 
 const textract = new Textract();
 const elasticSearch = new ElasticSearch();
