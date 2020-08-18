@@ -43,6 +43,8 @@ functions:
             detail:
               TranscriptionJobStatus:
                 - COMPLETED
+  process-ocr-result:
+    handler: src/process-ocr-result.handler
 package:
   exclude:
     - '*.yml'
