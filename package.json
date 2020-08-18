@@ -13,6 +13,7 @@
         "aws-sdk": "^2.728.0"
     },
     "devDependencies": {
+        "@elastic/elasticsearch-mock": "^0.3.0",
         "@iportfolio/eslint-config-iportfolio": "^0.1.1",
         "@types/aws-lambda": "^8.10.61",
         "@types/jest": "^26.0.9",

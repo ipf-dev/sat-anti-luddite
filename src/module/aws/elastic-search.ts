@@ -4,17 +4,22 @@ import { Client, ApiResponse, RequestParams } from '@elastic/elasticsearch';
 const AWSConnector = require('aws-elasticsearch-connector');
 
 export class ElasticSearch {
-    client: any;
+    client: Client;
 
     constructor() {
         AWS.config.update({
             region: 'ap-northeast-2',
         });
 
-        this.client = new Client({
+        const params = this.getClientInitParam();
+        this.client = new Client(params);
+    }
+
+    getClientInitParam() {
+        return {
             ...AWSConnector(AWS.config),
             node: process.env.ELASTIC_SEARCH_HOST,
-        });
+        };
     }
 
     async index(index: string, body: object, id: string | undefined): Promise<ApiResponse> {
