@@ -1,30 +1,29 @@
-import { ElasticSearch } from './module/aws/elastic-search';
-import { Handler } from 'aws-lambda'
+import { Handler } from 'aws-lambda';
 import { ApiResponse } from '@elastic/elasticsearch';
-import { OCRResult } from './module/ocr-result';
+import ElasticSearch from './module/aws/elastic-search';
+import OCRResult from './module/ocr-result';
 
 const es = new ElasticSearch();
 
+// eslint-disable-next-line import/prefer-default-export
 export const handler: Handler = async (event, context, callback) => {
-    const id = event.id;
+    const { id } = event;
 
     try {
-        const ocrResult: OCRResult = await getOCRResult(id);
-        ocrResult.classify();
-        // TODO textElements 중 body에 대해서만 sentence tokenize
+        const resp: ApiResponse = await es.get('ocr-result', id);
+        // eslint-disable-next-line no-underscore-dangle
+        const ocrResult: OCRResult = new OCRResult(resp.body._source.result);
+        ocrResult.classifyTextElements();
+        // TODO textElements 중 paragraph에 대해서만 sentence tokenize
         // TODO ElasticSearch에 결과 저장
+        console.dir(ocrResult.getIndicators());
+
         callback(null, {
             message: 'Go Serverless v1.0! Your function executed successfully!',
-            event,
-            ocrResult
+            event: event,
         });
     } catch (err) {
         console.error('Error processing OCR result', JSON.stringify(err));
-        callback(err, { message: 'Error processing OCR result' });  
+        callback(err, { message: 'Error processing OCR result' });
     }
 };
-
-export async function getOCRResult(id: string): Promise<OCRResult> {
-    const resp: ApiResponse = await es.get('ocr-result', id);
-    return new OCRResult(resp.body._source.result);
-}

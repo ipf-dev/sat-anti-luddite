@@ -3,7 +3,7 @@ import { Client, ApiResponse, RequestParams } from '@elastic/elasticsearch';
 
 const AWSConnector = require('aws-elasticsearch-connector');
 
-export class ElasticSearch {
+export default class ElasticSearch {
     client: Client;
 
     constructor() {
@@ -37,9 +37,9 @@ export class ElasticSearch {
         const params: RequestParams.Search = {
             index: index,
             body: {
-              query: query
-            }
-          };
+                query: query,
+            },
+        };
 
         return this.client.search(params);
     }
@@ -47,10 +47,10 @@ export class ElasticSearch {
     async get(index: string, id: string): Promise<ApiResponse> {
         const params: RequestParams.Get = {
             index: index,
-            id: id
+            id: id,
         };
 
         return this.client.get(params);
     }
-};
+}
 

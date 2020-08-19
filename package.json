@@ -10,10 +10,10 @@
     "dependencies": {
         "@elastic/elasticsearch": "^7.8.0",
         "aws-elasticsearch-connector": "^9.0.0",
-        "aws-sdk": "^2.728.0"
+        "aws-sdk": "^2.728.0",
+        "@elastic/elasticsearch-mock": "^0.3.0"
     },
     "devDependencies": {
-        "@elastic/elasticsearch-mock": "^0.3.0",
         "@iportfolio/eslint-config-iportfolio": "^0.1.1",
         "@types/aws-lambda": "^8.10.61",
         "@types/jest": "^26.0.9",

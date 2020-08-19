@@ -6,7 +6,7 @@ const elasticSearch = new ElasticSearch();
 
 module.exports.OCRAnalysisJPG = async (event, context, callback) => {
     const bid = 'TPSDM06';
-    const page = event.page;
+    const { page } = event;
 
     const ocrResult = await textract.detectDocumentText({ key: `${bid}/${String(page).padStart(2, '0')}.jpg` });
     const documentBody = {
@@ -24,14 +24,13 @@ module.exports.OCRAnalysisJPG = async (event, context, callback) => {
 
 
 module.exports.requestOCRAnalysisPDF = async (event, context, callback) => {
-    const bid = event.bid;
+    const { bid } = event;
     const ocrResult = await textract.startDocumentTextDetection({ key: `${bid}/${bid}.pdf` });
     console.log(ocrResult);
 };
 
 module.exports.saveOCRAnalysisResultPDF = async (event) => {
-    const jobId = event.jobId;
-    const bid = event.bid;
+    const { jobId, bid } = event;
     const page = 0;
 
     const ocrResult = await textract.getDocumentTextDetection({ jobId });

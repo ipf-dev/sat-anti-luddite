@@ -1,23 +1,21 @@
 import { LineBlock } from './block';
 
-export class TextElements {
-    #unclassified: Array<LineBlock>;
-    #indicators: Array<LineBlock>;
-    #neglictables: Array<LineBlock>;
-    #paragraphs: Array<LineBlock>;
-    #singleLines: Array<LineBlock>;
+export default class TextElements {
+    readonly #indicators: LineBlock[];
+    readonly #neglectables: LineBlock[];
+    readonly #paragraphs: LineBlock[];
+    readonly #singleLines: LineBlock[];
 
-    constructor(lines: LineBlock[]) {
-        this.#unclassified = lines;
+    constructor() {
         this.#indicators = [];
-        this.#neglictables = [];
+        this.#neglectables = [];
         this.#paragraphs = [];
         this.#singleLines = [];
     }
 
-    classify() {
-        this.findIndicators();
-        this.findNeglictables();
+    classify(lines: LineBlock[]): void {
+        this.findIndicators(lines);
+        this.findNeglectable();
         this.findParagraphs();
         this.findSingleLines();
     }
@@ -52,7 +50,7 @@ export class TextElements {
         });
     }
 
-    getAverageHeight(lines: LineBlock[]) {
+    getAverageHeight(lines: LineBlock[]): number {
         let height = 0;
         lines.forEach((block: LineBlock) => {
             height += block.Geometry.BoundingBox.Height;
@@ -60,15 +58,19 @@ export class TextElements {
         return height / lines.length;
     }
 
-    findNeglictables() {
+    findNeglectable(): void {
 
     }
 
-    findParagraphs() {
+    findParagraphs(): void {
 
     }
 
-    findSingleLines() {
+    findSingleLines(): void {
 
+    }
+
+    getIndicators(): LineBlock[] {
+        return this.#indicators;
     }
 }

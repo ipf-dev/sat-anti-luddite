@@ -10,7 +10,7 @@ module.exports.handler = async (event, context, callback) => {
     const records = event.Records;
     const transcribingPromises = records.map(async (record) => {
         const bucket = record.s3.bucket.name;
-        const key = record.s3.object.key;
+        const { key } = record.s3.object;
         const jobName = `${getFileNameFromS3Key(key)}-${Date.now()}`;
         const languageCode = await getLanguageCode({ bucket, key });
 

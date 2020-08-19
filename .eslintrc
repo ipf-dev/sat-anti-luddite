@@ -1,6 +1,9 @@
 {
-    "parser": "babel-eslint",
     "extends": [
         "@iportfolio/eslint-config-iportfolio"
-    ]
+    ],
+    "rules": {
+        "prefer-destructuring": ["error", {"object": true, "array": false}],
+        "import/no-unresolved": 0
+    }
 }
