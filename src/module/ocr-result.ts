@@ -2,14 +2,14 @@ import assert from 'assert';
 
 import TextElements from './text-elements';
 import {
-    Block, PageBlock, LineBlock, WordBlock
+    Block, PageBlock, LineBlock, WordBlock,
 } from './block';
 
 export default class OCRResult {
     readonly #pages: PageBlock[];
     readonly #lines: LineBlock[];
     readonly #words: WordBlock[];
-    readonly #elements: TextElements = new TextElements();
+    readonly #elements: TextElements;
 
     constructor(ocrResult: Block[]) {
         this.#pages = [];
@@ -28,6 +28,7 @@ export default class OCRResult {
         });
 
         assert(!this.isEmpty(), 'OCR Result is empty');
+        this.#elements = new TextElements(this.#lines);
     }
 
     isEmpty(): boolean {
@@ -35,7 +36,7 @@ export default class OCRResult {
     }
 
     classifyTextElements(): void {
-        this.#elements.classify(this.#lines);
+        this.#elements.classify();
     }
 
     getIndicators(): LineBlock[] {

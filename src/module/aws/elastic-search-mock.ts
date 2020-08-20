@@ -18,7 +18,12 @@ export default class ElasticSearchMock extends ElasticSearch {
     }
 
     addMock() {
-        const truncatedResponse = {
+        this.getMerlinP9();
+        this.getMerlinP11();
+    }
+
+    getMerlinP9() {
+        const shortenedResponse = {
             _index: 'ocr-result',
             _type: '_doc',
             _id: 'TPSDM06_9',
@@ -186,9 +191,7 @@ export default class ElasticSearchMock extends ElasticSearch {
         mock.add({
             method: 'GET',
             path: '/ocr-result/_doc/TPSDM06_9',
-        }, () => truncatedResponse);
-
-        this.getMerlinP11();
+        }, () => shortenedResponse);
     }
 
     getMerlinP11() {

@@ -2,20 +2,22 @@ export interface Block {
     BlockType: string;
     Confidence?: number;
     Text?: string;
-    Geometry: {
-        BoundingBox: {
-            Width: number;
-            Height: number;
-            Left: number;
-            Top: number;
-        };
-        Polygon: {
-            X: number;
-            Y: number;
-        }[]
-    };
+    Geometry: Geometry;
     Id: string;
     Relationships?: object[]
+}
+
+export interface Geometry {
+    BoundingBox: {
+        Width: number;
+        Height: number;
+        Left: number;
+        Top: number;
+    };
+    Polygon: {
+        X: number;
+        Y: number;
+    }[];
 }
 
 export interface PageBlock extends Block {
