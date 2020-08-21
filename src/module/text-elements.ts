@@ -1,5 +1,3 @@
-import assert from 'assert';
-
 import { LineBlock } from './block';
 import TextElement from './text-element';
 
@@ -11,32 +9,23 @@ export default class TextElements {
     readonly #paragraphs: TextElement[];
     readonly #singleLines: TextElement[];
 
-    constructor(lines: LineBlock[]) {
+    constructor(lines: LineBlock[], averageHeight: number) {
         this.#unclassified = Array.from(lines, (line) => new TextElement(line));
-        this.#averageHeight = this.getAverageHeight();
+        this.#averageHeight = averageHeight;
         this.#indicators = [];
         this.#neglectables = [];
         this.#paragraphs = [];
         this.#singleLines = [];
     }
 
-    getAverageHeight(): number {
-        assert(this.#unclassified.length > 0, '');
-        let height = 0;
-        this.#unclassified.forEach((block: LineBlock) => {
-            height += block.Geometry.BoundingBox.Height;
-        });
-        return height / this.#unclassified.length;
-    }
-
     classify(): void {
         this.findIndicators();
-        this.findNeglectable();
+        this.findNeglectables();
         this.findParagraphs();
         this.findSingleLines();
     }
 
-    findIndicators(): void {
+    findIndicators(): void { // TODO #unclassified 로부터 제거하는 로직을 마지막으로 옮기기
         const indicatorPattern = /^[0-9]+$|^chapter[ ]*[0-9]+$|^page[ ]*[0-9]+$/i;
         const chapterPattern = /^chapter[ ]*[0-9]+$/i;
         const firstBlock = this.#unclassified[0];
@@ -65,8 +54,23 @@ export default class TextElements {
         });
     }
 
-    findNeglectable(): void {
+    findNeglectables(): void {
+        const neglectables: TextElement[] = [];
 
+        this.#unclassified.forEach((element): void => {
+            if (element.outOfPageBound()
+                || element.heightOutOfBound()
+                || element.heightOutOfAverageBound(this.#averageHeight)
+                || element.isNotFlatSquare()
+                || element.isNotConfident()
+                || element.notHaveEnoughContrast()) {
+                neglectables.push(element);
+            }
+        });
+
+        neglectables.forEach((value) => {
+            this.classifyTextElementByElement(this.#neglectables, value);
+        });
     }
 
     findParagraphs(): void {
@@ -89,9 +93,5 @@ export default class TextElements {
         const element = this.#unclassified[index];
         this.#unclassified.splice(index, 1);
         resultArray.push(element);
-    }
-
-    getIndicators(): LineBlock[] {
-        return this.#indicators;
     }
 }

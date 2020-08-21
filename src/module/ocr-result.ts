@@ -28,7 +28,7 @@ export default class OCRResult {
         });
 
         assert(!this.isEmpty(), 'OCR Result is empty');
-        this.#elements = new TextElements(this.#lines);
+        this.#elements = new TextElements(this.#lines, this.getAverageWordHeight());
     }
 
     isEmpty(): boolean {
@@ -39,7 +39,15 @@ export default class OCRResult {
         this.#elements.classify();
     }
 
-    getIndicators(): LineBlock[] {
-        return this.#elements.getIndicators();
+    getAverageWordHeight(): number {
+        let totalHeight = 0;
+        let totalCount = 0;
+        this.#words.forEach((block: WordBlock) => {
+            if (block.Confidence > 50) {
+                totalHeight += block.Geometry.BoundingBox.Height;
+                totalCount += 1;
+            }
+        });
+        return totalHeight / totalCount;
     }
 }
