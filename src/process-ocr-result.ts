@@ -13,10 +13,9 @@ export const handler: Handler = async (event, context, callback) => {
         const resp: ApiResponse = await es.get('ocr-result', id);
         // eslint-disable-next-line no-underscore-dangle
         const ocrResult: OCRResult = new OCRResult(resp.body._source.result);
-        ocrResult.classifyTextElements();
+        ocrResult.findTextElements();
         // TODO textElements 중 paragraph에 대해서만 sentence tokenize
         // TODO ElasticSearch에 결과 저장
-        console.dir(ocrResult.getIndicators());
 
         callback(null, {
             message: 'Go Serverless v1.0! Your function executed successfully!',

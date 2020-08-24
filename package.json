@@ -9,9 +9,10 @@
     },
     "dependencies": {
         "@elastic/elasticsearch": "^7.8.0",
+        "@elastic/elasticsearch-mock": "^0.3.0",
         "aws-elasticsearch-connector": "^9.0.0",
         "aws-sdk": "^2.728.0",
-        "@elastic/elasticsearch-mock": "^0.3.0"
+        "lodash": "^4.17.20"
     },
     "devDependencies": {
         "@iportfolio/eslint-config-iportfolio": "^0.1.1",

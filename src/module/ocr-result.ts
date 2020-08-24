@@ -1,53 +1,35 @@
 import assert from 'assert';
 
-import TextElements from './text-elements';
-import {
-    Block, PageBlock, LineBlock, WordBlock,
-} from './block';
+import { Block } from './block';
+import LineBlock from './line-block';
+import TextElementDetector from './text-element-detector';
 
 export default class OCRResult {
-    readonly #pages: PageBlock[];
-    readonly #lines: LineBlock[];
-    readonly #words: WordBlock[];
-    readonly #elements: TextElements;
+    readonly #blocks: Block[];
 
-    constructor(ocrResult: Block[]) {
-        this.#pages = [];
-        this.#lines = [];
-        this.#words = [];
+    constructor(blocks: Block[]) {
+        const hasPage = blocks.some((block) => block.BlockType === 'PAGE');
+        const hasLine = blocks.some((block) => block.BlockType === 'LINE');
+        const hasWord = blocks.some((block) => block.BlockType === 'WORD');
+        assert(hasPage && hasLine && hasWord, 'Invalid argument creating OCRResult object');
 
-        ocrResult.forEach((block) => {
-            switch (block.BlockType) {
-            case 'PAGE': this.#pages.push(block as PageBlock);
-                break;
-            case 'LINE': this.#lines.push(block as LineBlock);
-                break;
-            case 'WORD': this.#words.push(block as WordBlock);
-                break;
-            }
-        });
-
-        assert(!this.isEmpty(), 'OCR Result is empty');
-        this.#elements = new TextElements(this.#lines, this.getAverageWordHeight());
+        this.#blocks = blocks;
     }
 
-    isEmpty(): boolean {
-        return this.#pages.length < 1 && this.#lines.length < 1;
-    }
-
-    classifyTextElements(): void {
-        this.#elements.classify();
+    findTextElements(): void {
+        const lines = this.#blocks
+            .filter((block) => block.BlockType === 'LINE')
+            .map((block) => new LineBlock(block));
+        const averageHeight = this.getAverageWordHeight();
+        const ted = new TextElementDetector(lines, averageHeight);
+        return ted.execute();
     }
 
     getAverageWordHeight(): number {
-        let totalHeight = 0;
-        let totalCount = 0;
-        this.#words.forEach((block: WordBlock) => {
-            if (block.Confidence > 50) {
-                totalHeight += block.Geometry.BoundingBox.Height;
-                totalCount += 1;
-            }
-        });
-        return totalHeight / totalCount;
+        const words = this.#blocks
+            .filter((block) => block.BlockType === 'WORD' && block.Confidence !== undefined && block.Confidence > 50);
+        const totalHeight = words
+            .reduce((acc, block) => acc + block.Geometry.BoundingBox.Height, 0);
+        return totalHeight / words.length;
     }
 }

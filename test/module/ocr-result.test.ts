@@ -1,14 +1,12 @@
 import { ApiResponse } from '@elastic/elasticsearch';
 import OCRResult from '../../src/module/ocr-result';
 import ElasticSearchMock from '../../src/module/aws/elastic-search-mock';
+import { Block } from '../../src/module/block';
 
 const es = new ElasticSearchMock();
 
 test('When_Instantiate_Expect_Success', async () => {
-    const bid = 'TPSDM06';
-    const page = '9';
-    const id = `${bid}_${page}`;
-    const resp: ApiResponse = await es.get('ocr-result', id);
+    const resp: ApiResponse = await es.get('ocr-result', 'TPSDM06_9');
     // eslint-disable-next-line no-underscore-dangle
     const ocrResult = new OCRResult(resp.body._source.result);
     expect(ocrResult).toBeInstanceOf(OCRResult);
@@ -16,7 +14,7 @@ test('When_Instantiate_Expect_Success', async () => {
 
 test('When_InstantiateWithInvalidParam_Expect_ThrowError', async () => {
     function instantiateEmptyOCRResult() {
-        const param = [
+        const param: Block[] = [
             {
                 BlockType: 'WORD',
                 Confidence: 71.9177017211914,
@@ -42,15 +40,12 @@ test('When_InstantiateWithInvalidParam_Expect_ThrowError', async () => {
         new OCRResult(param);
     }
 
-    expect(instantiateEmptyOCRResult).toThrowError('OCR Result is empty');
+    expect(instantiateEmptyOCRResult).toThrowError('Invalid argument creating OCRResult object');
 });
 
 test('When_classifyTextElements_Expect_Success', async () => {
-    const bid = 'TPSDM06';
-    const page = '11';
-    const id = `${bid}_${page}`;
-    const resp: ApiResponse = await es.get('ocr-result', id);
+    const resp: ApiResponse = await es.get('ocr-result', 'TPSDM06_11');
     // eslint-disable-next-line no-underscore-dangle
     const ocrResult = new OCRResult(resp.body._source.result);
-    ocrResult.classifyTextElements();
+    ocrResult.findTextElements();
 });

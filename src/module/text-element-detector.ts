@@ -1,0 +1,90 @@
+import LineBlock from './line-block';
+import Paragraph from './paragraph';
+
+export default class TextElementDetector {
+    readonly #unclassified: LineBlock[];
+    readonly #averageHeight: number = 0;
+    readonly #indicators: LineBlock[];
+    readonly #neglectables: LineBlock[];
+    readonly #paragraphs: Paragraph[];
+    readonly #singleLines: LineBlock[];
+
+    constructor(lines: LineBlock[], averageHeight: number) {
+        this.#unclassified = lines;
+        this.#averageHeight = averageHeight;
+        this.#indicators = [];
+        this.#neglectables = [];
+        this.#paragraphs = [];
+        this.#singleLines = [];
+    }
+
+    execute(): void {
+        this.findIndicators();
+        this.findNeglectables();
+        this.findParagraphs();
+        this.findSingleLines();
+    }
+
+    findIndicators(): void { // TODO #unclassified 로부터 제거하는 로직을 마지막으로 옮기기
+        const firstBlock = this.#unclassified[0];
+        const secondBlock = this.#unclassified[1];
+        const thirdBlock = this.#unclassified[2];
+        const lastBlock = this.#unclassified[this.#unclassified.length - 1];
+        const candidates: LineBlock[] = [];
+
+        if (firstBlock.isChapter()) {
+            this.classifyTextElementByIndex(this.#indicators, 0);
+            const chapterNameDistance = secondBlock.getTopDistance(firstBlock);
+            const bodyDistance = thirdBlock.getTopDistance(secondBlock);
+            if (secondBlock.geometry.BoundingBox.Height > this.#averageHeight && chapterNameDistance < bodyDistance) {
+                this.classifyTextElementByElement(this.#indicators, secondBlock);
+            }
+            candidates.push(lastBlock);
+        } else {
+            candidates.push(firstBlock);
+            candidates.push(lastBlock);
+        }
+
+        candidates.forEach((block) => {
+            if (block.isIndicator()) {
+                this.classifyTextElementByElement(this.#indicators, block);
+            }
+        });
+    }
+
+    findNeglectables(): void {
+        const neglectables: LineBlock[] = this.#unclassified
+            .filter((block: LineBlock) => block.outOfPageBound()
+                || block.heightOutOfBound()
+                || block.heightOutOfAverageBound(this.#averageHeight)
+                || block.isNotFlatSquare()
+                || block.isNotConfident()
+                || block.notHaveEnoughContrast());
+
+        neglectables.forEach((block) => {
+            this.classifyTextElementByElement(this.#neglectables, block);
+        });
+    }
+
+    findParagraphs(): void {
+
+    }
+
+    findSingleLines(): void {
+
+    }
+
+    classifyTextElementByElement(resultArray: LineBlock[], element: LineBlock): void {
+        const index = this.#unclassified.indexOf(element);
+        if (index > -1) {
+            this.#unclassified.splice(index, 1);
+            resultArray.push(element);
+        }
+    }
+
+    classifyTextElementByIndex(resultArray: LineBlock[], index: number): void {
+        const element = this.#unclassified[index];
+        this.#unclassified.splice(index, 1);
+        resultArray.push(element);
+    }
+}

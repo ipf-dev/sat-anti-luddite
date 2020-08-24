@@ -1,5 +1,5 @@
-export interface Block {
-    BlockType: string;
+export type Block = {
+    BlockType: 'PAGE' | 'LINE' | 'WORD';
     Confidence?: number;
     Text?: string;
     Geometry: Geometry;
@@ -7,7 +7,7 @@ export interface Block {
     Relationships?: object[]
 }
 
-export interface Geometry {
+export type Geometry = {
     BoundingBox: {
         Width: number;
         Height: number;
@@ -18,22 +18,4 @@ export interface Geometry {
         X: number;
         Y: number;
     }[];
-}
-
-export interface PageBlock extends Block {
-    BlockType: 'PAGE';
-    Relationships: object[]
-}
-
-export interface LineBlock extends Block {
-    BlockType: 'LINE';
-    Confidence: number;
-    Text: string;
-    Relationships: object[]
-}
-
-export interface WordBlock extends Block {
-    BlockType: 'WORD';
-    Confidence: number;
-    Text: string;
 }
