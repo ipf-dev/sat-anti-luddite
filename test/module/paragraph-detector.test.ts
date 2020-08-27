@@ -1,9 +1,9 @@
 import { ApiResponse } from '@elastic/elasticsearch';
-import ElasticSearchMock from '../../src/module/aws/elastic-search-mock';
-import { Block } from '../../src/module/block';
+import ElasticSearchMock from '../../src/module/aws-elastic-search-mock';
 import ParagraphDetector from '../../src/module/paragraph-detector';
-import LineBlock from '../../src/module/line-block';
-import Paragraph from '../../src/module/paragraph';
+import { Block } from '../../src/model/block';
+import LineBlock from '../../src/model/line-block';
+import Paragraph from '../../src/model/paragraph';
 
 const es = new ElasticSearchMock();
 

@@ -1,5 +1,5 @@
-const Transcribe = require('./module/aws/transcribe');
-const S3 = require('./module/aws/s3');
+const Transcribe = require('./module/aws-transcribe');
+const S3 = require('./module/aws-s3');
 
 const transcribe = new Transcribe();
 const s3 = new S3();

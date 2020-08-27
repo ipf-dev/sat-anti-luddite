@@ -15,14 +15,14 @@ export default class ElasticSearch {
         this.client = new Client(params);
     }
 
-    getClientInitParam() {
+    protected getClientInitParam() {
         return {
             ...AWSConnector(AWS.config),
             node: process.env.ELASTIC_SEARCH_HOST,
         };
     }
 
-    async index(index: string, body: object, id: string | undefined): Promise<ApiResponse> {
+    public async index(index: string, body: object, id: string | undefined): Promise<ApiResponse> {
         const params: RequestParams.Index = {
             index: index,
             op_type: 'index',
@@ -33,7 +33,7 @@ export default class ElasticSearch {
         return this.client.index(params);
     }
 
-    async search(index: string, query: object): Promise<ApiResponse> {
+    public async search(index: string, query: object): Promise<ApiResponse> {
         const params: RequestParams.Search = {
             index: index,
             body: {
@@ -44,7 +44,7 @@ export default class ElasticSearch {
         return this.client.search(params);
     }
 
-    async get(index: string, id: string): Promise<ApiResponse> {
+    public async get(index: string, id: string): Promise<ApiResponse> {
         const params: RequestParams.Get = {
             index: index,
             id: id,

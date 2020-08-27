@@ -1,6 +1,6 @@
 import { Handler } from 'aws-lambda';
 import { ApiResponse } from '@elastic/elasticsearch';
-import ElasticSearch from './module/aws/elastic-search';
+import ElasticSearch from './module/aws-elastic-search';
 import OCRResult from './module/ocr-result';
 
 const es = new ElasticSearch();

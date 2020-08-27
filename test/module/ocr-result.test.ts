@@ -1,7 +1,7 @@
 import { ApiResponse } from '@elastic/elasticsearch';
 import OCRResult from '../../src/module/ocr-result';
-import ElasticSearchMock from '../../src/module/aws/elastic-search-mock';
-import { Block } from '../../src/module/block';
+import ElasticSearchMock from '../../src/module/aws-elastic-search-mock';
+import { Block } from '../../src/model/block';
 
 const es = new ElasticSearchMock();
 
@@ -43,7 +43,7 @@ test('When_InstantiateWithInvalidParam_Expect_ThrowError', async () => {
     expect(instantiateEmptyOCRResult).toThrowError('Invalid argument creating OCRResult object');
 });
 
-test('When_classifyTextElements_Expect_Success', async () => {
+test('When_findTextElements_Expect_Success', async () => {
     const resp: ApiResponse = await es.get('ocr-result', 'TPSDM06_11');
     // eslint-disable-next-line no-underscore-dangle
     const ocrResult = new OCRResult(resp.body._source.result);

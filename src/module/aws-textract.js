@@ -16,8 +16,7 @@ module.exports = class Textract {
                 },
             },
         };
-        const result = this.client.detectDocumentText(params).promise();
-        return result;
+        return this.client.detectDocumentText(params).promise();
     }
 
     async startDocumentTextDetection({ key }) {
@@ -29,12 +28,10 @@ module.exports = class Textract {
                 },
             },
         };
-        const result = await this.client.startDocumentTextDetection(params).promise();
-        return result;
+        return this.client.startDocumentTextDetection(params).promise();
     }
 
     async getDocumentTextDetection({ jobId }) {
-        const result = await this.client.getDocumentTextDetection({ JobId: jobId }).promise();
-        return result;
+        return this.client.getDocumentTextDetection({ JobId: jobId }).promise();
     }
 };

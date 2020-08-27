@@ -1,5 +1,5 @@
-import LineBlock from './line-block';
-import Paragraph from './paragraph';
+import LineBlock from '../model/line-block';
+import Paragraph from '../model/paragraph';
 
 export default class ParagraphDetector {
     readonly #unclassified: LineBlock[];
@@ -8,7 +8,7 @@ export default class ParagraphDetector {
         this.#unclassified = lines;
     }
 
-    execute(): Paragraph[] {
+    public execute(): Paragraph[] {
         const result: Paragraph[] = [];
 
         this.#unclassified.forEach((firstBlock) => {
@@ -32,11 +32,11 @@ export default class ParagraphDetector {
         return result;
     }
 
-    isAlreadyClassified(result: Paragraph[], block: LineBlock): boolean {
+    private isAlreadyClassified(result: Paragraph[], block: LineBlock): boolean {
         return result.some((p) => p.blocks.some((b) => b === block));
     }
 
-    filterByHeight(firstBlock: LineBlock): LineBlock[] {
+    private filterByHeight(firstBlock: LineBlock): LineBlock[] {
         const heightFiltered = this.#unclassified.reduce((acc, block) => {
             if (block !== firstBlock && block.hasAcceptableHeightDifference(acc)) {
                 acc.push(block);

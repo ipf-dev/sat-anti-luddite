@@ -33,72 +33,70 @@ export default class LineBlock {
         this.relationships = block.Relationships === undefined ? [] : block.Relationships;
     }
 
-    isChapter(): boolean {
+    public isChapter(): boolean {
         const chapterPattern = /^chapter[ ]*[0-9]+$/i;
         return chapterPattern.test(this.text);
     }
 
-    isIndicator(): boolean {
+    public isIndicator(): boolean {
         const indicatorPattern = /^[0-9]+$|^chapter[ ]*[0-9]+$|^page[ ]*[0-9]+$/i;
         return indicatorPattern.test(this.text);
     }
 
-    outOfPageBound(): boolean {
+    public outOfPageBound(): boolean {
         const {
             Left: left,
             Width: width,
             Top: top,
             Height: height,
         } = this.geometry.BoundingBox;
-        const paddingLeft = left;
-        const paddingRight = 1 - (left + width);
-        const paddingTop = top;
-        const paddingBottom = 1 - (top + height);
-        return paddingLeft < PADDING_X
-            || paddingRight < PADDING_X
-            || paddingTop < PADDING_Y
-            || paddingBottom < PADDING_Y;
+        const right = 1 - (left + width);
+        const bottom = 1 - (top + height);
+        return left < PADDING_X
+            || right < PADDING_X
+            || top < PADDING_Y
+            || bottom < PADDING_Y;
     }
 
-    heightOutOfBound(): boolean {
+    public heightOutOfBound(): boolean {
         return this.height < MIN_HEIGHT || this.height > MAX_HEIGHT;
     }
 
-    heightOutOfAverageBound(averageHeight: number): boolean {
+    public heightOutOfAverageBound(averageHeight: number): boolean {
         return this.height < averageHeight * MIN_HEIGHT_CMP_AVERAGE || this.height > averageHeight * MAX_HEIGHT_CMP_AVERAGE;
     }
 
-    isNotFlatSquare(): boolean {
+    public isNotFlatSquare(): boolean {
         const isSquare = this.geometry.Polygon.length === 4;
         const isFlat = this.geometry.Polygon[0].Y === this.geometry.Polygon[1].Y
             && this.geometry.Polygon[2].Y === this.geometry.Polygon[3].Y;
         return !isSquare || !isFlat;
     }
 
-    isNotConfident(): boolean {
+    public isNotConfident(): boolean {
         return this.confidence < MIN_CONFIDENCE;
     }
 
-    getTopDistance(block: LineBlock): number {
+    public getTopDistance(block: LineBlock): number {
         return this.geometry.BoundingBox.Top - block.geometry.BoundingBox.Top;
     }
 
-    hasAcceptableHeightDifference(blocks: LineBlock[]): boolean {
+    public hasAcceptableHeightDifference(blocks: LineBlock[]): boolean {
         const averageHeight = blocks.reduce((acc, block) => acc + block.height, 0) / blocks.length;
         return this.height < averageHeight * (1 + PARAGRAPH_LINE_HEIGHT_ACCEPTABLE_DIFF)
             && this.height > averageHeight * (1 - PARAGRAPH_LINE_HEIGHT_ACCEPTABLE_DIFF);
     }
 
-    findNextLine(blocks: LineBlock[]): LineBlock | undefined {
+    public findNextLine(blocks: LineBlock[]): LineBlock | undefined {
         return blocks.find((nextLine) => this.isPreviousLineOf(nextLine));
     }
 
-    isPreviousLineOf(nextBlock: LineBlock): boolean {
+    private isPreviousLineOf(nextBlock: LineBlock): boolean {
         return this.hasWidthOverlap(nextBlock)
             && this.isLocatedAbove(nextBlock);
     }
 
-    hasWidthOverlap(nextBlock: LineBlock): boolean {
+    private hasWidthOverlap(nextBlock: LineBlock): boolean {
         const { Width: pWidth, Left: pLeft } = this.geometry.BoundingBox;
         const { Width: nWidth, Left: nLeft } = nextBlock.geometry.BoundingBox;
         const pRight = pLeft + pWidth;
@@ -110,7 +108,7 @@ export default class LineBlock {
             && overlapWidth > nWidth * MIN_OVERLAP_NEXT_BLOCK;
     }
 
-    isLocatedAbove(nextBlock: LineBlock): boolean {
+    private isLocatedAbove(nextBlock: LineBlock): boolean {
         const pBottom = this.geometry.BoundingBox.Top + this.geometry.BoundingBox.Height;
         const nTop = nextBlock.geometry.BoundingBox.Top;
         return nTop - pBottom > 0 && nTop - pBottom < this.height * MAX_DISTANCE_Y_BTW_PARAGRAPH_LINES;

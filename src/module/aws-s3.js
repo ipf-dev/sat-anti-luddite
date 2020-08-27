@@ -10,7 +10,7 @@ module.exports = class S3 {
             Bucket: bucket,
             Key: key,
         }).promise();
-        return object.Body.toString('utf-8');
+        return object.Body;
     }
 
     async getObjectTagging({ bucket, key }) {

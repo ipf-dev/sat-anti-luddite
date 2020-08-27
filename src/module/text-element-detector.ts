@@ -1,5 +1,5 @@
-import LineBlock from './line-block';
-import Paragraph from './paragraph';
+import LineBlock from '../model/line-block';
+import Paragraph from '../model/paragraph';
 import ParagraphDetector from './paragraph-detector';
 
 export default class TextElementDetector {
@@ -19,14 +19,14 @@ export default class TextElementDetector {
         this.#singleLines = [];
     }
 
-    execute(): void {
+    public execute(): void {
         this.findIndicators();
         this.findNeglectables();
         this.findParagraphs();
         this.findSingleLines();
     }
 
-    findIndicators(): void { // TODO #unclassified 로부터 제거하는 로직을 마지막으로 옮기기
+    private findIndicators(): void { // TODO #unclassified 로부터 제거하는 로직을 마지막으로 옮기기
         const firstBlock = this.#unclassified[0];
         const secondBlock = this.#unclassified[1];
         const thirdBlock = this.#unclassified[2];
@@ -53,7 +53,7 @@ export default class TextElementDetector {
         });
     }
 
-    findNeglectables(): void {
+    private findNeglectables(): void {
         const neglectables: LineBlock[] = this.#unclassified
             .filter((block: LineBlock) => block.outOfPageBound()
                 || block.heightOutOfBound()
@@ -66,7 +66,7 @@ export default class TextElementDetector {
         });
     }
 
-    findParagraphs(): void {
+    private findParagraphs(): void {
         const pd = new ParagraphDetector(this.#unclassified);
         const paragraphs: Paragraph[] = pd.execute();
 
@@ -78,11 +78,11 @@ export default class TextElementDetector {
         });
     }
 
-    findSingleLines(): void {
+    private findSingleLines(): void {
 
     }
 
-    classifyTextElementByElement(resultArray: LineBlock[], element: LineBlock): void {
+    private classifyTextElementByElement(resultArray: LineBlock[], element: LineBlock): void {
         const index = this.#unclassified.indexOf(element);
         if (index > -1) {
             this.#unclassified.splice(index, 1);
@@ -90,7 +90,7 @@ export default class TextElementDetector {
         }
     }
 
-    classifyTextElementByIndex(resultArray: LineBlock[], index: number): void {
+    private classifyTextElementByIndex(resultArray: LineBlock[], index: number): void {
         const element = this.#unclassified[index];
         this.#unclassified.splice(index, 1);
         resultArray.push(element);

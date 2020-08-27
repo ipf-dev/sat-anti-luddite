@@ -32,10 +32,10 @@ Transcribe 작업 완료 이벤트를 수신하여, 분석 결과물인 JSON 파
 로컬 환경에서 함수 호출 시에는 아래의 명령어를 사용합니다.
 
 ```
-serverless invoke local --function process-stt-result --data '{"detail": {"TranscriptionJobStatus": "COMPLETED","TranscriptionJobName": "your-transcription-job-name"}}'
+serverless invoke local --function save-stt-result --data '{"detail": {"TranscriptionJobStatus": "COMPLETED","TranscriptionJobName": "your-transcription-job-name"}}'
 ```
 
-### process-stt-result
+### process-stt-result (개발 예정)
 Transcribe의 STT 엔진으로 인식된 텍스트에 대해 sentence tokenizing을 실시하고 그 결과를 Elastic Search에 저장합니다.
 
 ### process-ocr-result

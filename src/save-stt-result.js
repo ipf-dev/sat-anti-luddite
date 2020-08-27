@@ -1,7 +1,7 @@
 const assert = require('assert');
 
-const ElasticSearch = require('./module/aws/elastic-search');
-const S3 = require('./module/aws/s3');
+const ElasticSearch = require('./module/aws-elastic-search');
+const S3 = require('./module/aws-s3');
 
 const es = new ElasticSearch();
 const s3 = new S3();
@@ -37,5 +37,5 @@ async function getSTTResult(jobName) {
         bucket: process.env.STT_OUTPUT_BUCKET,
         key: `${jobName}.json`,
     });
-    return JSON.parse(data);
+    return JSON.parse(data.toString());
 }
