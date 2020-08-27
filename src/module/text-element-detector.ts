@@ -1,5 +1,6 @@
 import LineBlock from './line-block';
 import Paragraph from './paragraph';
+import ParagraphDetector from './paragraph-detector';
 
 export default class TextElementDetector {
     readonly #unclassified: LineBlock[];
@@ -58,8 +59,7 @@ export default class TextElementDetector {
                 || block.heightOutOfBound()
                 || block.heightOutOfAverageBound(this.#averageHeight)
                 || block.isNotFlatSquare()
-                || block.isNotConfident()
-                || block.notHaveEnoughContrast());
+                || block.isNotConfident());
 
         neglectables.forEach((block) => {
             this.classifyTextElementByElement(this.#neglectables, block);
@@ -67,7 +67,15 @@ export default class TextElementDetector {
     }
 
     findParagraphs(): void {
+        const pd = new ParagraphDetector(this.#unclassified);
+        const paragraphs: Paragraph[] = pd.execute();
 
+        paragraphs.forEach((paragraph) => {
+            paragraph.blocks.forEach((line) => {
+                this.classifyTextElementByElement([], line); // FIXME: 2020/08/21 resultArray 필요없을 때 처리
+            });
+            this.#paragraphs.push(paragraph);
+        });
     }
 
     findSingleLines(): void {

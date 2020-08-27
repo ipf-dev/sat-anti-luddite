@@ -1,5 +1,9 @@
 import LineBlock from './line-block';
 
 export default class Paragraph {
-    readonly paragraphLines: LineBlock[] = [];
+    readonly blocks: LineBlock[] = [];
+
+    constructor(blocks: LineBlock[]) {
+        this.blocks = blocks;
+    }
 }
