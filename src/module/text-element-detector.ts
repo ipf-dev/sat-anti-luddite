@@ -10,7 +10,7 @@ export default class TextElementDetector {
     readonly #paragraphs: Paragraph[];
     readonly #singleLines: LineBlock[];
 
-    constructor(lines: LineBlock[], averageHeight: number) {
+    public constructor(lines: LineBlock[], averageHeight: number) {
         this.#unclassified = lines;
         this.#averageHeight = averageHeight;
         this.#indicators = [];

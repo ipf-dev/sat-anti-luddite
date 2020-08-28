@@ -1,12 +1,16 @@
-const Transcribe = require('./module/aws-transcribe');
-const S3 = require('./module/aws-s3');
+import { Handler } from 'aws-lambda';
+import { S3Event } from 'aws-lambda/trigger/s3';
+
+import Transcribe from './module/aws-transcribe';
+import S3 from './module/aws-s3';
 
 const transcribe = new Transcribe();
 const s3 = new S3();
 
 const DEFAULT_LANGUAGE_CODE = 'en-GB';
 
-module.exports.handler = async (event, context, callback) => {
+// eslint-disable-next-line import/prefer-default-export
+export const handler: Handler = async (event: S3Event, context, callback) => {
     const records = event.Records;
     const transcribingPromises = records.map(async (record) => {
         const bucket = record.s3.bucket.name;
@@ -28,15 +32,15 @@ module.exports.handler = async (event, context, callback) => {
     }
 };
 
-function getFileNameFromS3Key(key) {
+function getFileNameFromS3Key(key: string): string {
     const paths = key.split('/');
     const objectName = paths[paths.length - 1];
     return objectName.split('.')[0];
 }
 
-async function getLanguageCode({ bucket, key }) {
+async function getLanguageCode(objectDesc: { bucket: string, key: string }): Promise<string> {
     let languageCode = DEFAULT_LANGUAGE_CODE;
-    const tags = await s3.getObjectTagging({ bucket, key });
+    const tags = await s3.getObjectTagging(objectDesc);
     tags.forEach((tag) => {
         if (tag.Key === 'LanguageCode') languageCode = tag.Value;
     });

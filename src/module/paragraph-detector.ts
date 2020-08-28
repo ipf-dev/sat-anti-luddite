@@ -4,7 +4,7 @@ import Paragraph from '../model/paragraph';
 export default class ParagraphDetector {
     readonly #unclassified: LineBlock[];
 
-    constructor(lines: LineBlock[]) {
+    public constructor(lines: LineBlock[]) {
         this.#unclassified = lines;
     }
 

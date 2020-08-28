@@ -1,10 +1,11 @@
 import Mock from '@elastic/elasticsearch-mock';
+
 import ElasticSearch from './aws-elastic-search';
 
 const mock = new Mock();
 
 export default class ElasticSearchMock extends ElasticSearch {
-    constructor() {
+    public constructor() {
         super();
         this.addMock();
     }
@@ -22,7 +23,7 @@ export default class ElasticSearchMock extends ElasticSearch {
         this.getMerlinP11();
     }
 
-    public getMerlinP9() {
+    private getMerlinP9() {
         const shortenedResponse = {
             _index: 'ocr-result',
             _type: '_doc',
@@ -226,7 +227,7 @@ export default class ElasticSearchMock extends ElasticSearch {
         }, () => shortenedResponse);
     }
 
-    public getMerlinP11() {
+    private getMerlinP11() {
         const response = {
             _index: 'ocr-result',
             _type: '_doc',

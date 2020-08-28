@@ -23,7 +23,7 @@ export default class LineBlock {
     readonly relationships: object[];
     readonly height: number;
 
-    constructor(block: Block) {
+    public constructor(block: Block) {
         assert(block.BlockType === 'LINE', `Invalid 'BlockType' of block argument creating LineBlock object: ${block}`);
         this.confidence = block.Confidence ===  undefined ? 0 : block.Confidence;
         this.text = block.Text === undefined ? '' : block.Text;

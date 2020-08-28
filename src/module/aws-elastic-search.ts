@@ -3,10 +3,26 @@ import { Client, ApiResponse, RequestParams } from '@elastic/elasticsearch';
 
 const AWSConnector = require('aws-elasticsearch-connector');
 
+type IndexParam = {
+    index: string;
+    body: object;
+    id: string | undefined;
+};
+
+type SearchParam = {
+    index: string;
+    query: object;
+};
+
+type GetParam = {
+    index: string;
+    id: string;
+};
+
 export default class ElasticSearch {
     client: Client;
 
-    constructor() {
+    public constructor() {
         AWS.config.update({
             region: 'ap-northeast-2',
         });
@@ -22,7 +38,7 @@ export default class ElasticSearch {
         };
     }
 
-    public async index(index: string, body: object, id: string | undefined): Promise<ApiResponse> {
+    public async index({ index, body, id }: IndexParam): Promise<ApiResponse> {
         const params: RequestParams.Index = {
             index: index,
             op_type: 'index',
@@ -33,7 +49,7 @@ export default class ElasticSearch {
         return this.client.index(params);
     }
 
-    public async search(index: string, query: object): Promise<ApiResponse> {
+    public async search({ index, query }: SearchParam): Promise<ApiResponse> {
         const params: RequestParams.Search = {
             index: index,
             body: {
@@ -44,7 +60,7 @@ export default class ElasticSearch {
         return this.client.search(params);
     }
 
-    public async get(index: string, id: string): Promise<ApiResponse> {
+    public async get({ index, id }: GetParam): Promise<ApiResponse> {
         const params: RequestParams.Get = {
             index: index,
             id: id,

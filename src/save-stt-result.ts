@@ -1,14 +1,18 @@
-const assert = require('assert');
+import assert from 'assert';
+import { Handler } from 'aws-lambda';
 
-const ElasticSearch = require('./module/aws-elastic-search');
-const S3 = require('./module/aws-s3');
+import ElasticSearch from './module/aws-elastic-search';
+import S3 from './module/aws-s3';
 
 const es = new ElasticSearch();
 const s3 = new S3();
 
-module.exports.handler = async (event, context, callback) => {
-    const jobStatus = event.detail.TranscriptionJobStatus;
-    const jobName = event.detail.TranscriptionJobName;
+// eslint-disable-next-line import/prefer-default-export
+export const handler: Handler = async (event, context, callback) => {
+    const {
+        TranscriptionJobStatus: jobStatus,
+        TranscriptionJobName: jobName,
+    } = event.detail;
 
     assert(jobStatus === 'COMPLETED', `Invalid job status: ${jobStatus}`);
 
@@ -24,7 +28,11 @@ module.exports.handler = async (event, context, callback) => {
     };
 
     try {
-        await es.index('stt-result', body, documentId);
+        await es.index({
+            index: 'stt-result',
+            body: body,
+            id: documentId,
+        });
         callback(null, { message: 'STT result saved to Elasticsearch successfully' });
     } catch (err) {
         console.log('Error saving STT result to Elasticsearch:', JSON.stringify(err));
@@ -32,10 +40,13 @@ module.exports.handler = async (event, context, callback) => {
     }
 };
 
-async function getSTTResult(jobName) {
+async function getSTTResult(jobName: string): Promise<any> {
+    const bucket = process.env.STT_OUTPUT_BUCKET;
+    assert(typeof bucket !== 'undefined', `STT_OUTPUT_BUCKET is undefined for jobId: ${jobName} `);
     const data = await s3.getObject({
-        bucket: process.env.STT_OUTPUT_BUCKET,
+        bucket: bucket,
         key: `${jobName}.json`,
     });
+    assert(typeof data !== 'undefined', `Cannot find stt result json for jobId: ${jobName}`);
     return JSON.parse(data.toString());
 }

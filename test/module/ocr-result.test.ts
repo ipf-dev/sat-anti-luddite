@@ -6,7 +6,10 @@ import { Block } from '../../src/model/block';
 const es = new ElasticSearchMock();
 
 test('When_Instantiate_Expect_Success', async () => {
-    const resp: ApiResponse = await es.get('ocr-result', 'TPSDM06_9');
+    const resp: ApiResponse = await es.get({
+        index: 'ocr-result',
+        id: 'TPSDM06_9',
+    });
     // eslint-disable-next-line no-underscore-dangle
     const ocrResult = new OCRResult(resp.body._source.result);
     expect(ocrResult).toBeInstanceOf(OCRResult);
@@ -44,7 +47,10 @@ test('When_InstantiateWithInvalidParam_Expect_ThrowError', async () => {
 });
 
 test('When_findTextElements_Expect_Success', async () => {
-    const resp: ApiResponse = await es.get('ocr-result', 'TPSDM06_11');
+    const resp: ApiResponse = await es.get({
+        index: 'ocr-result',
+        id: 'TPSDM06_11',
+    });
     // eslint-disable-next-line no-underscore-dangle
     const ocrResult = new OCRResult(resp.body._source.result);
     ocrResult.findTextElements();

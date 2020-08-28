@@ -7,7 +7,7 @@ import TextElementDetector from './text-element-detector';
 export default class OCRResult {
     readonly #blocks: Block[];
 
-    constructor(blocks: Block[]) {
+    public constructor(blocks: Block[]) {
         const hasPage = blocks.some((block) => block.BlockType === 'PAGE');
         const hasLine = blocks.some((block) => block.BlockType === 'LINE');
         const hasWord = blocks.some((block) => block.BlockType === 'WORD');

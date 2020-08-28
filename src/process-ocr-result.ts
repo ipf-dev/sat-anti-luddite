@@ -1,5 +1,6 @@
 import { Handler } from 'aws-lambda';
 import { ApiResponse } from '@elastic/elasticsearch';
+
 import ElasticSearch from './module/aws-elastic-search';
 import OCRResult from './module/ocr-result';
 
@@ -10,7 +11,10 @@ export const handler: Handler = async (event, context, callback) => {
     const { id } = event;
 
     try {
-        const resp: ApiResponse = await es.get('ocr-result', id);
+        const resp: ApiResponse = await es.get({
+            index: 'ocr-result',
+            id: id,
+        });
         // eslint-disable-next-line no-underscore-dangle
         const ocrResult: OCRResult = new OCRResult(resp.body._source.result);
         ocrResult.findTextElements();
