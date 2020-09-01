@@ -22,7 +22,7 @@ S3 버킷으로부터 음원 파일 업로드시 이벤트 알림을 수신하�
 
 로컬 환경에서 함수 호출 시에는 아래의 명령어를 사용합니다.
 
-```
+```shell script
 serverless invoke local --function request-stt-analysis --data '{"Records":[{"s3": {"bucket": {"name":"your-s3-bucket-name"}, "object":{"key":"your-s3-object-key"}}}]}'
 ```
 
@@ -31,21 +31,24 @@ Transcribe 작업 완료 이벤트를 수신하여, 분석 결과물인 JSON 파
 
 로컬 환경에서 함수 호출 시에는 아래의 명령어를 사용합니다.
 
-```
+```shell script
 serverless invoke local --function save-stt-result --data '{"detail": {"TranscriptionJobStatus": "COMPLETED","TranscriptionJobName": "your-transcription-job-name"}}'
 ```
 
-### process-stt-result (개발 예정)
-Transcribe의 STT 엔진으로 인식된 텍스트에 대해 sentence tokenizing을 실시하고 그 결과를 Elastic Search에 저장합니다.
+### ocr-body-filter
+Textract의 OCR 기술로 인식된 텍스트에 대해서 텍스트의 위치, 형태와 본문 이미지를 기반으로 각각의 텍스트 요소로 분류합니다.
 
-### process-ocr-result
-Textract의 OCR 기술로 인식된 텍스트에 대해서 텍스트의 위치, 형태와 본문 이미지를 기반으로 각각의 텍스트 요소로 분류합니다. 텍스트 요소 중 'Paragraph' 요소에 대해 sentence tokenizing을 실시하고 그 결과를 Elastic Search에 저장합니다.
+로컬 환경에서 함수 호출 시에는 아래의 명령어를 사용합니다.
+
+```shell script
+serverless invoke local --function ocr-body-filter --data '{"documentId": "your-ocr-result-document-id"}'
+```
 
 ## Unit testing
 Jest 프레임워크를 사용합니다. 테스트 파일은 `test` 폴더 하위에 `{filename}.test.ts` 이름으로 생성합니다. `_init.js` 스크립트는 각 테스트 파일의 테스트 수행 전에 실행되어 환경 변수 설정의 역할을 합니다. 
 
 아래의 명령어를 통해 전체 Unit 테스트를 실행합니다.
 
-```
+```shell script
 npm t
 ```

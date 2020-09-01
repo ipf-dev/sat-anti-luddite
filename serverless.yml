@@ -1,5 +1,5 @@
 service: sat-anti-luddite
-frameworkVersion: '>=1.0.0 <2.0.0'
+frameworkVersion: '>=1.34 <2.0.0'
 
 plugins:
   - serverless-plugin-typescript
@@ -43,8 +43,9 @@ functions:
             detail:
               TranscriptionJobStatus:
                 - COMPLETED
-  process-ocr-result:
-    handler: src/process-ocr-result.handler
+  ocr-body-filter:
+    handler: src/ocr-body-filter.handler
+
 package:
   exclude:
     - '*.yml'

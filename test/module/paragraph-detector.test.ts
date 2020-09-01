@@ -3,7 +3,7 @@ import ElasticSearchMock from '../../src/module/aws-elastic-search-mock';
 import ParagraphDetector from '../../src/module/paragraph-detector';
 import { Block } from '../../src/model/block';
 import LineBlock from '../../src/model/line-block';
-import Paragraph from '../../src/model/paragraph';
+import { Paragraph } from '../../src/model/text-elements';
 
 const es = new ElasticSearchMock();
 

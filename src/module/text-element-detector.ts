@@ -1,14 +1,14 @@
 import LineBlock from '../model/line-block';
-import Paragraph from '../model/paragraph';
 import ParagraphDetector from './paragraph-detector';
+import { Paragraph, TextElements } from '../model/text-elements';
 
 export default class TextElementDetector {
-    readonly #unclassified: LineBlock[];
+    #unclassified: LineBlock[];
     readonly #averageHeight: number = 0;
     readonly #indicators: LineBlock[];
     readonly #neglectables: LineBlock[];
     readonly #paragraphs: Paragraph[];
-    readonly #singleLines: LineBlock[];
+    #singleLines: LineBlock[];
 
     public constructor(lines: LineBlock[], averageHeight: number) {
         this.#unclassified = lines;
@@ -19,11 +19,17 @@ export default class TextElementDetector {
         this.#singleLines = [];
     }
 
-    public execute(): void {
+    public execute(): TextElements {
         this.findIndicators();
         this.findNeglectables();
         this.findParagraphs();
         this.findSingleLines();
+        return {
+            indicators: this.#indicators,
+            neglectables: this.#neglectables,
+            paragraphs: this.#paragraphs,
+            singleLines: this.#singleLines,
+        };
     }
 
     private findIndicators(): void { // TODO #unclassified 로부터 제거하는 로직을 마지막으로 옮기기
@@ -71,7 +77,7 @@ export default class TextElementDetector {
         const paragraphs: Paragraph[] = pd.execute();
 
         paragraphs.forEach((paragraph) => {
-            paragraph.blocks.forEach((line) => {
+            paragraph.lines.forEach((line) => {
                 this.classifyTextElementByElement([], line); // FIXME: 2020/08/21 resultArray 필요없을 때 처리
             });
             this.#paragraphs.push(paragraph);
@@ -79,7 +85,8 @@ export default class TextElementDetector {
     }
 
     private findSingleLines(): void {
-
+        this.#singleLines = this.#unclassified;
+        this.#unclassified = [];
     }
 
     private classifyTextElementByElement(resultArray: LineBlock[], element: LineBlock): void {

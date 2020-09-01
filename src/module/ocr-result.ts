@@ -2,6 +2,7 @@ import assert from 'assert';
 
 import { Block } from '../model/block';
 import LineBlock from '../model/line-block';
+import { TextElements } from '../model/text-elements';
 import TextElementDetector from './text-element-detector';
 
 export default class OCRResult {
@@ -16,13 +17,13 @@ export default class OCRResult {
         this.#blocks = blocks;
     }
 
-    public findTextElements(): void {
+    public findTextElements(): TextElements {
         const lines = this.#blocks
             .filter((block) => block.BlockType === 'LINE')
             .map((block) => new LineBlock(block));
         const averageHeight = this.getAverageWordHeight();
         const ted = new TextElementDetector(lines, averageHeight);
-        ted.execute();
+        return ted.execute();
     }
 
     private getAverageWordHeight(): number {
