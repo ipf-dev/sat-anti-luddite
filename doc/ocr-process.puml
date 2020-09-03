@@ -1,0 +1,23 @@
+@startuml
+skinparam responseMessageBelowArrow true
+
+participant SAT
+participant "ocr-body-filter"
+participant "ocr-sent-tokenize"
+database ElasticSearch
+
+SAT -> "ocr-body-filter": Invoke via SNS
+activate "ocr-body-filter"
+
+"ocr-body-filter" -> ElasticSearch: Query <ocr-result>
+"ocr-body-filter" <-- ElasticSearch: Return document
+
+"ocr-body-filter" -> "ocr-body-filter": Filter text into text elements
+"ocr-body-filter" -> "ocr-sent-tokenize": Invoke via SNS
+deactivate "ocr-body-filter"
+
+activate "ocr-sent-tokenize"
+"ocr-sent-tokenize" -> "ocr-sent-tokenize": Sentence tokenizing
+"ocr-sent-tokenize" -> ElasticSearch: Save to <ocr-sentence>
+deactivate "ocr-sent-tokenize"
+@enduml

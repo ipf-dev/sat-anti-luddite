@@ -1,0 +1,31 @@
+@startuml
+skinparam responseMessageBelowArrow true
+
+participant S3
+participant Transcribe
+participant "request-stt-analysis"
+participant "save-stt-result"
+participant "stt-sent-tokenize"
+database ElasticSearch
+
+S3 -> "request-stt-analysis": Invoke via SNS when image uploaded
+activate "request-stt-analysis"
+
+"request-stt-analysis" -> Transcribe: Request STT analysis
+deactivate "request-stt-analysis"
+activate Transcribe
+Transcribe -> "save-stt-result": Invoke via SNS when transcribe job completed
+deactivate Transcribe
+
+activate "save-stt-result"
+"save-stt-result" -> ElasticSearch: Save to <stt-result>
+"save-stt-result" -> "stt-sent-tokenize": Invoke via SNS
+deactivate "save-stt-result"
+
+activate "stt-sent-tokenize"
+"stt-sent-tokenize" -> ElasticSearch: Query <stt-result>
+"stt-sent-tokenize"<-- ElasticSearch: Return document
+"stt-sent-tokenize" -> "stt-sent-tokenize": Sentence tokenizing
+"stt-sent-tokenize" -> ElasticSearch: Save to <stt-sentence>
+deactivate "stt-sent-tokenize"
+@enduml

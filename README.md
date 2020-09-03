@@ -15,10 +15,14 @@ SAT Anti Luddite는 음성/이미지 인식 기술을 이용하여 Spindle Books
 |---|---|
 |STT_OUTPUT_BUCKET|음원 분석 결과 저장용 ap-northeast-2 리젼 S3 버킷의 이름|
 |ELASTIC_SEARCH_HOST|AWS Elastic Search 서비스 호스트 URL|
+|SNS_OCR_SENT_TOKENIZER|ocr-sent-tokenize 함수를 invoke 하기 위한 SNS Topic ARN|
+|SNS_STT_SENT_TOKENIZER|stt-sent-tokenize 함수를 invoke 하기 위한 SNS Topic ARN|
 
 ## Lambda functions
 ### request-stt-analysis
-S3 버킷으로부터 음원 파일 업로드시 이벤트 알림을 수신하여 해당 음원 파일에 대한 Transcribe 분석 작업을 요청합니다. S3 버킷에 별도로 이벤트 설정이 필요합니다.
+S3 버킷으로부터 음원 파일 업로드시 이벤트 알림을 수신하여 해당 음원 파일에 대한 Transcribe 분석 작업을 요청합니다. S3 버킷에 별도로 이벤트 설정이 필요합니다. 
+
+S3 Object의 Tag로 Transcribe 작업 시 사용할 언어코드를 설정할 수 있습니다. 태그 명은 `LanguageCode`, 값은 `en-US`, `en-GB` 등으로 합니다.
 
 로컬 환경에서 함수 호출 시에는 아래의 명령어를 사용합니다.
 
@@ -27,7 +31,7 @@ serverless invoke local --function request-stt-analysis --data '{"Records":[{"s3
 ```
 
 ### save-stt-result
-Transcribe 작업 완료 이벤트를 수신하여, 분석 결과물인 JSON 파일을 Elastic Search의 `stt-result` index에 저장합니다. 별도의 CloudWatch 이벤트 설정이 필요 없습니다.
+Transcribe 작업 완료 이벤트를 수신하여, 분석 결과물인 JSON 파일을 Elastic Search의 `stt-result` index에 저장합니다. 별도의 CloudWatch 이벤트 설정이 필요 없습니다. SNS 퍼블리시를 통해 `stt-sent-tokenize` 함수를 호출한 뒤 종료합니다.
 
 로컬 환경에서 함수 호출 시에는 아래의 명령어를 사용합니다.
 
@@ -36,7 +40,7 @@ serverless invoke local --function save-stt-result --data '{"detail": {"Transcri
 ```
 
 ### ocr-body-filter
-Textract의 OCR 기술로 인식된 텍스트에 대해서 텍스트의 위치, 형태와 본문 이미지를 기반으로 각각의 텍스트 요소로 분류합니다.
+Textract의 OCR 기술로 인식된 결과 텍스트를 Elastic Search의 `ocr-result` index로 부터 가져온 뒤 텍스트의 위치, 형태와 본문 이미지를 기반으로 각각의 텍스트 요소로 분류합니다. 분류가 완료된 중간 결과물을 Message로 하여 SNS 퍼블리시를 통해 `ocr-sent-tokenize` 함수를 호출한 뒤 종료합니다.
 
 로컬 환경에서 함수 호출 시에는 아래의 명령어를 사용합니다.
 
