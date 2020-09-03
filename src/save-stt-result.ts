@@ -3,6 +3,7 @@ import { Handler } from 'aws-lambda';
 
 import ElasticSearch from './module/aws-elastic-search';
 import S3 from './module/aws-s3';
+import SNS from './module/aws-sns';
 
 const es = new ElasticSearch();
 const s3 = new S3();
@@ -33,7 +34,13 @@ export const handler: Handler = async (event, context, callback) => {
             body: body,
             id: documentId,
         });
-        callback(null, { message: 'STT result saved to Elasticsearch successfully' });
+
+        await publishResultToSNS({ documentId });
+
+        callback(null, {
+            message: 'STT result saved to Elasticsearch successfully',
+            documentId: documentId,
+        });
     } catch (err) {
         console.log('Error saving STT result to Elasticsearch:', JSON.stringify(err));
         callback(err, { message: 'Error saving STT result to Elasticsearch' });
@@ -49,4 +56,11 @@ async function getSTTResult(jobName: string): Promise<any> {
     });
     assert(typeof data !== 'undefined', `Cannot find stt result json for jobId: ${jobName}`);
     return JSON.parse(data.toString());
+}
+
+async function publishResultToSNS(message: any) {
+    const arn = process.env.SNS_STT_SENT_TOKENIZER;
+    const sns = new SNS();
+    if (typeof arn === 'undefined') return;
+    await sns.publish({ message, arn });
 }

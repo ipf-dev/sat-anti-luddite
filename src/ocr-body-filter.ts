@@ -22,9 +22,12 @@ export const handler: Handler = async (event, context, callback) => {
         const ocrResult: OCRResult = new OCRResult(ocr);
         const textElements: TextElements = ocrResult.findTextElements();
         const result = {
-            bid: bid,
-            page: page,
-            result: textElements,
+            documentId: documentId,
+            ocrResult: {
+                bid: bid,
+                page: page,
+                result: textElements,
+            },
         };
         await publishResultToSNS(result);
 
@@ -35,12 +38,9 @@ export const handler: Handler = async (event, context, callback) => {
     }
 };
 
-async function publishResultToSNS(result: any) {
-    const snsTopicArn = process.env.SNS_OCR_SENT_TOKENIZER;
+async function publishResultToSNS(message: any) {
+    const arn = process.env.SNS_OCR_SENT_TOKENIZER;
     const sns = new SNS();
-    if (typeof snsTopicArn === 'undefined') return;
-    await sns.publish({
-        message: result,
-        arn: snsTopicArn,
-    });
+    if (typeof arn === 'undefined') return;
+    await sns.publish({ message, arn });
 }
