@@ -1,4 +1,5 @@
 import { Handler } from 'aws-lambda';
+import { SNSEvent } from 'aws-lambda/trigger/sns';
 import { ApiResponse } from '@elastic/elasticsearch';
 
 import { TextElements } from './model/text-elements';
@@ -9,10 +10,11 @@ import OCRResult from './module/ocr-result';
 const es = new ElasticSearch();
 
 // eslint-disable-next-line import/prefer-default-export
-export const handler: Handler = async (event, context, callback) => {
-    const { documentId } = event;
-
-    try {
+export const handler: Handler = async (event: SNSEvent, context, callback) => {
+    const records = event.Records;
+    const snsPromises = records.map(async (record) => {
+        const msg = record.Sns.Message;
+        const { documentId } = JSON.parse(msg);
         const resp: ApiResponse = await es.get({
             index: 'ocr-result',
             id: documentId,
@@ -29,9 +31,12 @@ export const handler: Handler = async (event, context, callback) => {
                 result: textElements,
             },
         };
-        await publishResultToSNS(result);
+        return publishResultToSNS(result);
+    });
 
-        callback(null, result);
+    try {
+        const results = await Promise.all(snsPromises);
+        callback(null, results);
     } catch (err) {
         console.error('Error processing OCR result', JSON.stringify(err));
         callback(err, { message: 'Error processing OCR result' });
@@ -39,7 +44,7 @@ export const handler: Handler = async (event, context, callback) => {
 };
 
 async function publishResultToSNS(message: any) {
-    const arn = process.env.SNS_OCR_SENT_TOKENIZER;
+    const arn = process.env.SNS_OCR_SENT_TOKENIZE;
     const sns = new SNS();
     if (typeof arn === 'undefined') return;
     await sns.publish({ message, arn });

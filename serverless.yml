@@ -31,6 +31,14 @@ provider:
 functions:
   request-stt-analysis:
     handler: src/request-stt-analysis.handler
+    events:
+      - s3:
+          bucket: ${file(environment-variables.yml):STT_TRIGGER_BUCKET}
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: source/
+            - suffix: .mp3
+          existing: true
   save-stt-result:
     handler: src/save-stt-result.handler
     events:
@@ -45,7 +53,8 @@ functions:
                 - COMPLETED
   ocr-body-filter:
     handler: src/ocr-body-filter.handler
-
+    events:
+      - sns: sat-anti-luddite-ocr-body-filter
 package:
   exclude:
     - '*.yml'

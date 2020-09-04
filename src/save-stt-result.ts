@@ -59,7 +59,7 @@ async function getSTTResult(jobName: string): Promise<any> {
 }
 
 async function publishResultToSNS(message: any) {
-    const arn = process.env.SNS_STT_SENT_TOKENIZER;
+    const arn = process.env.SNS_STT_SENT_TOKENIZE;
     const sns = new SNS();
     if (typeof arn === 'undefined') return;
     await sns.publish({ message, arn });
