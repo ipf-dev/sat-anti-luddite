@@ -16,6 +16,8 @@ SAT Anti Luddite는 음성/이미지 인식 기술을 이용하여 Spindle Books
 |STT_TRIGGER_BUCKET|음원 분석 요청을 트리거하는 음원 업로드용 ap-northeast-2 리젼 S3 버킷의 이름|
 |STT_OUTPUT_BUCKET|음원 분석 결과 저장용 ap-northeast-2 리젼 S3 버킷의 이름|
 |ELASTIC_SEARCH_HOST|AWS Elastic Search 서비스 호스트 URL|
+|TEXTRACT_REGION|request-ocr-analysis-and-save-result 함수에서 Textract 작업을 요청할 AWS 리젼|
+|TEXTRACT_INPUT_BUCKET|request-ocr-analysis-and-save-result 함수에서 Textract 작업을 수행할 이미지가 저장된 버킷의 이름|
 |SNS_OCR_SENT_TOKENIZE|ocr-sent-tokenize 함수를 invoke 하기 위한 SNS Topic ARN|
 |SNS_STT_SENT_TOKENIZE|stt-sent-tokenize 함수를 invoke 하기 위한 SNS Topic ARN|
 
@@ -38,6 +40,14 @@ Transcribe 작업 완료 이벤트를 수신하여, 분석 결과물인 JSON 파
 
 ```shell script
 serverless invoke local --function save-stt-result --data '{"detail": {"TranscriptionJobStatus": "COMPLETED","TranscriptionJobName": "your-transcription-job-name"}}'
+```
+
+### request-ocr-analysis-and-save-result
+
+S3 버킷에 저장된 이미지로 Textract OCR 분석 요청 수행한 뒤 그 결과를 Elastic Search의 `ocr-result` index에 저장합니다.
+
+```shell script
+ serverless invoke local --function request-ocr-analysis-and-save-result --data '{"bid":"TPSBC336","page":10,"s3Key":"TPSBC336/10.jpg"}'
 ```
 
 ### ocr-body-filter

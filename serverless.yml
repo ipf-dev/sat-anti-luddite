@@ -55,6 +55,9 @@ functions:
     handler: src/ocr-body-filter.handler
     events:
       - sns: sat-anti-luddite-ocr-body-filter
+  request-ocr-analysis-and-save-result:
+    handler: src/request-ocr-analysis-and-save-result.handler
+
 package:
   exclude:
     - '*.yml'
