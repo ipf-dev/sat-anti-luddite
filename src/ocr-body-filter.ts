@@ -28,7 +28,10 @@ export const handler: Handler = async (event: SNSEvent, context, callback) => {
             ocrResult: {
                 bid: bid,
                 page: page,
-                result: textElements,
+                result: {
+                    lines: textElements,
+                    words: ocrResult.getWords(),
+                },
             },
         };
         return publishResultToSNS(result);

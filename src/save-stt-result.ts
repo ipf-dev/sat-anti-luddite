@@ -20,11 +20,11 @@ export const handler: Handler = async (event, context, callback) => {
     const sttResult = await getSTTResult(jobName);
     // eslint-disable-next-line prefer-destructuring
     const documentId = jobName.split('-')[0];
-    // eslint-disable-next-line prefer-destructuring
-    const bid = documentId.split('_')[0];
+    const [bid, languageCode] = documentId.split('_');
     const body = {
         bid: bid,
         jobName: sttResult.jobName,
+        languageCode: languageCode,
         result: sttResult.results,
     };
 

@@ -1,0 +1,50 @@
+{
+    "properties": {
+        "bid": {
+            "type":  "keyword"
+        },
+        "jobName": {
+            "type":  "keyword"
+        },
+        "languageCode": {
+            "type": "keyword"
+        },
+        "result": {
+            "properties": {
+                "transcripts": {
+                    "properties": {
+                        "transcript": {
+                            "type": "text"
+                        },
+                        "sentences": {
+                            "type": "text"
+                        }
+                    }
+                },
+                "items": {
+                    "properties": {
+                        "start_time": {
+                            "type": "float"
+                        },
+                        "end_time": {
+                            "type": "float"
+                        },
+                        "alternatives": {
+                            "properties": {
+                                "confidence:": {
+                                    "type": "float"
+                                },
+                                "content": {
+                                    "type": "text"
+                                }
+                            }
+                        },
+                        "type": {
+                            "type": "keyword"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -17,6 +17,10 @@ export default class OCRResult {
         this.#blocks = blocks;
     }
 
+    public getWords(): Block[] {
+        return this.#blocks.filter((block) => block.BlockType === 'WORD');
+    }
+
     public findTextElements(): TextElements {
         const lines = this.#blocks
             .filter((block) => block.BlockType === 'LINE')
