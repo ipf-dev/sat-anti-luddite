@@ -14,15 +14,14 @@ export const handler: Handler = async (event, context, callback) => {
     const bucket = process.env.TEXTRACT_INPUT_BUCKET;
     assert(typeof bucket !== 'undefined', `TEXTRACT_INPUT_BUCKET is undefined for event: ${event} `);
     const ocrResult = await textract.detectDocumentText({ key, bucket });
-    const documentBody = {
-        bid: bid,
-        page: page,
-        result: ocrResult.Blocks,
-    };
     const result = await elasticSearch.index({
         id: `${bid}_${page}`,
         index: 'ocr-result',
-        body: documentBody,
+        body: {
+            bid: bid,
+            page: page,
+            result: ocrResult.Blocks,
+        },
     });
     console.log(result);
 };

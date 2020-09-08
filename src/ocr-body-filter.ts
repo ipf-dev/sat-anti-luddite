@@ -1,8 +1,7 @@
-import { Handler } from 'aws-lambda';
+import {Handler, SNSEventRecord} from 'aws-lambda';
 import { SNSEvent } from 'aws-lambda/trigger/sns';
 import { ApiResponse } from '@elastic/elasticsearch';
 
-import { TextElements } from './model/text-elements';
 import ElasticSearch from './module/aws-elastic-search';
 import SNS from './module/aws-sns';
 import OCRResult from './module/ocr-result';
@@ -11,31 +10,7 @@ const es = new ElasticSearch();
 
 // eslint-disable-next-line import/prefer-default-export
 export const handler: Handler = async (event: SNSEvent, context, callback) => {
-    const records = event.Records;
-    const snsPromises = records.map(async (record) => {
-        const msg = record.Sns.Message;
-        const { documentId } = JSON.parse(msg);
-        const resp: ApiResponse = await es.get({
-            index: 'ocr-result',
-            id: documentId,
-        });
-        // eslint-disable-next-line no-underscore-dangle
-        const { bid, page, result: ocr } = resp.body._source;
-        const ocrResult: OCRResult = new OCRResult(ocr);
-        const textElements: TextElements = ocrResult.findTextElements();
-        const result = {
-            documentId: documentId,
-            ocrResult: {
-                bid: bid,
-                page: page,
-                result: {
-                    lines: textElements,
-                    words: ocrResult.getWords(),
-                },
-            },
-        };
-        return publishResultToSNS(result);
-    });
+    const snsPromises = event.Records.map(handleSNSEventRecord);
 
     try {
         const results = await Promise.all(snsPromises);
@@ -46,7 +21,26 @@ export const handler: Handler = async (event: SNSEvent, context, callback) => {
     }
 };
 
-async function publishResultToSNS(message: any) {
+async function handleSNSEventRecord(record: SNSEventRecord): Promise<void> {
+    const { documentId } = JSON.parse(record.Sns.Message);
+    const { bid, page, result } = await fetchOCRResult(documentId);
+    const ocrResult: OCRResult = new OCRResult({
+        documentId, bid, page, result,
+    });
+    const filteredResult = ocrResult.filter();
+    return publishResultToSNS(filteredResult);
+}
+
+async function fetchOCRResult(documentId: string): Promise<any> {
+    const resp: ApiResponse = await es.get({
+        index: 'ocr-result',
+        id: documentId,
+    });
+    // eslint-disable-next-line no-underscore-dangle
+    return resp.body._source;
+}
+
+async function publishResultToSNS(message: any): Promise<void>  {
     const arn = process.env.SNS_OCR_SENT_TOKENIZE;
     const sns = new SNS();
     if (typeof arn === 'undefined') return;

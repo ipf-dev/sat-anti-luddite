@@ -1,6 +1,13 @@
 import AWS from 'aws-sdk';
 import * as TranscribeClient from 'aws-sdk/clients/transcribeservice';
 
+export type TranscribeEvent = {
+    detail: {
+        TranscriptionJobStatus: string,
+        TranscriptionJobName: string,
+    }
+}
+
 type StartTranscriptionJobParam = {
     jobName: string;
     bucket: string;
