@@ -4,7 +4,7 @@ export type Block = {
     Text?: string;
     Geometry: Geometry;
     Id: string;
-    Relationships?: object[]
+    Relationships?: Relationship[]
 }
 
 export type Geometry = {
@@ -18,4 +18,9 @@ export type Geometry = {
         X: number;
         Y: number;
     }[];
+}
+
+export type Relationship = {
+    Type: string;
+    Ids: string[];
 }

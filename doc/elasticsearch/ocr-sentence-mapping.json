@@ -8,9 +8,9 @@
         },
         "result": {
             "properties": {
-                "lines": {
+                "indicators": {
                     "properties": {
-                        "indicators": {
+                        "lines": {
                             "properties": {
                                 "BlockType": {
                                     "type": "keyword"
@@ -60,114 +60,7 @@
                                 }
                             }
                         },
-                        "neglectables": {
-                            "properties": {
-                                "BlockType": {
-                                    "type": "keyword"
-                                },
-                                "Geometry": {
-                                    "properties": {
-                                        "BoundingBox": {
-                                            "properties": {
-                                                "Width": {
-                                                    "type": "integer"
-                                                },
-                                                "Height": {
-                                                    "type": "integer"
-                                                },
-                                                "Left": {
-                                                    "type": "integer"
-                                                },
-                                                "Top": {
-                                                    "type": "integer"
-                                                }
-                                            }
-                                        },
-                                        "Polygon": {
-                                            "properties": {
-                                                "X": {
-                                                    "type": "double"
-                                                },
-                                                "Y": {
-                                                    "type": "double"
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                "Id": {
-                                    "type": "keyword"
-                                },
-                                "Relationships": {
-                                    "properties": {
-                                        "Type": {
-                                            "type": "keyword"
-                                        },
-                                        "Ids": {
-                                            "type": "keyword"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "paragraphs": {
-                            "properties": {
-                                "lines": {
-                                    "properties": {
-                                        "BlockType": {
-                                            "type": "keyword"
-                                        },
-                                        "Geometry": {
-                                            "properties": {
-                                                "BoundingBox": {
-                                                    "properties": {
-                                                        "Width": {
-                                                            "type": "integer"
-                                                        },
-                                                        "Height": {
-                                                            "type": "integer"
-                                                        },
-                                                        "Left": {
-                                                            "type": "integer"
-                                                        },
-                                                        "Top": {
-                                                            "type": "integer"
-                                                        }
-                                                    }
-                                                },
-                                                "Polygon": {
-                                                    "properties": {
-                                                        "X": {
-                                                            "type": "double"
-                                                        },
-                                                        "Y": {
-                                                            "type": "double"
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "Id": {
-                                            "type": "keyword"
-                                        },
-                                        "Relationships": {
-                                            "properties": {
-                                                "Type": {
-                                                    "type": "keyword"
-                                                },
-                                                "Ids": {
-                                                    "type": "keyword"
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                "sentences": {
-                                    "type": "text"
-                                }
-                            }
-                        },
-                        "singleLines": {
+                        "words": {
                             "properties": {
                                 "BlockType": {
                                     "type": "keyword"
@@ -219,51 +112,363 @@
                         }
                     }
                 },
-                "words": {
+                "neglectables": {
                     "properties": {
-                        "BlockType": {
-                            "type": "keyword"
-                        },
-                        "Geometry": {
+                        "lines": {
                             "properties": {
-                                "BoundingBox": {
+                                "BlockType": {
+                                    "type": "keyword"
+                                },
+                                "Geometry": {
                                     "properties": {
-                                        "Width": {
-                                            "type": "integer"
+                                        "BoundingBox": {
+                                            "properties": {
+                                                "Width": {
+                                                    "type": "integer"
+                                                },
+                                                "Height": {
+                                                    "type": "integer"
+                                                },
+                                                "Left": {
+                                                    "type": "integer"
+                                                },
+                                                "Top": {
+                                                    "type": "integer"
+                                                }
+                                            }
                                         },
-                                        "Height": {
-                                            "type": "integer"
-                                        },
-                                        "Left": {
-                                            "type": "integer"
-                                        },
-                                        "Top": {
-                                            "type": "integer"
+                                        "Polygon": {
+                                            "properties": {
+                                                "X": {
+                                                    "type": "double"
+                                                },
+                                                "Y": {
+                                                    "type": "double"
+                                                }
+                                            }
                                         }
                                     }
                                 },
-                                "Polygon": {
+                                "Id": {
+                                    "type": "keyword"
+                                },
+                                "Relationships": {
                                     "properties": {
-                                        "X": {
-                                            "type": "double"
+                                        "Type": {
+                                            "type": "keyword"
                                         },
-                                        "Y": {
-                                            "type": "double"
+                                        "Ids": {
+                                            "type": "keyword"
                                         }
                                     }
                                 }
                             }
                         },
-                        "Id": {
-                            "type": "keyword"
-                        },
-                        "Relationships": {
+                        "words": {
                             "properties": {
-                                "Type": {
+                                "BlockType": {
                                     "type": "keyword"
                                 },
-                                "Ids": {
+                                "Geometry": {
+                                    "properties": {
+                                        "BoundingBox": {
+                                            "properties": {
+                                                "Width": {
+                                                    "type": "integer"
+                                                },
+                                                "Height": {
+                                                    "type": "integer"
+                                                },
+                                                "Left": {
+                                                    "type": "integer"
+                                                },
+                                                "Top": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        },
+                                        "Polygon": {
+                                            "properties": {
+                                                "X": {
+                                                    "type": "double"
+                                                },
+                                                "Y": {
+                                                    "type": "double"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "Id": {
                                     "type": "keyword"
+                                },
+                                "Relationships": {
+                                    "properties": {
+                                        "Type": {
+                                            "type": "keyword"
+                                        },
+                                        "Ids": {
+                                            "type": "keyword"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "paragraphs": {
+                    "properties": {
+                        "lines": {
+                            "properties": {
+                                "BlockType": {
+                                    "type": "keyword"
+                                },
+                                "Geometry": {
+                                    "properties": {
+                                        "BoundingBox": {
+                                            "properties": {
+                                                "Width": {
+                                                    "type": "integer"
+                                                },
+                                                "Height": {
+                                                    "type": "integer"
+                                                },
+                                                "Left": {
+                                                    "type": "integer"
+                                                },
+                                                "Top": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        },
+                                        "Polygon": {
+                                            "properties": {
+                                                "X": {
+                                                    "type": "double"
+                                                },
+                                                "Y": {
+                                                    "type": "double"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "Id": {
+                                    "type": "keyword"
+                                },
+                                "Relationships": {
+                                    "properties": {
+                                        "Type": {
+                                            "type": "keyword"
+                                        },
+                                        "Ids": {
+                                            "type": "keyword"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "words": {
+                            "properties": {
+                                "BlockType": {
+                                    "type": "keyword"
+                                },
+                                "Geometry": {
+                                    "properties": {
+                                        "BoundingBox": {
+                                            "properties": {
+                                                "Width": {
+                                                    "type": "integer"
+                                                },
+                                                "Height": {
+                                                    "type": "integer"
+                                                },
+                                                "Left": {
+                                                    "type": "integer"
+                                                },
+                                                "Top": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        },
+                                        "Polygon": {
+                                            "properties": {
+                                                "X": {
+                                                    "type": "double"
+                                                },
+                                                "Y": {
+                                                    "type": "double"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "Id": {
+                                    "type": "keyword"
+                                },
+                                "Relationships": {
+                                    "properties": {
+                                        "Type": {
+                                            "type": "keyword"
+                                        },
+                                        "Ids": {
+                                            "type": "keyword"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "sentences": {
+                            "properties": {
+                                "BlockType": {
+                                    "type": "keyword"
+                                },
+                                "Geometry": {
+                                    "properties": {
+                                        "BoundingBox": {
+                                            "properties": {
+                                                "Width": {
+                                                    "type": "integer"
+                                                },
+                                                "Height": {
+                                                    "type": "integer"
+                                                },
+                                                "Left": {
+                                                    "type": "integer"
+                                                },
+                                                "Top": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        },
+                                        "Polygon": {
+                                            "properties": {
+                                                "X": {
+                                                    "type": "double"
+                                                },
+                                                "Y": {
+                                                    "type": "double"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "Id": {
+                                    "type": "keyword"
+                                },
+                                "Relationships": {
+                                    "properties": {
+                                        "Type": {
+                                            "type": "keyword"
+                                        },
+                                        "Ids": {
+                                            "type": "keyword"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "singleLines": {
+                    "properties": {
+                        "lines": {
+                            "properties": {
+                                "BlockType": {
+                                    "type": "keyword"
+                                },
+                                "Geometry": {
+                                    "properties": {
+                                        "BoundingBox": {
+                                            "properties": {
+                                                "Width": {
+                                                    "type": "integer"
+                                                },
+                                                "Height": {
+                                                    "type": "integer"
+                                                },
+                                                "Left": {
+                                                    "type": "integer"
+                                                },
+                                                "Top": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        },
+                                        "Polygon": {
+                                            "properties": {
+                                                "X": {
+                                                    "type": "double"
+                                                },
+                                                "Y": {
+                                                    "type": "double"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "Id": {
+                                    "type": "keyword"
+                                },
+                                "Relationships": {
+                                    "properties": {
+                                        "Type": {
+                                            "type": "keyword"
+                                        },
+                                        "Ids": {
+                                            "type": "keyword"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "words": {
+                            "properties": {
+                                "BlockType": {
+                                    "type": "keyword"
+                                },
+                                "Geometry": {
+                                    "properties": {
+                                        "BoundingBox": {
+                                            "properties": {
+                                                "Width": {
+                                                    "type": "integer"
+                                                },
+                                                "Height": {
+                                                    "type": "integer"
+                                                },
+                                                "Left": {
+                                                    "type": "integer"
+                                                },
+                                                "Top": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        },
+                                        "Polygon": {
+                                            "properties": {
+                                                "X": {
+                                                    "type": "double"
+                                                },
+                                                "Y": {
+                                                    "type": "double"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "Id": {
+                                    "type": "keyword"
+                                },
+                                "Relationships": {
+                                    "properties": {
+                                        "Type": {
+                                            "type": "keyword"
+                                        },
+                                        "Ids": {
+                                            "type": "keyword"
+                                        }
+                                    }
                                 }
                             }
                         }

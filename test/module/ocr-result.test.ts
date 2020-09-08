@@ -6,18 +6,22 @@ import { Block } from '../../src/model/block';
 const es = new ElasticSearchMock();
 
 test('When_Instantiate_Expect_Success', async () => {
+    const documentId = 'TPSDM06_9';
     const resp: ApiResponse = await es.get({
         index: 'ocr-result',
-        id: 'TPSDM06_9',
+        id: documentId,
     });
     // eslint-disable-next-line no-underscore-dangle
-    const ocrResult = new OCRResult(resp.body._source.result);
+    const { bid, page, result } = resp.body._source;
+    const ocrResult = new OCRResult({
+        bid, page, result, documentId,
+    });
     expect(ocrResult).toBeInstanceOf(OCRResult);
 });
 
 test('When_InstantiateWithInvalidParam_Expect_ThrowError', async () => {
     function instantiateEmptyOCRResult() {
-        const param: Block[] = [
+        const blocks: Block[] = [
             {
                 BlockType: 'WORD',
                 Confidence: 71.9177017211914,
@@ -39,6 +43,12 @@ test('When_InstantiateWithInvalidParam_Expect_ThrowError', async () => {
                 Id: '592521b8-895a-46d5-a85b-fc49170c9a7a',
             },
         ];
+        const param = {
+            documentId: 'testDocumentId',
+            bid: 'TESTBID',
+            page: 4,
+            result: blocks,
+        };
         // eslint-disable-next-line no-new
         new OCRResult(param);
     }
@@ -47,11 +57,15 @@ test('When_InstantiateWithInvalidParam_Expect_ThrowError', async () => {
 });
 
 test('When_findTextElements_Expect_Success', async () => {
+    const documentId = 'TPSDM06_11';
     const resp: ApiResponse = await es.get({
         index: 'ocr-result',
-        id: 'TPSDM06_11',
+        id: documentId,
     });
     // eslint-disable-next-line no-underscore-dangle
-    const ocrResult = new OCRResult(resp.body._source.result);
-    ocrResult.findTextElements();
+    const { bid, page, result } = resp.body._source;
+    const ocrResult = new OCRResult({
+        bid, page, result, documentId,
+    });
+    ocrResult.filter();
 });

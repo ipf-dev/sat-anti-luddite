@@ -47,7 +47,7 @@ serverless invoke local --function save-stt-result --data '{"detail": {"Transcri
 S3 버킷에 저장된 이미지로 Textract OCR 분석 요청 수행한 뒤 그 결과를 Elastic Search의 `ocr-result` index에 저장합니다.
 
 ```shell script
- serverless invoke local --function request-ocr-analysis-and-save-result --data '{"bid":"TPSBC336","page":10,"s3Key":"TPSBC336/10.jpg"}'
+serverless invoke local --function request-ocr-analysis-and-save-result --data '{"bid":"TPSBC336","page":10,"s3Key":"TPSBC336/10.jpg"}'
 ```
 
 ### ocr-body-filter

@@ -1,15 +1,18 @@
 import LineBlock from '../model/line-block';
-import { Paragraph } from '../model/text-elements';
 
-export default class ParagraphDetector {
+export type ParagraphLines = {
+    lines: LineBlock[];
+}
+
+export default class ParagraphLineDetector {
     readonly #unclassified: LineBlock[];
 
     public constructor(lines: LineBlock[]) {
         this.#unclassified = lines;
     }
 
-    public execute(): Paragraph[] {
-        const result: Paragraph[] = [];
+    public execute(): ParagraphLines[] {
+        const result: ParagraphLines[] = [];
 
         this.#unclassified.forEach((firstBlock) => {
             if (this.isAlreadyClassified(result, firstBlock)) return;
@@ -27,7 +30,7 @@ export default class ParagraphDetector {
                 next = next.findNextLine(heightFiltered);
             }
 
-            const paragraph: Paragraph = {
+            const paragraph: ParagraphLines = {
                 lines: lines,
             };
 
@@ -36,7 +39,7 @@ export default class ParagraphDetector {
         return result;
     }
 
-    private isAlreadyClassified(result: Paragraph[], block: LineBlock): boolean {
+    private isAlreadyClassified(result: ParagraphLines[], block: LineBlock): boolean {
         return result.some((p) => p.lines.some((b) => b === block));
     }
 

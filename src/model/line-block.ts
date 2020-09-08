@@ -1,6 +1,7 @@
 import assert from 'assert';
 
-import { Geometry, Block } from './block';
+import { Geometry, Block, Relationship } from './block';
+import WordBlock from './work-block';
 
 const PADDING_X = 0.05;
 const PADDING_Y = 0.05;
@@ -20,7 +21,7 @@ export default class LineBlock {
     readonly text: string;
     readonly geometry: Geometry;
     readonly id: string;
-    readonly relationships: object[];
+    readonly relationships: Relationship[];
     readonly height: number;
 
     public constructor(block: Block) {
@@ -89,6 +90,11 @@ export default class LineBlock {
 
     public findNextLine(blocks: LineBlock[]): LineBlock | undefined {
         return blocks.find((nextLine) => this.isPreviousLineOf(nextLine));
+    }
+
+    public isParentOf(word: WordBlock): boolean {
+        return this.relationships
+            .some((relationship) => relationship.Ids.some((id) => id === word.id));
     }
 
     private isPreviousLineOf(nextBlock: LineBlock): boolean {

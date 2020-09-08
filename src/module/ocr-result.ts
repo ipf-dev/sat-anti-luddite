@@ -2,7 +2,8 @@ import assert from 'assert';
 
 import { Block } from '../model/block';
 import LineBlock from '../model/line-block';
-import { TextElements } from '../model/text-elements';
+import WordBlock from '../model/work-block';
+import { DetectedTextElements } from '../model/detected-text-elements';
 import TextElementDetector from './text-element-detector';
 
 type OCRResultConstructorParam = {
@@ -17,10 +18,7 @@ type OCRBodyFilterResult = {
     ocrResult: {
         bid: string;
         page: number;
-        result: {
-            lines: TextElements;
-            words: Block[];
-        }
+        result: DetectedTextElements;
     };
 }
 
@@ -47,38 +45,25 @@ export default class OCRResult {
     }
 
     public filter(): OCRBodyFilterResult {
-        const textElements: TextElements = this.findTextElements();
+        const textElements: DetectedTextElements = this.findTextElements();
         return {
             documentId: this.#documentId,
             ocrResult: {
                 bid: this.#bid,
                 page: this.#page,
-                result: {
-                    lines: textElements,
-                    words: this.getWords(),
-                },
+                result: textElements,
             },
         };
     }
 
-    private findTextElements(): TextElements {
+    private findTextElements(): DetectedTextElements {
         const lines = this.#blocks
             .filter((block) => block.BlockType === 'LINE')
             .map((block) => new LineBlock(block));
-        const averageHeight = this.getAverageWordHeight();
-        const ted = new TextElementDetector(lines, averageHeight);
-        return ted.execute();
-    }
-
-    private getAverageWordHeight(): number {
         const words = this.#blocks
-            .filter((block) => block.BlockType === 'WORD' && block.Confidence !== undefined && block.Confidence > 50);
-        const totalHeight = words
-            .reduce((acc, block) => acc + block.Geometry.BoundingBox.Height, 0);
-        return totalHeight / words.length;
-    }
-
-    public getWords(): Block[] {
-        return this.#blocks.filter((block) => block.BlockType === 'WORD');
+            .filter((block) => block.BlockType === 'WORD')
+            .map((block) => new WordBlock(block));
+        const ted = new TextElementDetector(lines, words);
+        return ted.execute();
     }
 }
