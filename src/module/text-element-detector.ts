@@ -1,3 +1,4 @@
+import ArrayUtil from '../util/array-util';
 import LineBlock from '../model/line-block';
 import WordBlock from '../model/work-block';
 import {
@@ -148,7 +149,7 @@ export default class TextElementDetector {
     }
 
     private removeLinesFromUnclassified(lines: LineBlock[]) {
-        TextElementDetector.removeArray1FromArray2(lines, this.#unclassifiedLines);
+        this.#unclassifiedLines = ArrayUtil.exclude(lines, this.#unclassifiedLines);
     }
 
     private findChildrenOfLinesFromUnclassified(lines: LineBlock[]): WordBlock[] {
@@ -160,13 +161,6 @@ export default class TextElementDetector {
     }
 
     private removeWordsFromUnclassified(words: WordBlock[]): void {
-        TextElementDetector.removeArray1FromArray2(words, this.#unclassifiedWords);
-    }
-
-    private static removeArray1FromArray2(arr1: any[], arr2: any[]) {
-        arr1.forEach((value) => {
-            const index = arr2.indexOf(value);
-            if (index > -1) arr2.splice(index, 1);
-        });
+        this.#unclassifiedWords = ArrayUtil.exclude(words, this.#unclassifiedWords);
     }
 }
