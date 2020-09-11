@@ -1,8 +1,11 @@
 import AWS from 'aws-sdk';
 import * as TextractClient from 'aws-sdk/clients/textract';
 import {
+    DetectDocumentTextRequest,
     DetectDocumentTextResponse,
     GetDocumentTextDetectionResponse,
+    StartDocumentAnalysisRequest,
+    StartDocumentTextDetectionRequest,
     StartDocumentTextDetectionResponse,
 } from 'aws-sdk/clients/textract';
 
@@ -14,16 +17,16 @@ type DetectDocumentTextParam = S3Object;
 type StartDocumentTextDetectionParam = S3Object;
 
 export default class Textract {
-    #client: TextractClient;
+    private client: TextractClient;
 
     public constructor() {
-        this.#client = new AWS.Textract({
+        this.client = new AWS.Textract({
             region: process.env.TEXTRACT_REGION,
         });
     }
 
     public async detectDocumentText({ key, bucket }: DetectDocumentTextParam): Promise<DetectDocumentTextResponse> {
-        const params = {
+        const params: DetectDocumentTextRequest = {
             Document: {
                 S3Object: {
                     Bucket: bucket,
@@ -31,11 +34,11 @@ export default class Textract {
                 },
             },
         };
-        return this.#client.detectDocumentText(params).promise();
+        return this.client.detectDocumentText(params).promise();
     }
 
     public async startDocumentTextDetection({ key, bucket }: StartDocumentTextDetectionParam): Promise<StartDocumentTextDetectionResponse> {
-        const params = {
+        const params: StartDocumentTextDetectionRequest = {
             DocumentLocation: {
                 S3Object: {
                     Bucket: bucket,
@@ -43,10 +46,10 @@ export default class Textract {
                 },
             },
         };
-        return this.#client.startDocumentTextDetection(params).promise();
+        return this.client.startDocumentTextDetection(params).promise();
     }
 
     public async getDocumentTextDetection({ jobId }: { jobId: string }): Promise<GetDocumentTextDetectionResponse> {
-        return this.#client.getDocumentTextDetection({ JobId: jobId }).promise();
+        return this.client.getDocumentTextDetection({ JobId: jobId }).promise();
     }
 }

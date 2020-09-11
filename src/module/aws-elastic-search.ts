@@ -20,7 +20,7 @@ type GetParam = {
 };
 
 export default class ElasticSearch {
-    client: Client;
+    private client: Client;
 
     public constructor() {
         AWS.config.update({

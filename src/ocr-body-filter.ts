@@ -27,7 +27,8 @@ async function handleSNSEventRecord(record: SNSEventRecord): Promise<void> {
     const ocrResult: OCRResult = new OCRResult({
         documentId, bid, page, result,
     });
-    const filteredResult = ocrResult.filter();
+    ocrResult.filter();
+    const filteredResult = ocrResult.getFilteredResult();
     return publishResultToSNS(filteredResult);
 }
 

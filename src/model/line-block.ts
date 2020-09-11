@@ -31,7 +31,7 @@ export default class LineBlock {
         this.geometry = block.Geometry;
         this.height = block.Geometry.BoundingBox.Height;
         this.id = block.Id;
-        this.relationships = block.Relationships === undefined ? [] : block.Relationships;
+        this.relationships = block.Relationships || [];
     }
 
     public isChapter(): boolean {

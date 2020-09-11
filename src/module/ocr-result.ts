@@ -3,8 +3,8 @@ import assert from 'assert';
 import { Block } from '../model/block';
 import LineBlock from '../model/line-block';
 import WordBlock from '../model/work-block';
-import { DetectedTextElements } from '../model/detected-text-elements';
-import TextElementDetector from './text-element-detector';
+import { FilteredTextElements } from '../model/filtered-text-elements';
+import TextElementFilter from './text-element-filter';
 
 type OCRResultConstructorParam = {
     documentId: string;
@@ -18,52 +18,76 @@ type OCRBodyFilterResult = {
     ocrResult: {
         bid: string;
         page: number;
-        result: DetectedTextElements;
+        result: FilteredTextElements;
     };
 }
 
 export default class OCRResult {
-    readonly #documentId: string;
-    readonly #bid: string;
-    readonly #page: number;
-    readonly #blocks: Block[];
+    private readonly documentId: string;
+    private readonly bid: string;
+    private readonly page: number;
+    private readonly blocks: Block[];
+    private textElements: FilteredTextElements | undefined;
 
     public constructor(data: OCRResultConstructorParam) {
         const {
             documentId, bid, page, result: blocks,
         } = data;
 
-        const hasPage = blocks.some((block) => block.BlockType === 'PAGE');
-        const hasLine = blocks.some((block) => block.BlockType === 'LINE');
-        const hasWord = blocks.some((block) => block.BlockType === 'WORD');
+        const hasPage = blocks.some(OCRResult.isPageBlock);
+        const hasLine = blocks.some(OCRResult.isLineBlock);
+        const hasWord = blocks.some(OCRResult.isWordBlock);
         assert(hasPage && hasLine && hasWord, 'Invalid argument creating OCRResult object');
 
-        this.#documentId = documentId;
-        this.#bid = bid;
-        this.#page = page;
-        this.#blocks = blocks;
+        this.documentId = documentId;
+        this.bid = bid;
+        this.page = page;
+        this.blocks = blocks;
+        this.textElements = undefined;
     }
 
-    public filter(): OCRBodyFilterResult {
-        const textElements: DetectedTextElements = this.findTextElements();
+    public filter(): void {
+        this.textElements = this.filterTextElements();
+    }
+
+    public getFilteredResult(): OCRBodyFilterResult {
+        assert(this.textElements, 'Must filter before retrieve result');
         return {
-            documentId: this.#documentId,
+            documentId: this.documentId,
             ocrResult: {
-                bid: this.#bid,
-                page: this.#page,
-                result: textElements,
+                bid: this.bid,
+                page: this.page,
+                result: this.textElements,
             },
         };
     }
 
-    private findTextElements(): DetectedTextElements {
-        const lines = this.#blocks
-            .filter((block) => block.BlockType === 'LINE')
+    private filterTextElements(): FilteredTextElements {
+        const lines = this.getLineBlocks()
             .map((block) => new LineBlock(block));
-        const words = this.#blocks
-            .filter((block) => block.BlockType === 'WORD')
+        const words = this.getWordBlocks()
             .map((block) => new WordBlock(block));
-        const ted = new TextElementDetector(lines, words);
-        return ted.execute();
+        const filter = new TextElementFilter(lines, words);
+        return filter.execute();
+    }
+
+    private getLineBlocks(): Block[] {
+        return this.blocks.filter(OCRResult.isLineBlock);
+    }
+
+    private getWordBlocks(): Block[] {
+        return this.blocks.filter(OCRResult.isWordBlock);
+    }
+
+    private static isPageBlock(block: Block): boolean {
+        return block.BlockType === 'PAGE';
+    }
+
+    private static isLineBlock(block: Block): boolean {
+        return block.BlockType === 'LINE';
+    }
+
+    private static isWordBlock(block: Block): boolean {
+        return block.BlockType === 'WORD';
     }
 }

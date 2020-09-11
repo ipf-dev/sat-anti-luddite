@@ -1,5 +1,7 @@
 import AWS from 'aws-sdk';
-import * as TranscribeClient from 'aws-sdk/clients/transcribeservice';
+import * as TranscribeClient  from 'aws-sdk/clients/transcribeservice';
+import { StartTranscriptionJobRequest } from 'aws-sdk/clients/transcribeservice';
+import { LanguageCode } from '../model/language-code';
 
 export type TranscribeEvent = {
     detail: {
@@ -12,20 +14,20 @@ type StartTranscriptionJobParam = {
     jobName: string;
     bucket: string;
     key: string;
-    languageCode: string;
+    languageCode: LanguageCode;
 }
 
 export default class Transcribe {
-    #client: TranscribeClient;
+    private client: TranscribeClient;
 
     public constructor() {
-        this.#client = new AWS.TranscribeService();
+        this.client = new AWS.TranscribeService();
     }
 
     public async startTranscriptionJob({
         jobName, bucket, key, languageCode,
     }: StartTranscriptionJobParam) {
-        const params = {
+        const params: StartTranscriptionJobRequest = {
             LanguageCode: languageCode,
             Media: {
                 MediaFileUri: `s3://${bucket}/${key}`,
@@ -34,6 +36,6 @@ export default class Transcribe {
             TranscriptionJobName: jobName,
             OutputBucketName: process.env.STT_OUTPUT_BUCKET,
         };
-        return this.#client.startTranscriptionJob(params).promise();
+        return this.client.startTranscriptionJob(params).promise();
     }
 }

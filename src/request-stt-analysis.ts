@@ -1,8 +1,9 @@
-import {Handler, S3EventRecord} from 'aws-lambda';
+import { Handler, S3EventRecord } from 'aws-lambda';
 import { S3Event } from 'aws-lambda/trigger/s3';
 
+import { LanguageCode } from './model/language-code';
 import Transcribe from './module/aws-transcribe';
-import S3 from './module/aws-s3';
+import S3, { S3Object } from './module/aws-s3';
 
 const transcribe = new Transcribe();
 const s3 = new S3();
@@ -40,11 +41,17 @@ function getFileNameFromS3Key(key: string): string {
     return objectName.split('.')[0];
 }
 
-async function getLanguageCode(objectDesc: { bucket: string, key: string }): Promise<string> {
-    let languageCode = DEFAULT_LANGUAGE_CODE;
+async function getLanguageCode(objectDesc: S3Object): Promise<LanguageCode> {
+    let languageCode: LanguageCode = DEFAULT_LANGUAGE_CODE;
     const tags = await s3.getObjectTagging(objectDesc);
     tags.forEach((tag) => {
-        if (tag.Key === 'LanguageCode') languageCode = tag.Value;
+        if (tag.Key === 'LanguageCode' && isValidLanguageCode(tag.Value)) {
+            languageCode = tag.Value as LanguageCode;
+        }
     });
     return languageCode;
+}
+
+function isValidLanguageCode(code: string) {
+    return code === 'en-GB' || code === 'en-US';
 }

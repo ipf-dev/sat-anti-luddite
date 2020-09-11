@@ -1,7 +1,7 @@
 import LineBlock from './line-block';
 import WordBlock from './work-block';
 
-export type DetectedTextElements = {
+export type FilteredTextElements = {
     indicators: TextElements;
     negligibles: TextElements;
     paragraphs: Paragraph[];

@@ -5,16 +5,16 @@ export type ParagraphLines = {
 }
 
 export default class ParagraphLineDetector {
-    readonly #unclassified: LineBlock[];
+    private readonly unclassified: LineBlock[];
 
     public constructor(lines: LineBlock[]) {
-        this.#unclassified = lines;
+        this.unclassified = lines;
     }
 
     public execute(): ParagraphLines[] {
         const result: ParagraphLines[] = [];
 
-        this.#unclassified.forEach((firstBlock) => {
+        this.unclassified.forEach((firstBlock) => {
             if (this.isAlreadyClassified(result, firstBlock)) return;
             const lines = [firstBlock];
             const heightFiltered = this.filterByHeight(firstBlock);
@@ -44,7 +44,7 @@ export default class ParagraphLineDetector {
     }
 
     private filterByHeight(firstBlock: LineBlock): LineBlock[] {
-        const heightFiltered = this.#unclassified.reduce((acc, block) => {
+        const heightFiltered = this.unclassified.reduce((acc, block) => {
             if (block !== firstBlock && block.hasAcceptableHeightDifference(acc)) {
                 acc.push(block);
             }

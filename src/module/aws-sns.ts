@@ -7,13 +7,13 @@ type PublishParam = {
 };
 
 export default class SNS {
-    #client: SNSClient;
+    private client: SNSClient;
 
     public constructor() {
         AWS.config.update({
             region: 'ap-northeast-2',
         });
-        this.#client = new AWS.SNS();
+        this.client = new AWS.SNS();
     }
 
     public publish({ arn, message }: PublishParam) {
@@ -25,6 +25,6 @@ export default class SNS {
             Message: messageString,
         };
         console.log(`publish-event: "${message}" to "${arn}"\n`);
-        return this.#client.publish(publishParams).promise();
+        return this.client.publish(publishParams).promise();
     }
 }
