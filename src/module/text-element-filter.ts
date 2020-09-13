@@ -43,7 +43,7 @@ export default class TextElementFilter {
         const confidentWords = this.unclassifiedWords
             .filter((block) => block.isConfidenceHigherThan(MIN_WORD_CONFIDENCE));
         const totalHeight = confidentWords
-            .reduce((acc, block) => acc + block.geometry.BoundingBox.Height, 0);
+            .reduce((acc, block) => acc + block.geometry.boundingBox.height, 0);
         return totalHeight / confidentWords.length;
     }
 
@@ -63,7 +63,7 @@ export default class TextElementFilter {
             this.indicators.lines.push(firstBlock);
             const chapterNameDistance = secondBlock.getTopDistance(firstBlock);
             const bodyDistance = thirdBlock.getTopDistance(secondBlock);
-            if (secondBlock.geometry.BoundingBox.Height > this.averageHeight && chapterNameDistance < bodyDistance) { // TODO: 2020/09/08 함수 추출
+            if (secondBlock.geometry.boundingBox.height > this.averageHeight && chapterNameDistance < bodyDistance) { // TODO: 2020/09/08 함수 추출
                 this.indicators.lines.push(secondBlock);
             }
             candidates.push(lastBlock);

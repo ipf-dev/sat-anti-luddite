@@ -6,20 +6,17 @@ import WordBlock from '../model/work-block';
 import { FilteredTextElements } from '../model/filtered-text-elements';
 import TextElementFilter from './text-element-filter';
 
+export type OCRBodyFilterResult = {
+    bid: string;
+    page: number;
+    result: FilteredTextElements;
+}
+
 type OCRResultConstructorParam = {
     documentId: string;
     bid: string;
     page: number;
     result: Block[];
-}
-
-type OCRBodyFilterResult = {
-    documentId: string;
-    ocrResult: {
-        bid: string;
-        page: number;
-        result: FilteredTextElements;
-    };
 }
 
 export default class OCRResult {
@@ -53,12 +50,9 @@ export default class OCRResult {
     public getFilteredResult(): OCRBodyFilterResult {
         assert(this.textElements, 'Must filter before retrieve result');
         return {
-            documentId: this.documentId,
-            ocrResult: {
-                bid: this.bid,
-                page: this.page,
-                result: this.textElements,
-            },
+            bid: this.bid,
+            page: this.page,
+            result: this.textElements,
         };
     }
 

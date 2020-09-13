@@ -1,6 +1,8 @@
 import assert from 'assert';
 
-import { Block, Geometry } from './block';
+import { Block } from './block';
+import Geometry from './geometry';
+
 
 export default class WordBlock {
     readonly confidence: number;
@@ -12,7 +14,7 @@ export default class WordBlock {
         assert(block.BlockType === 'WORD', `Invalid 'BlockType' of block argument creating WordBlock object: ${block}`);
         this.confidence = block.Confidence ===  undefined ? 0 : block.Confidence;
         this.text = block.Text === undefined ? '' : block.Text;
-        this.geometry = block.Geometry;
+        this.geometry = new Geometry(block.Geometry);
         this.id = block.Id;
     }
 

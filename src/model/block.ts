@@ -7,7 +7,7 @@ export type Block = {
     Relationships?: Relationship[]
 }
 
-export type Geometry = {
+type Geometry = {
     BoundingBox: {
         Width: number;
         Height: number;
@@ -20,7 +20,7 @@ export type Geometry = {
     }[];
 }
 
-export type Relationship = {
+type Relationship = {
     Type: string;
     Ids: string[];
 }

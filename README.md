@@ -51,7 +51,7 @@ serverless invoke local --function request-ocr-analysis-and-save-result --data '
 ```
 
 ### ocr-body-filter
-Textract의 OCR 기술로 인식된 결과 텍스트를 Elastic Search의 `ocr-result` index로 부터 가져온 뒤 텍스트의 위치, 형태와 본문 이미지를 기반으로 각각의 텍스트 요소로 분류합니다. 분류가 완료된 중간 결과물을 Message로 하여 SNS 퍼블리시를 통해 `ocr-sent-tokenize` 함수를 호출한 뒤 종료합니다.
+Textract의 OCR 기술로 인식된 결과 텍스트를 Elastic Search의 `ocr-result` index로 부터 가져온 뒤 텍스트의 위치, 형태와 본문 이미지를 기반으로 각각의 텍스트 요소로 분류합니다. 분류가 완료된 결과물을 Elastic Search의 `ocr-categorized` index에 저장하고 SNS 퍼블리시를 통해 `ocr-sent-tokenize` 함수를 호출한 뒤 종료합니다.
 
 로컬 환경에서 함수 호출 시에는 아래의 명령어를 사용합니다.
 
