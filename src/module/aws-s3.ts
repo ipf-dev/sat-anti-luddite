@@ -1,19 +1,29 @@
 import AWS from 'aws-sdk';
 import * as S3Client from 'aws-sdk/clients/s3';
-import { Body, TagSet } from 'aws-sdk/clients/s3';
+import {
+    Body, ListObjectsV2Request, ObjectList, TagSet, ClientConfiguration
+} from 'aws-sdk/clients/s3';
 
 export type S3Object = {
     bucket: string;
     key: string;
 };
+export type S3Directory = {
+    bucket: string;
+    prefix: string;
+}
+
 type GetObjectParam = S3Object;
 type GetObjectTaggingParam = S3Object;
 
 export default class S3 {
     private client: S3Client;
 
-    public constructor() {
-        this.client = new AWS.S3();
+    public constructor(opts?: ClientConfiguration) {
+        const defaultOption: ClientConfiguration = {
+            region: 'ap-northeast-2',
+        };
+        this.client = new AWS.S3({ ...defaultOption, ...opts });
     }
 
     public async getObject({ bucket, key }: GetObjectParam): Promise<Body|undefined> {
@@ -30,5 +40,15 @@ export default class S3 {
             Key: key,
         }).promise();
         return tags.TagSet;
+    }
+
+    public async listObjects({ bucket, prefix }: S3Directory): Promise<ObjectList> {
+        const params: ListObjectsV2Request = {
+            Bucket: bucket,
+            Delimiter: '/',
+            Prefix: `${prefix}/`,
+        };
+        const objects = await this.client.listObjectsV2(params).promise();
+        return objects.Contents || [];
     }
 }

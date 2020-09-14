@@ -24,7 +24,7 @@ export default class SNS {
             TopicArn: arn,
             Message: messageString,
         };
-        console.log(`publish-event: "${message}" to "${arn}"\n`);
+        console.log(`publish-event: "${messageString}" to "${arn}"\n`);
         return this.client.publish(publishParams).promise();
     }
 }
