@@ -15,10 +15,11 @@ const MAX_HEIGHT_CMP_AVERAGE = 2;
 const MIN_CONFIDENCE = 75;
 const ACCEPTABLE_SIDE_SLOPE_IN_DEGREE = 2;
 
-const PARAGRAPH_LINE_HEIGHT_ACCEPTABLE_DIFF = 0.17;
+const PARAGRAPH_LINE_HEIGHT_ACCEPTABLE_DIFF = 0.38;
 const MIN_OVERLAP_PREVIOUS_BLOCK = 0.1;
-const MIN_OVERLAP_NEXT_BLOCK = 0.65;
-const MAX_DISTANCE_Y_BTW_PARAGRAPH_LINES = 0.6;
+const MIN_OVERLAP_NEXT_BLOCK = 0.25;
+const MAX_REL_DISTANCE_Y_BTW_PARAGRAPH_LINES = 1.1;
+const MAX_ABS_DISTANCE_Y_BTW_PARAGRAPH_LINES = 0.02;
 
 export default class LineBlock {
     readonly confidence: number;
@@ -138,11 +139,18 @@ export default class LineBlock {
     }
 
     private isPreviousLineOf(nextBlock: LineBlock): boolean {
-        return this.hasWidthOverlap(nextBlock)
-            && this.isLocatedAbove(nextBlock);
+        // console.debug({
+        //     currentLine: this.text,
+        //     nextLine: nextBlock.text,
+        //     hasWidthOverlap: this.hasEnoughWidthOverlap(nextBlock),
+        //     isLocatedAbove: this.isVerticallyLocatedAsPreviousLineOf(nextBlock),
+        // });
+
+        return this.hasEnoughWidthOverlap(nextBlock)
+            && this.isVerticallyLocatedAsPreviousLineOf(nextBlock);
     }
 
-    private hasWidthOverlap(nextBlock: LineBlock): boolean {
+    private hasEnoughWidthOverlap(nextBlock: LineBlock): boolean {
         const { width: pWidth, left: pLeft } = this.geometry.boundingBox;
         const { width: nWidth, left: nLeft } = nextBlock.geometry.boundingBox;
         const pRight = pLeft + pWidth;
@@ -154,10 +162,21 @@ export default class LineBlock {
             && overlapWidth > nWidth * MIN_OVERLAP_NEXT_BLOCK;
     }
 
-    private isLocatedAbove(nextBlock: LineBlock): boolean {
-        const nHeight = this.geometry.boundingBox.height;
+    private isVerticallyLocatedAsPreviousLineOf(nextBlock: LineBlock): boolean {
+        const height = (this.geometry.boundingBox.height + nextBlock.geometry.boundingBox.height) / 2;
         const pBottom = this.geometry.boundingBox.top + this.geometry.boundingBox.height;
         const nTop = nextBlock.geometry.boundingBox.top;
-        return nTop - pBottom > 0 && nTop - pBottom < nHeight * MAX_DISTANCE_Y_BTW_PARAGRAPH_LINES;
+
+        // console.debug({
+        //     'height': height,
+        //     'pBottom': pBottom,
+        //     'nTop': nTop,
+        //     'nTop - pBottom': nTop - pBottom,
+        //     'nHeight * MAX_DISTANCE_Y_BTW_PARAGRAPH_LINES': height * MAX_REL_DISTANCE_Y_BTW_PARAGRAPH_LINES,
+        // });
+
+        const distanceY = nTop - pBottom;
+        return Math.abs(distanceY) < MAX_ABS_DISTANCE_Y_BTW_PARAGRAPH_LINES
+            && distanceY < height * MAX_REL_DISTANCE_Y_BTW_PARAGRAPH_LINES;
     }
 }

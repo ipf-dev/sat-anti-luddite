@@ -56,7 +56,7 @@ Textract의 OCR 기술로 인식된 결과 텍스트를 Elastic Search의 `ocr-r
 로컬 환경에서 함수 호출 시에는 아래의 명령어를 사용합니다.
 
 ```shell script
-serverless invoke local --function ocr-body-filter --data '{"Records": [{"Sns":{"Message":"{\"documentId\":\"your-ocr-result-document-id\"}"},"EventVersion":"", "EventSubscriptionArn":"", "EventSource":""}]}'
+serverless invoke local --function ocr-body-filter --data '{"Records": [{"Sns":{"Message":"{\"documentId\":\"your-ocr-result-document-id\"}"}}]}'
 ```
 
 ## Unit testing
