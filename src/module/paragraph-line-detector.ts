@@ -5,22 +5,25 @@ export type ParagraphLines = {
 }
 
 export default class ParagraphLineDetector {
-    private readonly unclassified: LineBlock[];
+    private readonly result: ParagraphLines[];
+    private readonly candidates: LineBlock[];
+    private currentBlock: LineBlock | undefined;
 
     public constructor(lines: LineBlock[]) {
-        this.unclassified = lines;
+        this.result = [];
+        this.candidates = lines;
+        this.filterByHeight = this.filterByHeight.bind(this);
     }
 
     public execute(): ParagraphLines[] {
-        const result: ParagraphLines[] = [];
-
-        this.unclassified.forEach((firstBlock) => {
-            if (this.isAlreadyClassified(result, firstBlock)) return;
-            const lines = [firstBlock];
-            const heightFiltered = this.filterByHeight(firstBlock);
+        this.candidates.forEach((block) => {
+            this.currentBlock = block;
+            if (this.isAlreadyClassified()) return;
+            const lines = [this.currentBlock];
+            const heightFiltered = this.filterAllByCurrentBlockHeight();
             if (heightFiltered.length === 0) return;
 
-            let next = firstBlock.findNextLine(heightFiltered);
+            let next = this.currentBlock.findNextLine(heightFiltered);
             if (next === undefined) return;
 
             while (next !== undefined) {
@@ -30,27 +33,27 @@ export default class ParagraphLineDetector {
                 next = next.findNextLine(heightFiltered);
             }
 
-            const paragraph: ParagraphLines = {
-                lines: lines,
-            };
+            const paragraph: ParagraphLines = { lines };
 
-            result.push(paragraph);
+            this.result.push(paragraph);
         });
-        return result;
+        return this.result;
     }
 
-    private isAlreadyClassified(result: ParagraphLines[], block: LineBlock): boolean {
-        return result.some((p) => p.lines.some((b) => b === block));
+    private isAlreadyClassified(): boolean {
+        return this.result.some((p) => p.lines.some((b) => b === this.currentBlock));
     }
 
-    private filterByHeight(firstBlock: LineBlock): LineBlock[] {
-        const heightFiltered = this.unclassified.reduce((acc, block) => {
-            if (block !== firstBlock && block.hasAcceptableHeightDifference(acc)) {
-                acc.push(block);
-            }
-            return acc;
-        }, [firstBlock]);
+    private filterAllByCurrentBlockHeight(): LineBlock[] {
+        const heightFiltered = this.candidates.reduce(this.filterByHeight, [this.currentBlock]);
         heightFiltered.shift();
         return heightFiltered;
+    }
+
+    private filterByHeight(acc: any[], block: LineBlock): any[] {
+        if (block !== this.currentBlock && block.hasAcceptableHeightDifference(acc)) {
+            acc.push(block);
+        }
+        return acc;
     }
 }
