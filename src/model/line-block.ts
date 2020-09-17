@@ -4,14 +4,16 @@ import { Block } from './block';
 import Geometry from './geometry';
 import Relationship from './relationship';
 import WordBlock from './work-block';
+import MathUtil from '../util/math-util';
 
 const PADDING_X = 0.05;
 const PADDING_Y = 0.05;
-const MIN_HEIGHT = 0.017;
-const MAX_HEIGHT = 0.055;
+const MIN_HEIGHT = 0.015;
+const MAX_HEIGHT = 0.09;
 const MIN_HEIGHT_CMP_AVERAGE = 0.5;
-const MAX_HEIGHT_CMP_AVERAGE = 1.5;
+const MAX_HEIGHT_CMP_AVERAGE = 2;
 const MIN_CONFIDENCE = 75;
+const ACCEPTABLE_SIDE_SLOPE_IN_DEGREE = 2;
 
 const PARAGRAPH_LINE_HEIGHT_ACCEPTABLE_DIFF = 0.17;
 const MIN_OVERLAP_PREVIOUS_BLOCK = 0.1;
@@ -46,7 +48,23 @@ export default class LineBlock {
         return indicatorPattern.test(this.text);
     }
 
-    public outOfPageBound(): boolean {
+    public isNegligible(averageHeight: number): boolean {
+        console.debug({
+            text: this.text,
+            outOfPageBound: this.outOfPageBound(),
+            heightOutOfBound: this.heightOutOfBound(),
+            heightOutOfAverageBound: this.heightOutOfAverageBound(averageHeight),
+            isNotFlatSquare: this.isNotFlatSquare(),
+            isNotConfident: this.isNotConfident(),
+        });
+        return this.outOfPageBound()
+            || this.heightOutOfBound()
+            || this.heightOutOfAverageBound(averageHeight)
+            || this.isNotFlatSquare()
+            || this.isNotConfident();
+    }
+
+    private outOfPageBound(): boolean {
         const {
             left, width, top, height,
         } = this.geometry.boundingBox;
@@ -58,24 +76,44 @@ export default class LineBlock {
             || bottom < PADDING_Y;
     }
 
-    public heightOutOfBound(): boolean {
+    private heightOutOfBound(): boolean {
         const { height } = this.geometry.boundingBox;
         return height < MIN_HEIGHT || height > MAX_HEIGHT;
     }
 
-    public heightOutOfAverageBound(averageHeight: number): boolean {
+    private heightOutOfAverageBound(averageHeight: number): boolean {
         const { height } = this.geometry.boundingBox;
-        return height < averageHeight * MIN_HEIGHT_CMP_AVERAGE || height > averageHeight * MAX_HEIGHT_CMP_AVERAGE;
+        const heightCmpAverage = height / averageHeight;
+        return heightCmpAverage < MIN_HEIGHT_CMP_AVERAGE || heightCmpAverage > MAX_HEIGHT_CMP_AVERAGE;
     }
 
-    public isNotFlatSquare(): boolean {
+    private isNotFlatSquare(): boolean {
         const isSquare = this.geometry.polygon.length === 4;
-        const isFlat = this.geometry.polygon[0].y === this.geometry.polygon[1].y
-            && this.geometry.polygon[2].y === this.geometry.polygon[3].y;
+        const isFlat = this.getUpperSideSlope() < ACCEPTABLE_SIDE_SLOPE_IN_DEGREE
+            && this.getLowerSideSlope() < ACCEPTABLE_SIDE_SLOPE_IN_DEGREE;
+        // console.debug({
+        //     text: this.text,
+        //     upperSideSlope: this.getUpperSideSlope(),
+        //     lowerSideSlope: this.getLowerSideSlope(),
+        // });
         return !isSquare || !isFlat;
     }
 
-    public isNotConfident(): boolean {
+    private getUpperSideSlope(): number {
+        return this.getSideSlope(this.geometry.polygon[0].y, this.geometry.polygon[1].y);
+    }
+
+    private getLowerSideSlope(): number {
+        return this.getSideSlope(this.geometry.polygon[2].y, this.geometry.polygon[3].y);
+    }
+
+    private getSideSlope(y1: number, y2: number) {
+        const h = MathUtil.diff(y1, y2);
+        const w = this.geometry.boundingBox.width;
+        return MathUtil.getBaseAngleOfRightAngledTriangle(w, h);
+    }
+
+    private isNotConfident(): boolean {
         return this.confidence < MIN_CONFIDENCE;
     }
 

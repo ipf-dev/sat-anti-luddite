@@ -39,7 +39,7 @@ export default class TextElementFilter {
     }
 
     private getAverageWordHeight(): number {
-        const MIN_WORD_CONFIDENCE = 50;
+        const MIN_WORD_CONFIDENCE = 75;
         const confidentWords = this.unclassifiedWords
             .filter((block) => block.isConfidenceHigherThan(MIN_WORD_CONFIDENCE));
         const totalHeight = confidentWords
@@ -92,11 +92,7 @@ export default class TextElementFilter {
 
     private findNegligiblesLines(): void {
         const neglectables: LineBlock[] = this.unclassifiedLines
-            .filter((block: LineBlock) => block.outOfPageBound()
-                || block.heightOutOfBound()
-                || block.heightOutOfAverageBound(this.averageHeight)
-                || block.isNotFlatSquare()
-                || block.isNotConfident());
+            .filter((block: LineBlock) => block.isNegligible(this.averageHeight));
 
         this.removeLinesFromUnclassified(neglectables);
         this.negligibles.lines = neglectables;
