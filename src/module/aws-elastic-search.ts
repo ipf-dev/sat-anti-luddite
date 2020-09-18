@@ -12,6 +12,9 @@ type IndexParam = {
 type SearchParam = {
     index: string;
     query: object;
+    size?: number;
+    // eslint-disable-next-line camelcase
+    filter_path?: string[];
 };
 
 type GetParam = {
@@ -49,12 +52,14 @@ export default class ElasticSearch {
         return this.client.index(params);
     }
 
-    public async search({ index, query }: SearchParam): Promise<ApiResponse> {
+    public async search({ index, query, size, filter_path }: SearchParam): Promise<ApiResponse> {
         const params: RequestParams.Search = {
             index: index,
             body: {
                 query: query,
             },
+            size: size,
+            filter_path: filter_path,
         };
 
         return this.client.search(params);

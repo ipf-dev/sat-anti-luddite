@@ -57,6 +57,8 @@ functions:
       - sns: sat-anti-luddite-ocr-body-filter
   request-ocr-analysis-and-save-result:
     handler: src/request-ocr-analysis-and-save-result.handler
+  invoke-ocr-function-by-bid:
+    handler: src/invoke-ocr-function-by-bid.handler
 
 package:
   exclude:
