@@ -8,6 +8,8 @@ import MathUtil from '../util/math-util';
 
 const PADDING_X = 0.05;
 const PADDING_Y = 0.05;
+const INDICATOR_X_LIMIT = 0.15;
+const INDICATOR_Y_LIMIT = 0.2;
 const MIN_HEIGHT = 0.015;
 const MAX_HEIGHT = 0.09;
 const MIN_HEIGHT_CMP_AVERAGE = 0.5;
@@ -41,12 +43,32 @@ export default class LineBlock {
 
     public isChapter(): boolean {
         const chapterPattern = /^chapter[ ]*[0-9]+$/i;
-        return chapterPattern.test(this.text);
+        return chapterPattern.test(this.text)
+            && this.isInIndicatorLocation()
+            && this.isConfident();
     }
 
     public isIndicator(): boolean {
         const indicatorPattern = /^[0-9]+$|^chapter[ ]*[0-9]+$|^page[ ]*[0-9]+$/i;
-        return indicatorPattern.test(this.text);
+        return indicatorPattern.test(this.text)
+            && this.isInIndicatorLocation()
+            && this.isConfident();
+    }
+
+    private isInIndicatorLocation(): boolean {
+        return this.isOutOfBound(INDICATOR_X_LIMIT, INDICATOR_Y_LIMIT);
+    }
+
+    private isOutOfBound(x: number, y: number): boolean {
+        const {
+            left, width, top, height,
+        } = this.geometry.boundingBox;
+        const rightDistance = 1 - (left + width);
+        const bottomDistance = 1 - (top + height);
+        return left < x
+            || rightDistance < y
+            || top < x
+            || bottomDistance < y;
     }
 
     public isNegligible(averageHeight: number): boolean {
@@ -56,25 +78,17 @@ export default class LineBlock {
             heightOutOfBound: this.heightOutOfBound(),
             heightOutOfAverageBound: this.heightOutOfAverageBound(averageHeight),
             isNotFlatSquare: this.isNotFlatSquare(),
-            isNotConfident: this.isNotConfident(),
+            isNotConfident: !this.isConfident(),
         });
         return this.outOfPageBound()
             || this.heightOutOfBound()
             || this.heightOutOfAverageBound(averageHeight)
             || this.isNotFlatSquare()
-            || this.isNotConfident();
+            || !this.isConfident();
     }
 
     private outOfPageBound(): boolean {
-        const {
-            left, width, top, height,
-        } = this.geometry.boundingBox;
-        const right = 1 - (left + width);
-        const bottom = 1 - (top + height);
-        return left < PADDING_X
-            || right < PADDING_X
-            || top < PADDING_Y
-            || bottom < PADDING_Y;
+        return this.isOutOfBound(PADDING_X, PADDING_Y);
     }
 
     private heightOutOfBound(): boolean {
@@ -114,8 +128,8 @@ export default class LineBlock {
         return MathUtil.getBaseAngleOfRightAngledTriangle(w, h);
     }
 
-    private isNotConfident(): boolean {
-        return this.confidence < MIN_CONFIDENCE;
+    private isConfident(): boolean {
+        return this.confidence > MIN_CONFIDENCE;
     }
 
     public getTopDistance(block: LineBlock): number {
