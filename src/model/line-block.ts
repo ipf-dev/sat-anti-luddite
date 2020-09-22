@@ -1,44 +1,21 @@
 import assert from 'assert';
 
-import { Block } from './block';
-import Geometry from './geometry';
-import Relationship from './relationship';
-import WordBlock from './work-block';
-import MathUtil from '../util/math-util';
+import Block from './block';
+import { RawBlock } from './raw-block';
+import WordBlock from './word-block';
 
-const PADDING_X = 0.067;
-const PADDING_Y = 0.05;
 const INDICATOR_X_LIMIT = 0.15;
 const INDICATOR_Y_LIMIT = 0.2;
-const MIN_HEIGHT = 0.015;
-const MAX_HEIGHT = 0.09;
-const MIN_HEIGHT_CMP_AVERAGE = 0.5;
-const MAX_HEIGHT_CMP_AVERAGE = 2;
-const MIN_CONFIDENCE = 75;
-const ACCEPTABLE_SIDE_SLOPE_IN_DEGREE = 2;
-
 const PARAGRAPH_LINE_HEIGHT_ACCEPTABLE_DIFF = 0.38;
 const MIN_OVERLAP_PREVIOUS_BLOCK = 0.1;
 const MIN_OVERLAP_NEXT_BLOCK = 0.25;
 const MAX_REL_DISTANCE_Y_BTW_PARAGRAPH_LINES = 1.1;
 const MAX_ABS_DISTANCE_Y_BTW_PARAGRAPH_LINES = 0.02;
 
-export default class LineBlock {
-    readonly confidence: number;
-    readonly text: string;
-    readonly geometry: Geometry;
-    readonly id: string;
-    readonly relationships: Relationship[];
-
-    public constructor(block: Block) {
+export default class LineBlock extends Block {
+    public constructor(block: RawBlock) {
         assert(block.BlockType === 'LINE', `Invalid 'BlockType' of block argument creating LineBlock object: ${block}`);
-        this.confidence = block.Confidence ===  undefined ? 0 : block.Confidence;
-        this.text = block.Text === undefined ? '' : block.Text;
-        this.geometry = new Geometry(block.Geometry);
-        this.id = block.Id;
-        this.relationships = block.Relationships
-            ? block.Relationships.map((rel) => new Relationship(rel))
-            : [];
+        super(block);
     }
 
     public isChapter(): boolean {
@@ -59,81 +36,20 @@ export default class LineBlock {
         return this.isOutOfBound(INDICATOR_X_LIMIT, INDICATOR_Y_LIMIT);
     }
 
-    private isOutOfBound(x: number, y: number): boolean {
-        const {
-            left, width, top, height,
-        } = this.geometry.boundingBox;
-        const rightDistance = 1 - (left + width);
-        const bottomDistance = 1 - (top + height);
-        return left < x
-            || rightDistance < y
-            || top < x
-            || bottomDistance < y;
-    }
-
     public isNegligible(averageHeight: number): boolean {
-        console.debug({
-            text: this.text,
-            outOfPageBound: this.outOfPageBound(),
-            heightOutOfBound: this.heightOutOfBound(),
-            heightOutOfAverageBound: this.heightOutOfAverageBound(averageHeight),
-            isNotFlatSquare: this.isNotFlatSquare(),
-            isNotConfident: !this.isConfident(),
-        });
+        // console.debug({
+        //     text: this.text,
+        //     outOfPageBound: this.outOfPageBound(),
+        //     heightOutOfBound: this.heightOutOfBound(),
+        //     heightOutOfAverageBound: this.heightOutOfAverageBound(averageHeight),
+        //     isNotFlatSquare: this.isNotFlatSquare(),
+        //     isNotConfident: !this.isConfident(),
+        // });
         return this.outOfPageBound()
             || this.heightOutOfBound()
             || this.heightOutOfAverageBound(averageHeight)
             || this.isNotFlatSquare()
             || !this.isConfident();
-    }
-
-    private outOfPageBound(): boolean {
-        return this.isOutOfBound(PADDING_X, PADDING_Y);
-    }
-
-    private heightOutOfBound(): boolean {
-        const { height } = this.geometry.boundingBox;
-        return height < MIN_HEIGHT || height > MAX_HEIGHT;
-    }
-
-    private heightOutOfAverageBound(averageHeight: number): boolean {
-        const { height } = this.geometry.boundingBox;
-        const heightCmpAverage = height / averageHeight;
-        return heightCmpAverage < MIN_HEIGHT_CMP_AVERAGE || heightCmpAverage > MAX_HEIGHT_CMP_AVERAGE;
-    }
-
-    private isNotFlatSquare(): boolean {
-        const isSquare = this.geometry.polygon.length === 4;
-        const isFlat = this.getUpperSideSlope() < ACCEPTABLE_SIDE_SLOPE_IN_DEGREE
-            && this.getLowerSideSlope() < ACCEPTABLE_SIDE_SLOPE_IN_DEGREE;
-        // console.debug({
-        //     text: this.text,
-        //     upperSideSlope: this.getUpperSideSlope(),
-        //     lowerSideSlope: this.getLowerSideSlope(),
-        // });
-        return !isSquare || !isFlat;
-    }
-
-    private getUpperSideSlope(): number {
-        return this.getSideSlope(this.geometry.polygon[0].y, this.geometry.polygon[1].y);
-    }
-
-    private getLowerSideSlope(): number {
-        return this.getSideSlope(this.geometry.polygon[2].y, this.geometry.polygon[3].y);
-    }
-
-    private getSideSlope(y1: number, y2: number) {
-        const h = MathUtil.diff(y1, y2);
-        const w = this.geometry.boundingBox.width;
-        return MathUtil.getBaseAngleOfRightAngledTriangle(w, h);
-    }
-
-    private isConfident(): boolean {
-        return this.confidence > MIN_CONFIDENCE;
-    }
-
-    public getTopDistance(block: LineBlock): number {
-        return this.geometry.boundingBox.top - block.geometry.boundingBox.top;
     }
 
     public hasAcceptableHeightDifference(blocks: LineBlock[]): boolean {
@@ -149,7 +65,7 @@ export default class LineBlock {
 
     public isParentOf(word: WordBlock): boolean {
         return this.relationships
-            .some((relationship) => relationship.ids.some((id) => id === word.id));
+            .some((relationship) => relationship.ids.some((id) => word.equalsId(id)));
     }
 
     private isPreviousLineOf(nextBlock: LineBlock): boolean {

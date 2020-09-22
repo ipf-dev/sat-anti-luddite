@@ -1,5 +1,5 @@
 import LineBlock from './line-block';
-import WordBlock from './work-block';
+import WordBlock from './word-block';
 
 export type FilteredTextElements = {
     indicators: TextElements;

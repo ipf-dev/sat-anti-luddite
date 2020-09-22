@@ -1,7 +1,7 @@
 import { ApiResponse } from '@elastic/elasticsearch';
 import OCRResult from '../../src/module/ocr-result';
 import ElasticSearchMock from '../../src/module/aws-elastic-search-mock';
-import { Block } from '../../src/model/block';
+import { RawBlock } from '../../src/model/raw-block';
 
 const es = new ElasticSearchMock();
 
@@ -21,7 +21,7 @@ test('When_Instantiate_Expect_Success', async () => {
 
 test('When_InstantiateWithInvalidParam_Expect_ThrowError', async () => {
     function instantiateEmptyOCRResult() {
-        const blocks: Block[] = [
+        const blocks: RawBlock[] = [
             {
                 BlockType: 'WORD',
                 Confidence: 71.9177017211914,

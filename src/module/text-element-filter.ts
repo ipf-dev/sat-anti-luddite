@@ -1,6 +1,6 @@
 import ArrayUtil from '../util/array-util';
 import LineBlock from '../model/line-block';
-import WordBlock from '../model/work-block';
+import WordBlock from '../model/word-block';
 import {
     Paragraph, TextElements, FilteredTextElements,
 } from '../model/filtered-text-elements';
@@ -25,26 +25,19 @@ export default class TextElementFilter {
         this.singleLines = { lines: [], words: [] };
     }
 
-    public execute(): FilteredTextElements {
+    private getAverageWordHeight(): number {
+        const confidentWords = this.unclassifiedWords
+            .filter((block) => block.isConfident() && !block.heightOutOfBound());
+        const totalHeight = confidentWords
+            .reduce((acc, block) => acc + block.getHeight(), 0);
+        return totalHeight / confidentWords.length;
+    }
+
+    public execute(): void {
         this.findIndicators();
         this.findNegligibles();
         this.findParagraphs();
         this.findSingleLines();
-        return {
-            indicators: this.indicators,
-            negligibles: this.negligibles,
-            paragraphs: this.paragraphs,
-            singleLines: this.singleLines,
-        };
-    }
-
-    private getAverageWordHeight(): number {
-        const MIN_WORD_CONFIDENCE = 75;
-        const confidentWords = this.unclassifiedWords
-            .filter((block) => block.isConfidenceHigherThan(MIN_WORD_CONFIDENCE));
-        const totalHeight = confidentWords
-            .reduce((acc, block) => acc + block.geometry.boundingBox.height, 0);
-        return totalHeight / confidentWords.length;
     }
 
     private findIndicators(): void {
@@ -63,7 +56,7 @@ export default class TextElementFilter {
             this.indicators.lines.push(firstBlock);
             const chapterNameDistance = secondBlock.getTopDistance(firstBlock);
             const bodyDistance = thirdBlock.getTopDistance(secondBlock);
-            if (secondBlock.geometry.boundingBox.height > this.averageHeight && chapterNameDistance < bodyDistance) { // TODO: 2020/09/08 함수 추출
+            if (secondBlock.isHeightInRange(this.averageHeight, 1) && chapterNameDistance < bodyDistance) { // TODO: 2020/09/08 함수 추출
                 this.indicators.lines.push(secondBlock);
             }
             candidates.push(lastBlock);
@@ -159,5 +152,14 @@ export default class TextElementFilter {
 
     private removeWordsFromUnclassified(words: WordBlock[]): void {
         this.unclassifiedWords = ArrayUtil.exclude(words, this.unclassifiedWords);
+    }
+
+    public getResult(): FilteredTextElements {
+        return {
+            indicators: this.indicators,
+            negligibles: this.negligibles,
+            paragraphs: this.paragraphs,
+            singleLines: this.singleLines,
+        };
     }
 }
