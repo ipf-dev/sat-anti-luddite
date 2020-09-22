@@ -6,7 +6,7 @@ import Relationship from './relationship';
 import WordBlock from './work-block';
 import MathUtil from '../util/math-util';
 
-const PADDING_X = 0.05;
+const PADDING_X = 0.067;
 const PADDING_Y = 0.05;
 const INDICATOR_X_LIMIT = 0.15;
 const INDICATOR_Y_LIMIT = 0.2;
