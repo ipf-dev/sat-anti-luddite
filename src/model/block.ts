@@ -28,6 +28,7 @@ export default class Block {
         this.confidence = block.Confidence ===  undefined ? 0 : block.Confidence;
         this.text = block.Text === undefined ? '' : block.Text;
         this.geometry = new Geometry(block.Geometry);
+        this.geometry.adjustHeightDependingOnText(this.text);
         this.relationships = block.Relationships
             ? block.Relationships.map((rel: any) => new Relationship(rel))
             : [];
