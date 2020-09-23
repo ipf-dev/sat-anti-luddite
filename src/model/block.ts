@@ -9,7 +9,7 @@ const MIN_CONFIDENCE = 75;
 const PADDING_X = 0.067;
 const PADDING_Y = 0.05;
 const MIN_HEIGHT = 0.015;
-const MAX_HEIGHT = 0.09;
+const MAX_HEIGHT = 0.092;
 const MIN_HEIGHT_CMP_AVERAGE = 0.5;
 const MAX_HEIGHT_CMP_AVERAGE = 2;
 const ACCEPTABLE_SIDE_SLOPE_IN_DEGREE = 2;
@@ -18,7 +18,7 @@ export default class Block {
     private readonly id: string;
     private readonly type: BlockType;
     private readonly confidence: number;
-    protected readonly text: string;
+    public readonly text: string;
     protected readonly geometry: Geometry;
     readonly relationships: Relationship[];
 
@@ -83,8 +83,10 @@ export default class Block {
 
     protected isNotFlatSquare(): boolean {
         const isSquare = this.geometry.polygon.length === 4;
-        const isFlat = this.getUpperSideSlope() < ACCEPTABLE_SIDE_SLOPE_IN_DEGREE
-            && this.getLowerSideSlope() < ACCEPTABLE_SIDE_SLOPE_IN_DEGREE;
+        let acceptableSlope = ACCEPTABLE_SIDE_SLOPE_IN_DEGREE;
+        if (this.geometry.boundingBox.height > 0.06) acceptableSlope += 0.5;
+        const isFlat = this.getUpperSideSlope() < acceptableSlope
+            && this.getLowerSideSlope() < acceptableSlope;
         // console.debug({
         //     text: this.text,
         //     upperSideSlope: this.getUpperSideSlope(),

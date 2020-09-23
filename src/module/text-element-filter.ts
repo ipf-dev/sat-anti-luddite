@@ -29,8 +29,10 @@ export default class TextElementFilter {
         const confidentWords = this.unclassifiedWords
             .filter((block) => block.isConfident() && !block.heightOutOfBound());
         const totalHeight = confidentWords
-            .reduce((acc, block) => acc + block.getHeight(), 0);
-        return totalHeight / confidentWords.length;
+            .reduce((acc, block) => acc + block.getHeight() * block.text.length, 0);
+        const totalCharacterCount = confidentWords
+            .reduce((acc, block) => acc + block.text.length, 0);
+        return totalHeight / totalCharacterCount;
     }
 
     public execute(): void {
