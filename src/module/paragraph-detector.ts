@@ -1,24 +1,24 @@
 import LineBlock from '../model/line-block';
+import WordBlock from '../model/word-block';
+import Paragraph from '../model/paragraph';
 
-export type ParagraphLines = {
-    lines: LineBlock[];
-}
-
-export default class ParagraphLineDetector {
-    private readonly result: ParagraphLines[];
-    private readonly candidates: LineBlock[];
+export default class ParagraphDetector {
+    private readonly result: Paragraph[];
+    private readonly lines: LineBlock[];
+    private readonly words: WordBlock[];
     private currentBlock: LineBlock | undefined;
 
-    public constructor(lines: LineBlock[]) {
+    public constructor(lines: LineBlock[], words: WordBlock[]) {
         this.result = [];
-        this.candidates = lines;
+        this.lines = lines;
+        this.words = words;
         this.filterByHeight = this.filterByHeight.bind(this);
     }
 
-    public execute(): ParagraphLines[] {
-        this.candidates.forEach((block) => {
+    public execute(): void {
+        this.lines.forEach((block) => {
             this.currentBlock = block;
-            if (this.isAlreadyClassified()) return;
+            if (this.isAlreadyInParagraph()) return;
             const lines = [this.currentBlock];
             const heightFiltered = this.filterAllByCurrentBlockHeight();
             if (heightFiltered.length === 0) return;
@@ -33,19 +33,22 @@ export default class ParagraphLineDetector {
                 next = next.findNextLine(heightFiltered);
             }
 
-            const paragraph: ParagraphLines = { lines };
-
+            const words: WordBlock[] = this.findChildren(lines);
+            const paragraph = new Paragraph(lines, words);
             this.result.push(paragraph);
         });
+    }
+
+    public getResult(): Paragraph[] {
         return this.result;
     }
 
-    private isAlreadyClassified(): boolean {
+    private isAlreadyInParagraph(): boolean {
         return this.result.some((p) => p.lines.some((b) => b === this.currentBlock));
     }
 
     private filterAllByCurrentBlockHeight(): LineBlock[] {
-        const heightFiltered = this.candidates.reduce(this.filterByHeight, [this.currentBlock]);
+        const heightFiltered = this.lines.reduce(this.filterByHeight, [this.currentBlock]);
         heightFiltered.shift();
         return heightFiltered;
     }
@@ -55,5 +58,13 @@ export default class ParagraphLineDetector {
             acc.push(block);
         }
         return acc;
+    }
+
+    private findChildren(lines: LineBlock[]): WordBlock[] {
+        let result: WordBlock[] = [];
+        lines.forEach((line) => {
+            result = result.concat(this.words.filter((word) => line.isParentOf(word)));
+        });
+        return result;
     }
 }

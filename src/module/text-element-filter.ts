@@ -1,10 +1,11 @@
 import ArrayUtil from '../util/array-util';
 import LineBlock from '../model/line-block';
 import WordBlock from '../model/word-block';
+import Paragraph from '../model/paragraph';
 import {
-    Paragraph, TextElements, FilteredTextElements,
+    TextElements, FilteredTextElements,
 } from '../model/filtered-text-elements';
-import ParagraphLineDetector, { ParagraphLines } from './paragraph-line-detector';
+import ParagraphDetector from './paragraph-detector';
 
 export default class TextElementFilter {
     private unclassifiedLines: LineBlock[];
@@ -100,28 +101,13 @@ export default class TextElementFilter {
     }
 
     private findParagraphs(): void {
-        this.findParagraphLines();
-        this.findParagraphWords();
-    }
-
-    private findParagraphLines(): void {
-        const pld = new ParagraphLineDetector(this.unclassifiedLines);
-        const paragraphs: ParagraphLines[] = pld.execute();
-
+        const detector = new ParagraphDetector(this.unclassifiedLines, this.unclassifiedWords);
+        detector.execute();
+        const paragraphs: Paragraph[] = detector.getResult();
         paragraphs.forEach((paragraph) => {
             this.removeLinesFromUnclassified(paragraph.lines);
-            this.paragraphs.push({
-                lines: paragraph.lines,
-                words: [],
-            });
-        });
-    }
-
-    private findParagraphWords(): void {
-        this.paragraphs.forEach((paragraph, index) => {
-            const words = this.findChildrenOfLinesFromUnclassified(paragraph.lines);
-            this.paragraphs[index].words = words;
-            this.removeWordsFromUnclassified(words);
+            this.removeWordsFromUnclassified(paragraph.words);
+            this.paragraphs.push(paragraph);
         });
     }
 
