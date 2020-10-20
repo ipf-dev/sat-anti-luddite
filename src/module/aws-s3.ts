@@ -42,7 +42,7 @@ export default class S3 {
         return tags.TagSet;
     }
 
-    public async listObjects({ bucket, prefix }: S3Directory): Promise<ObjectList> {
+    public async listObjectsMax1000({ bucket, prefix }: S3Directory): Promise<ObjectList> {
         const params: ListObjectsV2Request = {
             Bucket: bucket,
             Delimiter: '/',
