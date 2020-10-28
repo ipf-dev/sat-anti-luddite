@@ -1,10 +1,11 @@
 import ArrayUtil from '../util/array-util';
 import LineBlock from '../model/line-block';
-import WordBlock from '../model/work-block';
+import WordBlock from '../model/word-block';
+import Paragraph from '../model/paragraph';
 import {
-    Paragraph, TextElements, FilteredTextElements,
+    TextElements, FilteredTextElements,
 } from '../model/filtered-text-elements';
-import ParagraphLineDetector, { ParagraphLines } from './paragraph-line-detector';
+import ParagraphDetector from './paragraph-detector';
 
 export default class TextElementFilter {
     private unclassifiedLines: LineBlock[];
@@ -25,26 +26,21 @@ export default class TextElementFilter {
         this.singleLines = { lines: [], words: [] };
     }
 
-    public execute(): FilteredTextElements {
+    private getAverageWordHeight(): number {
+        const confidentWords = this.unclassifiedWords
+            .filter((block) => block.isConfident() && !block.heightOutOfBound());
+        const totalHeight = confidentWords
+            .reduce((acc, block) => acc + block.getHeight() * block.text.length, 0);
+        const totalCharacterCount = confidentWords
+            .reduce((acc, block) => acc + block.text.length, 0);
+        return totalHeight / totalCharacterCount;
+    }
+
+    public execute(): void {
         this.findIndicators();
         this.findNegligibles();
         this.findParagraphs();
         this.findSingleLines();
-        return {
-            indicators: this.indicators,
-            negligibles: this.negligibles,
-            paragraphs: this.paragraphs,
-            singleLines: this.singleLines,
-        };
-    }
-
-    private getAverageWordHeight(): number {
-        const MIN_WORD_CONFIDENCE = 50;
-        const confidentWords = this.unclassifiedWords
-            .filter((block) => block.isConfidenceHigherThan(MIN_WORD_CONFIDENCE));
-        const totalHeight = confidentWords
-            .reduce((acc, block) => acc + block.geometry.BoundingBox.Height, 0);
-        return totalHeight / confidentWords.length;
     }
 
     private findIndicators(): void {
@@ -63,7 +59,7 @@ export default class TextElementFilter {
             this.indicators.lines.push(firstBlock);
             const chapterNameDistance = secondBlock.getTopDistance(firstBlock);
             const bodyDistance = thirdBlock.getTopDistance(secondBlock);
-            if (secondBlock.geometry.BoundingBox.Height > this.averageHeight && chapterNameDistance < bodyDistance) { // TODO: 2020/09/08 함수 추출
+            if (secondBlock.isHeightInRange(this.averageHeight, 1) && chapterNameDistance < bodyDistance) { // TODO: 2020/09/08 함수 추출
                 this.indicators.lines.push(secondBlock);
             }
             candidates.push(lastBlock);
@@ -92,11 +88,7 @@ export default class TextElementFilter {
 
     private findNegligiblesLines(): void {
         const neglectables: LineBlock[] = this.unclassifiedLines
-            .filter((block: LineBlock) => block.outOfPageBound()
-                || block.heightOutOfBound()
-                || block.heightOutOfAverageBound(this.averageHeight)
-                || block.isNotFlatSquare()
-                || block.isNotConfident());
+            .filter((block: LineBlock) => block.isNegligible(this.averageHeight));
 
         this.removeLinesFromUnclassified(neglectables);
         this.negligibles.lines = neglectables;
@@ -109,28 +101,13 @@ export default class TextElementFilter {
     }
 
     private findParagraphs(): void {
-        this.findParagraphLines();
-        this.findParagraphWords();
-    }
-
-    private findParagraphLines(): void {
-        const pld = new ParagraphLineDetector(this.unclassifiedLines);
-        const paragraphs: ParagraphLines[] = pld.execute();
-
+        const detector = new ParagraphDetector(this.unclassifiedLines, this.unclassifiedWords);
+        detector.execute();
+        const paragraphs: Paragraph[] = detector.getResult();
         paragraphs.forEach((paragraph) => {
             this.removeLinesFromUnclassified(paragraph.lines);
-            this.paragraphs.push({
-                lines: paragraph.lines,
-                words: [],
-            });
-        });
-    }
-
-    private findParagraphWords(): void {
-        this.paragraphs.forEach((paragraph, index) => {
-            const words = this.findChildrenOfLinesFromUnclassified(paragraph.lines);
-            this.paragraphs[index].words = words;
-            this.removeWordsFromUnclassified(words);
+            this.removeWordsFromUnclassified(paragraph.words);
+            this.paragraphs.push(paragraph);
         });
     }
 
@@ -163,5 +140,14 @@ export default class TextElementFilter {
 
     private removeWordsFromUnclassified(words: WordBlock[]): void {
         this.unclassifiedWords = ArrayUtil.exclude(words, this.unclassifiedWords);
+    }
+
+    public getResult(): FilteredTextElements {
+        return {
+            indicators: this.indicators,
+            negligibles: this.negligibles,
+            paragraphs: this.paragraphs,
+            singleLines: this.singleLines,
+        };
     }
 }

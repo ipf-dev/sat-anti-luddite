@@ -1,5 +1,6 @@
 import LineBlock from './line-block';
-import WordBlock from './work-block';
+import WordBlock from './word-block';
+import Paragraph from './paragraph';
 
 export type FilteredTextElements = {
     indicators: TextElements;
@@ -9,11 +10,6 @@ export type FilteredTextElements = {
 }
 
 export type TextElements = {
-    lines: LineBlock[];
-    words: WordBlock[];
-}
-
-export type Paragraph = {
     lines: LineBlock[];
     words: WordBlock[];
 }

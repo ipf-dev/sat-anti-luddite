@@ -1,91 +1,62 @@
 import assert from 'assert';
 
-import { Geometry, Block, Relationship } from './block';
-import WordBlock from './work-block';
+import Block from './block';
+import { RawBlock } from './raw-block';
+import WordBlock from './word-block';
 
-const PADDING_X = 0.05;
-const PADDING_Y = 0.05;
-const MIN_HEIGHT = 0.017;
-const MAX_HEIGHT = 0.055;
-const MIN_HEIGHT_CMP_AVERAGE = 0.5;
-const MAX_HEIGHT_CMP_AVERAGE = 1.5;
-const MIN_CONFIDENCE = 75;
-
-const PARAGRAPH_LINE_HEIGHT_ACCEPTABLE_DIFF = 0.17;
+const INDICATOR_X_LIMIT = 0.15;
+const INDICATOR_Y_LIMIT = 0.2;
+const PARAGRAPH_LINE_HEIGHT_ACCEPTABLE_DIFF = 0.38;
 const MIN_OVERLAP_PREVIOUS_BLOCK = 0.1;
-const MIN_OVERLAP_NEXT_BLOCK = 0.65;
-const MAX_DISTANCE_Y_BTW_PARAGRAPH_LINES = 0.6;
+const MIN_OVERLAP_NEXT_BLOCK = 0.25;
+const MAX_REL_DISTANCE_Y_BTW_PARAGRAPH_LINES = 1.1;
+const MAX_ABS_DISTANCE_Y_BTW_PARAGRAPH_LINES = 0.02;
 
-export default class LineBlock {
-    readonly confidence: number;
-    readonly text: string;
-    readonly geometry: Geometry;
-    readonly id: string;
-    readonly relationships: Relationship[];
-    readonly height: number;
-
-    public constructor(block: Block) {
+export default class LineBlock extends Block {
+    public constructor(block: RawBlock) {
         assert(block.BlockType === 'LINE', `Invalid 'BlockType' of block argument creating LineBlock object: ${block}`);
-        this.confidence = block.Confidence ===  undefined ? 0 : block.Confidence;
-        this.text = block.Text === undefined ? '' : block.Text;
-        this.geometry = block.Geometry;
-        this.height = block.Geometry.BoundingBox.Height;
-        this.id = block.Id;
-        this.relationships = block.Relationships || [];
+        super(block);
     }
 
     public isChapter(): boolean {
         const chapterPattern = /^chapter[ ]*[0-9]+$/i;
-        return chapterPattern.test(this.text);
+        return chapterPattern.test(this.text)
+            && this.isInIndicatorLocation()
+            && this.isConfident();
     }
 
     public isIndicator(): boolean {
         const indicatorPattern = /^[0-9]+$|^chapter[ ]*[0-9]+$|^page[ ]*[0-9]+$/i;
-        return indicatorPattern.test(this.text);
+        return indicatorPattern.test(this.text)
+            && this.isInIndicatorLocation()
+            && this.isConfident();
     }
 
-    public outOfPageBound(): boolean {
-        const {
-            Left: left,
-            Width: width,
-            Top: top,
-            Height: height,
-        } = this.geometry.BoundingBox;
-        const right = 1 - (left + width);
-        const bottom = 1 - (top + height);
-        return left < PADDING_X
-            || right < PADDING_X
-            || top < PADDING_Y
-            || bottom < PADDING_Y;
+    private isInIndicatorLocation(): boolean {
+        return this.isOutOfBound(INDICATOR_X_LIMIT, INDICATOR_Y_LIMIT);
     }
 
-    public heightOutOfBound(): boolean {
-        return this.height < MIN_HEIGHT || this.height > MAX_HEIGHT;
-    }
-
-    public heightOutOfAverageBound(averageHeight: number): boolean {
-        return this.height < averageHeight * MIN_HEIGHT_CMP_AVERAGE || this.height > averageHeight * MAX_HEIGHT_CMP_AVERAGE;
-    }
-
-    public isNotFlatSquare(): boolean {
-        const isSquare = this.geometry.Polygon.length === 4;
-        const isFlat = this.geometry.Polygon[0].Y === this.geometry.Polygon[1].Y
-            && this.geometry.Polygon[2].Y === this.geometry.Polygon[3].Y;
-        return !isSquare || !isFlat;
-    }
-
-    public isNotConfident(): boolean {
-        return this.confidence < MIN_CONFIDENCE;
-    }
-
-    public getTopDistance(block: LineBlock): number {
-        return this.geometry.BoundingBox.Top - block.geometry.BoundingBox.Top;
+    public isNegligible(averageHeight: number): boolean {
+        // console.debug({
+        //     text: this.text,
+        //     outOfPageBound: this.outOfPageBound(),
+        //     heightOutOfBound: this.heightOutOfBound(),
+        //     heightOutOfAverageBound: this.heightOutOfAverageBound(averageHeight),
+        //     isNotFlatSquare: this.isNotFlatSquare(),
+        //     isNotConfident: !this.isConfident(),
+        // });
+        return this.outOfPageBound()
+            || this.heightOutOfBound()
+            || this.heightOutOfAverageBound(averageHeight)
+            || this.isNotFlatSquare()
+            || !this.isConfident();
     }
 
     public hasAcceptableHeightDifference(blocks: LineBlock[]): boolean {
-        const averageHeight = blocks.reduce((acc, block) => acc + block.height, 0) / blocks.length;
-        return this.height < averageHeight * (1 + PARAGRAPH_LINE_HEIGHT_ACCEPTABLE_DIFF)
-            && this.height > averageHeight * (1 - PARAGRAPH_LINE_HEIGHT_ACCEPTABLE_DIFF);
+        const { height } = this.geometry.boundingBox;
+        const averageHeight = blocks.reduce((acc, block) => acc + block.geometry.boundingBox.height, 0) / blocks.length;
+        return height < averageHeight * (1 + PARAGRAPH_LINE_HEIGHT_ACCEPTABLE_DIFF)
+            && height > averageHeight * (1 - PARAGRAPH_LINE_HEIGHT_ACCEPTABLE_DIFF);
     }
 
     public findNextLine(blocks: LineBlock[]): LineBlock | undefined {
@@ -94,17 +65,24 @@ export default class LineBlock {
 
     public isParentOf(word: WordBlock): boolean {
         return this.relationships
-            .some((relationship) => relationship.Ids.some((id) => id === word.id));
+            .some((relationship) => relationship.ids.some((id) => word.equalsId(id)));
     }
 
     private isPreviousLineOf(nextBlock: LineBlock): boolean {
-        return this.hasWidthOverlap(nextBlock)
-            && this.isLocatedAbove(nextBlock);
+        // console.debug({
+        //     currentLine: this.text,
+        //     nextLine: nextBlock.text,
+        //     hasWidthOverlap: this.hasEnoughWidthOverlap(nextBlock),
+        //     isLocatedAbove: this.isVerticallyLocatedAsPreviousLineOf(nextBlock),
+        // });
+
+        return this.hasEnoughWidthOverlap(nextBlock)
+            && this.isVerticallyLocatedAsPreviousLineOf(nextBlock);
     }
 
-    private hasWidthOverlap(nextBlock: LineBlock): boolean {
-        const { Width: pWidth, Left: pLeft } = this.geometry.BoundingBox;
-        const { Width: nWidth, Left: nLeft } = nextBlock.geometry.BoundingBox;
+    private hasEnoughWidthOverlap(nextBlock: LineBlock): boolean {
+        const { width: pWidth, left: pLeft } = this.geometry.boundingBox;
+        const { width: nWidth, left: nLeft } = nextBlock.geometry.boundingBox;
         const pRight = pLeft + pWidth;
         const nRight = nLeft + nWidth;
         const overlapRight = Math.min(pRight, nRight);
@@ -114,9 +92,21 @@ export default class LineBlock {
             && overlapWidth > nWidth * MIN_OVERLAP_NEXT_BLOCK;
     }
 
-    private isLocatedAbove(nextBlock: LineBlock): boolean {
-        const pBottom = this.geometry.BoundingBox.Top + this.geometry.BoundingBox.Height;
-        const nTop = nextBlock.geometry.BoundingBox.Top;
-        return nTop - pBottom > 0 && nTop - pBottom < this.height * MAX_DISTANCE_Y_BTW_PARAGRAPH_LINES;
+    private isVerticallyLocatedAsPreviousLineOf(nextBlock: LineBlock): boolean {
+        const height = (this.geometry.boundingBox.height + nextBlock.geometry.boundingBox.height) / 2;
+        const pBottom = this.geometry.boundingBox.top + this.geometry.boundingBox.height;
+        const nTop = nextBlock.geometry.boundingBox.top;
+
+        // console.debug({
+        //     'height': height,
+        //     'pBottom': pBottom,
+        //     'nTop': nTop,
+        //     'nTop - pBottom': nTop - pBottom,
+        //     'nHeight * MAX_DISTANCE_Y_BTW_PARAGRAPH_LINES': height * MAX_REL_DISTANCE_Y_BTW_PARAGRAPH_LINES,
+        // });
+
+        const distanceY = nTop - pBottom;
+        return Math.abs(distanceY) < MAX_ABS_DISTANCE_Y_BTW_PARAGRAPH_LINES
+            && distanceY < height * MAX_REL_DISTANCE_Y_BTW_PARAGRAPH_LINES;
     }
 }
