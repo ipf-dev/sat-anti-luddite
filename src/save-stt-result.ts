@@ -5,22 +5,24 @@ import ElasticSearch from './module/aws-elastic-search';
 import S3 from './module/aws-s3';
 import SNS from './module/aws-sns';
 import { TranscribeEvent } from './module/aws-transcribe';
+import STTJobName from './model/stt-job-name';
 
 const es = new ElasticSearch();
 const s3 = new S3();
 
 // eslint-disable-next-line import/prefer-default-export
 export const handler: Handler = async (event: TranscribeEvent, context, callback) => {
-    const {
-        jobName, documentId, bid, languageCode,
-    } = parseTranscribeEvent(event);
+    const jobName = parseTranscribeEvent(event);
+    const sttJobName = new STTJobName(jobName);
     const sttResult = await fetchSTTResult(jobName);
+    const documentId = sttJobName.getDocumentId();
     const esIndexParam = {
         index: 'stt-result',
         body: {
-            bid: bid,
+            bid: sttJobName.getBid(),
             jobName: sttResult.jobName,
-            languageCode: languageCode,
+            languageCode: sttJobName.getTranscribeLanguageCode(),
+            sequence: sttJobName.getSequenceNumber(),
             result: sttResult.results,
         },
         id: documentId,
@@ -47,13 +49,7 @@ function parseTranscribeEvent(event: TranscribeEvent) {
         TranscriptionJobName: jobName,
     } = event.detail;
     assert(jobStatus === 'COMPLETED', `Invalid job status: ${jobStatus}`);
-    return { ...parseJobName(jobName), jobName };
-}
-
-function parseJobName(jobName: string) {
-    const documentId = jobName.split('-')[0];
-    const [bid, languageCode] = documentId.split('_');
-    return { documentId, bid, languageCode };
+    return jobName;
 }
 
 async function fetchSTTResult(jobName: string): Promise<any> {

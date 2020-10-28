@@ -1,14 +1,11 @@
 import { Handler, S3EventRecord } from 'aws-lambda';
 import { S3Event } from 'aws-lambda/trigger/s3';
 
-import { LanguageCode } from './model/language-code';
 import Transcribe from './module/aws-transcribe';
-import S3, { S3Object } from './module/aws-s3';
+import S3 from './module/aws-s3';
+import STTFileName from './model/stt-file-name';
 
 const transcribe = new Transcribe();
-const s3 = new S3();
-
-const DEFAULT_LANGUAGE_CODE = 'en-GB';
 
 // eslint-disable-next-line import/prefer-default-export
 export const handler: Handler = async (event: S3Event, context, callback) => {
@@ -27,31 +24,13 @@ export const handler: Handler = async (event: S3Event, context, callback) => {
 async function startTranscriptionJobForS3EventRecord(record: S3EventRecord) {
     const bucket = record.s3.bucket.name;
     const { key } = record.s3.object;
-    const jobName = `${getFileNameFromS3Key(key)}-${Date.now()}`;
-    const languageCode = await getLanguageCode({ bucket, key });
+    const fileName = S3.getFileNameFromS3Key(key);
+    const sttFileName = new STTFileName(fileName);
 
     return transcribe.startTranscriptionJob({
-        jobName, bucket, key, languageCode,
+        jobName: sttFileName.getTranscribeJobName(),
+        bucket: bucket,
+        key: key,
+        languageCode: sttFileName.getTranscribeLanguageCode(),
     });
-}
-
-function getFileNameFromS3Key(key: string): string {
-    const paths = key.split('/');
-    const objectName = paths[paths.length - 1];
-    return objectName.split('.')[0];
-}
-
-async function getLanguageCode(objectDesc: S3Object): Promise<LanguageCode> {
-    let languageCode: LanguageCode = DEFAULT_LANGUAGE_CODE;
-    const tags = await s3.getObjectTagging(objectDesc);
-    tags.forEach((tag) => {
-        if (tag.Key === 'LanguageCode' && isValidLanguageCode(tag.Value)) {
-            languageCode = tag.Value as LanguageCode;
-        }
-    });
-    return languageCode;
-}
-
-function isValidLanguageCode(code: string) {
-    return code === 'en-GB' || code === 'en-US';
 }
