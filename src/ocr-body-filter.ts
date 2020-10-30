@@ -1,11 +1,14 @@
 import { Handler, SNSEventRecord } from 'aws-lambda';
 import { SNSEvent } from 'aws-lambda/trigger/sns';
 import { ApiResponse } from '@elastic/elasticsearch';
+import log from 'loglevel';
 
+import AntiLudditeHandler from './anti-luddite-handler';
 import ElasticSearch from './module/aws-elastic-search';
 import SNS from './module/aws-sns';
 import OCRResult, { OCRBodyFilterResult } from './module/ocr-result';
 
+AntiLudditeHandler.init();
 const es = new ElasticSearch();
 
 // eslint-disable-next-line import/prefer-default-export
@@ -16,7 +19,7 @@ export const handler: Handler = async (event: SNSEvent, context, callback) => {
         const documentIds = await Promise.all(promises);
         callback(null, { documentIds: documentIds });
     } catch (err) {
-        console.error('Error processing OCR result', JSON.stringify(err));
+        log.error('Error processing OCR result', JSON.stringify(err));
         callback(err, { message: 'Error processing OCR result' });
     }
 };

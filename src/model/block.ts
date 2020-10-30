@@ -1,3 +1,5 @@
+import log from 'loglevel';
+
 import { RawBlock } from './raw-block';
 import Geometry from './geometry';
 import Relationship from './relationship';
@@ -67,6 +69,12 @@ export default class Block {
     }
 
     public heightOutOfBound(): boolean {
+        log.debug('heightOutOfBound', {
+            text: this.text,
+            height: this.geometry.boundingBox.height,
+            minHeight: MIN_HEIGHT,
+            maxHeight: MAX_HEIGHT,
+        });
         return !this.isHeightInRange(MIN_HEIGHT, MAX_HEIGHT);
     }
 
@@ -78,17 +86,23 @@ export default class Block {
     protected heightOutOfAverageBound(averageHeight: number): boolean {
         const min = averageHeight * MIN_HEIGHT_CMP_AVERAGE;
         const max = averageHeight * MAX_HEIGHT_CMP_AVERAGE;
+        log.debug('heightOutOfAverageBound', {
+            text: this.text,
+            height: this.geometry.boundingBox.height,
+            minAverageHeight: min,
+            maxAverageHeight: max,
+        });
         return !this.isHeightInRange(min, max);
     }
 
     protected isNotFlatSquare(): boolean {
         const needFlatnessCheck = this.geometry.boundingBox.width < 0.4;
-        // console.debug('isNotFlatSquare', {
-        //     text: this.text,
-        //     needFlatnessCheck: needFlatnessCheck,
-        //     isFlat: this.isFlat(),
-        //     isSquare: this.isSquare(),
-        // });
+        log.debug('isNotFlatSquare', {
+            text: this.text,
+            needFlatnessCheck: needFlatnessCheck,
+            isFlat: this.isFlat(),
+            isSquare: this.isSquare(),
+        });
         return (needFlatnessCheck && !this.isFlat()) || !this.isSquare();
     }
 

@@ -1,9 +1,12 @@
 import { Handler } from 'aws-lambda';
 import assert from 'assert';
+import log from 'loglevel';
 
+import AntiLudditeHandler from './anti-luddite-handler';
 import Textract from './module/aws-textract';
 import ElasticSearch from './module/aws-elastic-search';
 
+AntiLudditeHandler.init();
 const textract = new Textract();
 const elasticSearch = new ElasticSearch();
 
@@ -23,5 +26,5 @@ export const handler: Handler = async (event, context, callback) => {
             result: ocrResult.Blocks,
         },
     });
-    console.log(result);
+    log.debug(result);
 };

@@ -1,12 +1,15 @@
 import assert from 'assert';
 import { Handler } from 'aws-lambda';
+import log from 'loglevel';
 
+import AntiLudditeHandler from './anti-luddite-handler';
 import ElasticSearch from './module/aws-elastic-search';
 import S3 from './module/aws-s3';
 import SNS from './module/aws-sns';
 import { TranscribeEvent } from './module/aws-transcribe';
 import STTJobMetadata from './model/stt-job-metadata';
 
+AntiLudditeHandler.init();
 const es = new ElasticSearch();
 const s3 = new S3();
 
@@ -38,7 +41,7 @@ export const handler: Handler = async (event: TranscribeEvent, context, callback
             documentId: documentId,
         });
     } catch (err) {
-        console.log('Error saving STT result to Elasticsearch:', JSON.stringify(err));
+        log.error('Error saving STT result to Elasticsearch:', JSON.stringify(err));
         callback(err, { message: 'Error saving STT result to Elasticsearch' });
     }
 };
