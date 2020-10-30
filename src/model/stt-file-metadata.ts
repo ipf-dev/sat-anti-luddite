@@ -1,7 +1,7 @@
 import { LanguageCode } from './language-code';
 import StringUtil from '../util/string-util';
 
-export default class STTFileName {
+export default class STTFileMetadata {
     private readonly bid: string;
     private readonly languageCode: string;
     private readonly sequence: string;

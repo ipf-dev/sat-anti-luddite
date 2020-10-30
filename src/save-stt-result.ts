@@ -5,24 +5,24 @@ import ElasticSearch from './module/aws-elastic-search';
 import S3 from './module/aws-s3';
 import SNS from './module/aws-sns';
 import { TranscribeEvent } from './module/aws-transcribe';
-import STTJobName from './model/stt-job-name';
+import STTJobMetadata from './model/stt-job-metadata';
 
 const es = new ElasticSearch();
 const s3 = new S3();
 
 // eslint-disable-next-line import/prefer-default-export
 export const handler: Handler = async (event: TranscribeEvent, context, callback) => {
-    const jobName = parseTranscribeEvent(event);
-    const sttJobName = new STTJobName(jobName);
+    const jobName = getJobName(event);
+    const jobMetadata = new STTJobMetadata(jobName);
     const sttResult = await fetchSTTResult(jobName);
-    const documentId = sttJobName.getDocumentId();
+    const documentId = jobMetadata.getDocumentId();
     const esIndexParam = {
         index: 'stt-result',
         body: {
-            bid: sttJobName.getBid(),
+            bid: jobMetadata.getBid(),
             jobName: sttResult.jobName,
-            languageCode: sttJobName.getTranscribeLanguageCode(),
-            sequence: sttJobName.getSequenceNumber(),
+            languageCode: jobMetadata.getTranscribeLanguageCode(),
+            sequence: jobMetadata.getSequenceNumber(),
             result: sttResult.results,
         },
         id: documentId,
@@ -43,7 +43,7 @@ export const handler: Handler = async (event: TranscribeEvent, context, callback
     }
 };
 
-function parseTranscribeEvent(event: TranscribeEvent) {
+function getJobName(event: TranscribeEvent) {
     const {
         TranscriptionJobStatus: jobStatus,
         TranscriptionJobName: jobName,

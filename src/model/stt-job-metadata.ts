@@ -1,6 +1,6 @@
 import { LanguageCode } from './language-code';
 
-export default class STTJobName {
+export default class STTJobMetadata {
     private readonly documentId: string;
     private readonly bid: string;
     private readonly languageCode: string;

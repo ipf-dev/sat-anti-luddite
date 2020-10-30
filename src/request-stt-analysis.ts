@@ -3,7 +3,7 @@ import { S3Event } from 'aws-lambda/trigger/s3';
 
 import Transcribe from './module/aws-transcribe';
 import S3 from './module/aws-s3';
-import STTFileName from './model/stt-file-name';
+import STTFileMetadata from './model/stt-file-metadata';
 
 const transcribe = new Transcribe();
 
@@ -24,13 +24,13 @@ export const handler: Handler = async (event: S3Event, context, callback) => {
 async function startTranscriptionJobForS3EventRecord(record: S3EventRecord) {
     const bucket = record.s3.bucket.name;
     const { key } = record.s3.object;
-    const fileName = S3.getFileNameFromS3Key(key);
-    const sttFileName = new STTFileName(fileName);
+    const fileName = S3.getFileNameFromKey(key);
+    const fileMetadata = new STTFileMetadata(fileName);
 
     return transcribe.startTranscriptionJob({
-        jobName: sttFileName.getTranscribeJobName(),
+        jobName: fileMetadata.getTranscribeJobName(),
         bucket: bucket,
         key: key,
-        languageCode: sttFileName.getTranscribeLanguageCode(),
+        languageCode: fileMetadata.getTranscribeLanguageCode(),
     });
 }

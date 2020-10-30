@@ -52,9 +52,9 @@ export default class S3 {
         return objects.Contents || [];
     }
 
-    public static getFileNameFromS3Key(key: string): string {
+    public static getFileNameFromKey(key: string): string {
         const paths = key.split('/');
         const objectName = paths[paths.length - 1];
-        return objectName.split('.')[0];
+        return objectName.replace(/^(.*)(\.[\S]+)$/, '$1');
     }
 }
