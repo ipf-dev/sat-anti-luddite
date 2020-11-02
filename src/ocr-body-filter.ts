@@ -32,6 +32,7 @@ async function handleSNSEventRecord(record: SNSEventRecord): Promise<string> {
     });
     ocrResult.filter();
     const filteredResult = ocrResult.getFilteredResult();
+    log.debug(JSON.stringify(filteredResult, null, 4));
     await saveResult(documentId, filteredResult);
     await invokeSentTokenize({ documentId });
     return documentId;

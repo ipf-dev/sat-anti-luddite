@@ -13,13 +13,13 @@ test('When_ExecuteTextElementFilterOnMerlinP11_Except_Success', async () => {
         id: 'TPSDM06_11',
     });
     // eslint-disable-next-line no-underscore-dangle
-    const lines = resp.body._source.result
-        .filter((block: RawBlock) => block.BlockType === 'LINE')
-        .map((block: RawBlock) => new LineBlock(block));
-    // eslint-disable-next-line no-underscore-dangle
     const words = resp.body._source.result
         .filter((block: RawBlock) => block.BlockType === 'WORD')
         .map((block: RawBlock) => new WordBlock(block));
+    // eslint-disable-next-line no-underscore-dangle
+    const lines = resp.body._source.result
+        .filter((block: RawBlock) => block.BlockType === 'LINE')
+        .map((block: RawBlock) => new LineBlock(block, words));
     const filter = new TextElementFilter(lines, words);
     filter.execute();
     const textElements = filter.getResult();
