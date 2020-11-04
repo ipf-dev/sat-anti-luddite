@@ -82,17 +82,28 @@ export default class Block {
     }
 
     protected isNotFlatSquare(): boolean {
-        const isSquare = this.geometry.polygon.length === 4;
-        let acceptableSlope = ACCEPTABLE_SIDE_SLOPE_IN_DEGREE;
-        if (this.geometry.boundingBox.height > 0.06) acceptableSlope += 0.5;
-        const isFlat = this.getUpperSideSlope() < acceptableSlope
-            && this.getLowerSideSlope() < acceptableSlope;
-        // console.debug({
+        const needFlatnessCheck = this.geometry.boundingBox.width < 0.4;
+        // console.debug('isNotFlatSquare', {
         //     text: this.text,
-        //     upperSideSlope: this.getUpperSideSlope(),
-        //     lowerSideSlope: this.getLowerSideSlope(),
+        //     needFlatnessCheck: needFlatnessCheck,
+        //     isFlat: this.isFlat(),
+        //     isSquare: this.isSquare(),
         // });
-        return !isSquare || !isFlat;
+        return (needFlatnessCheck && !this.isFlat()) || !this.isSquare();
+    }
+
+    private isFlat(): boolean {
+        const acceptableSlope = this.getAcceptableSlope();
+        return this.getUpperSideSlope() < acceptableSlope
+            && this.getLowerSideSlope() < acceptableSlope;
+    }
+
+    private getAcceptableSlope(): number {
+        if (this.geometry.boundingBox.height > 0.06) {
+            return ACCEPTABLE_SIDE_SLOPE_IN_DEGREE + 0.5;
+        }
+
+        return ACCEPTABLE_SIDE_SLOPE_IN_DEGREE;
     }
 
     private getUpperSideSlope(): number {
@@ -107,5 +118,9 @@ export default class Block {
         const h = MathUtil.diff(y1, y2);
         const w = this.geometry.boundingBox.width;
         return MathUtil.getBaseAngleOfRightAngledTriangle(w, h);
+    }
+
+    private isSquare(): boolean {
+        return this.geometry.polygon.length === 4;
     }
 }
