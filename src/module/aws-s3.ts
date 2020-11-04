@@ -51,4 +51,10 @@ export default class S3 {
         const objects = await this.client.listObjectsV2(params).promise();
         return objects.Contents || [];
     }
+
+    public static getFileNameFromKey(key: string): string {
+        const paths = key.split('/');
+        const objectName = paths[paths.length - 1];
+        return objectName.replace(/^(.*)(\.[\S]+)$/, '$1');
+    }
 }
