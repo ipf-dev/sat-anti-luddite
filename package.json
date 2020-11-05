@@ -12,7 +12,8 @@
         "@elastic/elasticsearch-mock": "^0.3.0",
         "aws-elasticsearch-connector": "^9.0.0",
         "aws-sdk": "^2.728.0",
-        "lodash": "^4.17.20"
+        "lodash": "^4.17.20",
+        "loglevel": "^1.7.0"
     },
     "devDependencies": {
         "@iportfolio/eslint-config-iportfolio": "^0.1.1",

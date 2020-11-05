@@ -5,6 +5,7 @@ import { AWSError } from 'aws-sdk';
 import { PromiseResult } from 'aws-sdk/lib/request';
 import { PublishResponse } from 'aws-sdk/clients/sns';
 
+import AntiLudditeHandler from './anti-luddite-handler';
 import { Dictionary } from './model/dictionary';
 import ElasticSearch from './module/aws-elastic-search';
 import SNS from './module/aws-sns';
@@ -18,6 +19,7 @@ const invokeArn: Dictionary<string | undefined> = {
     'ocr-sent-tokenize': process.env.SNS_OCR_SENT_TOKNEIZE,
 };
 
+AntiLudditeHandler.init();
 const elasticSearch = new ElasticSearch();
 const sns = new SNS();
 

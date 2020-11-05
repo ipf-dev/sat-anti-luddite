@@ -1,7 +1,10 @@
+import log from 'loglevel';
+
 import { RawBlock } from './raw-block';
 import Geometry from './geometry';
 import Relationship from './relationship';
 import MathUtil from '../util/math-util';
+import TextAnatomy from './text-anatomy';
 
 type BlockType = 'PAGE' | 'LINE' | 'WORD';
 
@@ -19,7 +22,7 @@ export default class Block {
     private readonly type: BlockType;
     private readonly confidence: number;
     public readonly text: string;
-    protected readonly geometry: Geometry;
+    public geometry: Geometry;
     readonly relationships: Relationship[];
 
     constructor(block: RawBlock) {
@@ -27,11 +30,19 @@ export default class Block {
         this.type = block.BlockType;
         this.confidence = block.Confidence ===  undefined ? 0 : block.Confidence;
         this.text = block.Text === undefined ? '' : block.Text;
-        this.geometry = new Geometry(block.Geometry);
-        this.geometry.adjustHeightDependingOnText(this.text);
+        this.geometry = Geometry.buildWithRawGeometry(block.Geometry);
+        this.adjustGeometryForText();
         this.relationships = block.Relationships
             ? block.Relationships.map((rel: any) => new Relationship(rel))
             : [];
+    }
+
+    private adjustGeometryForText(): void {
+        const textAnatomy = new TextAnatomy(this.text);
+        if (textAnatomy.isFullHeight()) return;
+        const needUpperStretch = !textAnatomy.hasAscender() && !textAnatomy.hasCapital();
+        const needLowerStretch = !textAnatomy.hasDescender();
+        this.geometry.stretchHeight(needUpperStretch, needLowerStretch);
     }
 
     public isConfident(): boolean {
@@ -67,6 +78,12 @@ export default class Block {
     }
 
     public heightOutOfBound(): boolean {
+        log.debug('heightOutOfBound', {
+            text: this.text,
+            height: this.geometry.boundingBox.height,
+            minHeight: MIN_HEIGHT,
+            maxHeight: MAX_HEIGHT,
+        });
         return !this.isHeightInRange(MIN_HEIGHT, MAX_HEIGHT);
     }
 
@@ -78,21 +95,38 @@ export default class Block {
     protected heightOutOfAverageBound(averageHeight: number): boolean {
         const min = averageHeight * MIN_HEIGHT_CMP_AVERAGE;
         const max = averageHeight * MAX_HEIGHT_CMP_AVERAGE;
+        log.debug('heightOutOfAverageBound', {
+            text: this.text,
+            height: this.geometry.boundingBox.height,
+            minAverageHeight: min,
+            maxAverageHeight: max,
+        });
         return !this.isHeightInRange(min, max);
     }
 
     protected isNotFlatSquare(): boolean {
-        const isSquare = this.geometry.polygon.length === 4;
-        let acceptableSlope = ACCEPTABLE_SIDE_SLOPE_IN_DEGREE;
-        if (this.geometry.boundingBox.height > 0.06) acceptableSlope += 0.5;
-        const isFlat = this.getUpperSideSlope() < acceptableSlope
+        const needFlatnessCheck = this.geometry.boundingBox.width < 0.4;
+        log.debug('isNotFlatSquare', {
+            text: this.text,
+            needFlatnessCheck: needFlatnessCheck,
+            isFlat: this.isFlat(),
+            isSquare: this.isSquare(),
+        });
+        return (needFlatnessCheck && !this.isFlat()) || !this.isSquare();
+    }
+
+    protected isFlat(): boolean {
+        const acceptableSlope = this.getAcceptableSlope();
+        return this.getUpperSideSlope() < acceptableSlope
             && this.getLowerSideSlope() < acceptableSlope;
-        // console.debug({
-        //     text: this.text,
-        //     upperSideSlope: this.getUpperSideSlope(),
-        //     lowerSideSlope: this.getLowerSideSlope(),
-        // });
-        return !isSquare || !isFlat;
+    }
+
+    private getAcceptableSlope(): number {
+        if (this.geometry.boundingBox.height > 0.06) {
+            return ACCEPTABLE_SIDE_SLOPE_IN_DEGREE + 0.5;
+        }
+
+        return ACCEPTABLE_SIDE_SLOPE_IN_DEGREE;
     }
 
     private getUpperSideSlope(): number {
@@ -107,5 +141,9 @@ export default class Block {
         const h = MathUtil.diff(y1, y2);
         const w = this.geometry.boundingBox.width;
         return MathUtil.getBaseAngleOfRightAngledTriangle(w, h);
+    }
+
+    private isSquare(): boolean {
+        return this.geometry.polygon.length === 4;
     }
 }
