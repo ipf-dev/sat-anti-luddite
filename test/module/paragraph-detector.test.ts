@@ -14,13 +14,13 @@ test('When_ExecuteParagraphLineDetectorOnMerlinP11_Except_ResultToHaveLength4', 
         id: 'TPSDM06_11',
     });
     // eslint-disable-next-line no-underscore-dangle
-    const lines = resp.body._source.result
-        .filter((block: RawBlock) => block.BlockType === 'LINE')
-        .map((block: RawBlock) => new LineBlock(block));
-    // eslint-disable-next-line no-underscore-dangle
     const words = resp.body._source.result
         .filter((block: RawBlock) => block.BlockType === 'WORD')
         .map((block: RawBlock) => new WordBlock(block));
+    // eslint-disable-next-line no-underscore-dangle
+    const lines = resp.body._source.result
+        .filter((block: RawBlock) => block.BlockType === 'LINE')
+        .map((block: RawBlock) => new LineBlock(block, words));
     const detector = new ParagraphDetector(lines, words);
     detector.execute();
     const result: Paragraph[] = detector.getResult();

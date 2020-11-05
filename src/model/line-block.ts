@@ -1,8 +1,10 @@
 import assert from 'assert';
+import log from 'loglevel';
 
 import Block from './block';
 import { RawBlock } from './raw-block';
 import WordBlock from './word-block';
+import Geometry from './geometry';
 
 const INDICATOR_X_LIMIT = 0.15;
 const INDICATOR_Y_LIMIT = 0.2;
@@ -13,9 +15,11 @@ const MAX_REL_DISTANCE_Y_BTW_PARAGRAPH_LINES = 1.1;
 const MAX_ABS_DISTANCE_Y_BTW_PARAGRAPH_LINES = 0.02;
 
 export default class LineBlock extends Block {
-    public constructor(block: RawBlock) {
+    public constructor(block: RawBlock, words: WordBlock[]) {
         assert(block.BlockType === 'LINE', `Invalid 'BlockType' of block argument creating LineBlock object: ${block}`);
         super(block);
+        const children = words.filter((word) => this.isParentOf(word));
+        this.geometry = Geometry.buildWithWords(children);
     }
 
     public isChapter(): boolean {
@@ -37,14 +41,14 @@ export default class LineBlock extends Block {
     }
 
     public isNegligible(averageHeight: number): boolean {
-        // console.debug({
-        //     text: this.text,
-        //     outOfPageBound: this.outOfPageBound(),
-        //     heightOutOfBound: this.heightOutOfBound(),
-        //     heightOutOfAverageBound: this.heightOutOfAverageBound(averageHeight),
-        //     isNotFlatSquare: this.isNotFlatSquare(),
-        //     isNotConfident: !this.isConfident(),
-        // });
+        log.debug('isNegligible', {
+            text: this.text,
+            outOfPageBound: this.outOfPageBound(),
+            heightOutOfBound: this.heightOutOfBound(),
+            heightOutOfAverageBound: this.heightOutOfAverageBound(averageHeight),
+            isNotFlatSquare: this.isNotFlatSquare(),
+            isNotConfident: !this.isConfident(),
+        });
         return this.outOfPageBound()
             || this.heightOutOfBound()
             || this.heightOutOfAverageBound(averageHeight)
@@ -69,12 +73,12 @@ export default class LineBlock extends Block {
     }
 
     private isPreviousLineOf(nextBlock: LineBlock): boolean {
-        // console.debug({
-        //     currentLine: this.text,
-        //     nextLine: nextBlock.text,
-        //     hasWidthOverlap: this.hasEnoughWidthOverlap(nextBlock),
-        //     isLocatedAbove: this.isVerticallyLocatedAsPreviousLineOf(nextBlock),
-        // });
+        log.debug('isPreviousLineOf', {
+            currentLine: this.text,
+            nextLine: nextBlock.text,
+            hasWidthOverlap: this.hasEnoughWidthOverlap(nextBlock),
+            isLocatedAbove: this.isVerticallyLocatedAsPreviousLineOf(nextBlock),
+        });
 
         return this.hasEnoughWidthOverlap(nextBlock)
             && this.isVerticallyLocatedAsPreviousLineOf(nextBlock);
@@ -97,13 +101,13 @@ export default class LineBlock extends Block {
         const pBottom = this.geometry.boundingBox.top + this.geometry.boundingBox.height;
         const nTop = nextBlock.geometry.boundingBox.top;
 
-        // console.debug({
-        //     'height': height,
-        //     'pBottom': pBottom,
-        //     'nTop': nTop,
-        //     'nTop - pBottom': nTop - pBottom,
-        //     'nHeight * MAX_DISTANCE_Y_BTW_PARAGRAPH_LINES': height * MAX_REL_DISTANCE_Y_BTW_PARAGRAPH_LINES,
-        // });
+        log.debug('isVerticallyLocatedAsPreviousLineOf', {
+            'height': height,
+            'pBottom': pBottom,
+            'nTop': nTop,
+            'nTop - pBottom': nTop - pBottom,
+            'nHeight * MAX_DISTANCE_Y_BTW_PARAGRAPH_LINES': height * MAX_REL_DISTANCE_Y_BTW_PARAGRAPH_LINES,
+        });
 
         const distanceY = nTop - pBottom;
         return Math.abs(distanceY) < MAX_ABS_DISTANCE_Y_BTW_PARAGRAPH_LINES

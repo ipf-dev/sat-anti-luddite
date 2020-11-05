@@ -28,9 +28,9 @@ const rawGeometry = {
     ],
 };
 
-test('When_TextFullHeight_Expect_NoAdjustment', () => {
-    const geometry = new Geometry(rawGeometry);
-    geometry.adjustHeightDependingOnText('They');
+test('When_StretchHeightFalse_Expect_NoGeometryChange', () => {
+    const geometry = Geometry.buildWithRawGeometry(rawGeometry);
+    geometry.stretchHeight(false, false);
     expect(geometry.boundingBox.height).toBe(rawGeometry.BoundingBox.Height);
     expect(geometry.polygon[0].y).toBe(rawGeometry.Polygon[0].Y);
     expect(geometry.polygon[1].y).toBe(rawGeometry.Polygon[1].Y);
@@ -38,9 +38,9 @@ test('When_TextFullHeight_Expect_NoAdjustment', () => {
     expect(geometry.polygon[3].y).toBe(rawGeometry.Polygon[3].Y);
 });
 
-test('When_TextWithoutAscender_Expect_UpperAdjustment', () => {
-    const geometry = new Geometry(rawGeometry);
-    geometry.adjustHeightDependingOnText('you are');
+test('When_StretchUpperHeight_Expect_UpperAdjustment', () => {
+    const geometry = Geometry.buildWithRawGeometry(rawGeometry);
+    geometry.stretchHeight(true, false);
     expect(geometry.boundingBox.height).toBe(rawGeometry.BoundingBox.Height * (1 + HEIGHT_ADJUST_PROPORTION));
     expect(geometry.polygon[0].y).toBe(rawGeometry.Polygon[0].Y - rawGeometry.BoundingBox.Height * HEIGHT_ADJUST_PROPORTION);
     expect(geometry.polygon[1].y).toBe(rawGeometry.Polygon[1].Y - rawGeometry.BoundingBox.Height * HEIGHT_ADJUST_PROPORTION);
