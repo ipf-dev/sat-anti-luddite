@@ -24,3 +24,8 @@ test('When_stripSpecialCharacterFromString', () => {
     const result = StringUtil.stripSpecialCharacter('What what? Come on, she said.');
     expect(result).toEqual('What what Come on she said');
 });
+
+test('When_RemoveLeadingZeros00450_Expect_450', () => {
+    const result = StringUtil.removeLeadingZeros('00450');
+    expect(result).toEqual('450');
+});

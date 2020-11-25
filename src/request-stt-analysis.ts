@@ -1,14 +1,14 @@
 import { Handler, S3EventRecord } from 'aws-lambda';
 import { S3Event } from 'aws-lambda/trigger/s3';
+import log from 'loglevel';
 
-import { LanguageCode } from './model/language-code';
+import AntiLudditeHandler from './anti-luddite-handler';
 import Transcribe from './module/aws-transcribe';
-import S3, { S3Object } from './module/aws-s3';
+import S3 from './module/aws-s3';
+import STTFileMetadata from './model/stt-file-metadata';
 
+AntiLudditeHandler.init();
 const transcribe = new Transcribe();
-const s3 = new S3();
-
-const DEFAULT_LANGUAGE_CODE = 'en-GB';
 
 // eslint-disable-next-line import/prefer-default-export
 export const handler: Handler = async (event: S3Event, context, callback) => {
@@ -19,7 +19,7 @@ export const handler: Handler = async (event: S3Event, context, callback) => {
         await Promise.all(transcribingPromises);
         callback(null, { message: 'Start transcription job successfully' });
     } catch (err) {
-        console.log('Error starting transcription job:', JSON.stringify(err));
+        log.error('Error starting transcription job:', JSON.stringify(err));
         callback(err, { message: 'Error starting transcription job' });
     }
 };
@@ -27,31 +27,13 @@ export const handler: Handler = async (event: S3Event, context, callback) => {
 async function startTranscriptionJobForS3EventRecord(record: S3EventRecord) {
     const bucket = record.s3.bucket.name;
     const { key } = record.s3.object;
-    const jobName = `${getFileNameFromS3Key(key)}-${Date.now()}`;
-    const languageCode = await getLanguageCode({ bucket, key });
+    const fileName = S3.getFileNameFromKey(key);
+    const fileMetadata = new STTFileMetadata(fileName);
 
     return transcribe.startTranscriptionJob({
-        jobName, bucket, key, languageCode,
+        jobName: fileMetadata.getTranscribeJobName(),
+        bucket: bucket,
+        key: key,
+        languageCode: fileMetadata.getTranscribeLanguageCode(),
     });
-}
-
-function getFileNameFromS3Key(key: string): string {
-    const paths = key.split('/');
-    const objectName = paths[paths.length - 1];
-    return objectName.split('.')[0];
-}
-
-async function getLanguageCode(objectDesc: S3Object): Promise<LanguageCode> {
-    let languageCode: LanguageCode = DEFAULT_LANGUAGE_CODE;
-    const tags = await s3.getObjectTagging(objectDesc);
-    tags.forEach((tag) => {
-        if (tag.Key === 'LanguageCode' && isValidLanguageCode(tag.Value)) {
-            languageCode = tag.Value as LanguageCode;
-        }
-    });
-    return languageCode;
-}
-
-function isValidLanguageCode(code: string) {
-    return code === 'en-GB' || code === 'en-US';
 }

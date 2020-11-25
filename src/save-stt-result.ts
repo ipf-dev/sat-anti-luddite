@@ -1,26 +1,31 @@
 import assert from 'assert';
 import { Handler } from 'aws-lambda';
+import log from 'loglevel';
 
+import AntiLudditeHandler from './anti-luddite-handler';
 import ElasticSearch from './module/aws-elastic-search';
 import S3 from './module/aws-s3';
 import SNS from './module/aws-sns';
 import { TranscribeEvent } from './module/aws-transcribe';
+import STTJobMetadata from './model/stt-job-metadata';
 
+AntiLudditeHandler.init();
 const es = new ElasticSearch();
 const s3 = new S3();
 
 // eslint-disable-next-line import/prefer-default-export
 export const handler: Handler = async (event: TranscribeEvent, context, callback) => {
-    const {
-        jobName, documentId, bid, languageCode,
-    } = parseTranscribeEvent(event);
+    const jobName = getJobName(event);
+    const jobMetadata = new STTJobMetadata(jobName);
     const sttResult = await fetchSTTResult(jobName);
+    const documentId = jobMetadata.getDocumentId();
     const esIndexParam = {
         index: 'stt-result',
         body: {
-            bid: bid,
+            bid: jobMetadata.getBid(),
             jobName: sttResult.jobName,
-            languageCode: languageCode,
+            languageCode: jobMetadata.getTranscribeLanguageCode(),
+            sequence: jobMetadata.getSequenceNumber(),
             result: sttResult.results,
         },
         id: documentId,
@@ -36,24 +41,18 @@ export const handler: Handler = async (event: TranscribeEvent, context, callback
             documentId: documentId,
         });
     } catch (err) {
-        console.log('Error saving STT result to Elasticsearch:', JSON.stringify(err));
+        log.error('Error saving STT result to Elasticsearch:', JSON.stringify(err));
         callback(err, { message: 'Error saving STT result to Elasticsearch' });
     }
 };
 
-function parseTranscribeEvent(event: TranscribeEvent) {
+function getJobName(event: TranscribeEvent) {
     const {
         TranscriptionJobStatus: jobStatus,
         TranscriptionJobName: jobName,
     } = event.detail;
     assert(jobStatus === 'COMPLETED', `Invalid job status: ${jobStatus}`);
-    return { ...parseJobName(jobName), jobName };
-}
-
-function parseJobName(jobName: string) {
-    const documentId = jobName.split('-')[0];
-    const [bid, languageCode] = documentId.split('_');
-    return { documentId, bid, languageCode };
+    return jobName;
 }
 
 async function fetchSTTResult(jobName: string): Promise<any> {

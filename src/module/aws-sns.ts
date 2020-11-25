@@ -1,5 +1,6 @@
 import AWS from 'aws-sdk';
 import * as SNSClient from 'aws-sdk/clients/sns';
+import log from 'loglevel';
 
 type PublishParam = {
     arn: string;
@@ -24,7 +25,7 @@ export default class SNS {
             TopicArn: arn,
             Message: messageString,
         };
-        console.log(`publish-event: "${messageString}" to "${arn}"\n`);
+        log.info(`publish-event: "${messageString}" to "${arn}"\n`);
         return this.client.publish(publishParams).promise();
     }
 }

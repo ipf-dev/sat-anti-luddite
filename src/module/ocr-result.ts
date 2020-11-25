@@ -57,10 +57,10 @@ export default class OCRResult {
     }
 
     private filterTextElements(): FilteredTextElements {
-        const lines = this.getLineBlocks()
-            .map((block) => new LineBlock(block));
         const words = this.getWordBlocks()
             .map((block) => new WordBlock(block));
+        const lines = this.getLineBlocks()
+            .map((block) => new LineBlock(block, words));
         const filter = new TextElementFilter(lines, words);
         filter.execute();
         return filter.getResult();

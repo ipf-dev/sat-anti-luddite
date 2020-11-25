@@ -23,9 +23,9 @@ SAT Anti Luddite는 음성/이미지 인식 기술을 이용하여 Spindle Books
 
 ## Lambda functions
 ### request-stt-analysis
-S3 버킷으로부터 음원 파일 업로드시 이벤트 알림을 수신하여 해당 음원 파일에 대한 Transcribe 분석 작업을 요청합니다.
+S3 버킷으로부터 음원 파일 업로드시 이벤트 알림을 수신하여, 해당 음원 파일에 대한 Transcribe 분석 작업을 요청합니다.
 
-S3 Object의 Tag로 Transcribe 작업 시 사용할 언어코드를 설정할 수 있습니다. 태그 명은 `LanguageCode`, 값은 `en-US`, `en-GB` 등으로 합니다.
+S3 버킷에 음원 파일 업로드시, S3 Object의 파일명은 `{BID}_{US or UK}_{SEQ}.mp3`으로 합니다. (e.g. TPSBS90_US_01.mp3) 파일명은 그대로 Elastic Search의 `stt-result`와 `stt-sentence` index에서 도큐먼트 아이디가 됩니다. 또한 US or UK 값에 따라 음원 분석 작업 시의 언어코드 설정이 달라집니다.
 
 로컬 환경에서 함수 호출 시에는 아래의 명령어를 사용합니다.
 
