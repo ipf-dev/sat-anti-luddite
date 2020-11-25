@@ -12,13 +12,15 @@
         "@elastic/elasticsearch-mock": "^0.3.0",
         "aws-elasticsearch-connector": "^9.0.0",
         "aws-sdk": "^2.728.0",
-        "lodash": "^4.17.20"
+        "lodash": "^4.17.20",
+        "string-similarity": "^4.0.2"
     },
     "devDependencies": {
         "@iportfolio/eslint-config-iportfolio": "^0.1.1",
         "@types/aws-lambda": "^8.10.61",
         "@types/jest": "^26.0.9",
         "@types/js-yaml": "^3.12.5",
+        "@types/string-similarity": "^3.0.0",
         "babel-eslint": "^10.1.0",
         "eslint": "^7.5.0",
         "jest": "^26.4.0",

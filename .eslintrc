@@ -4,6 +4,8 @@
     ],
     "rules": {
         "prefer-destructuring": ["error", {"object": true, "array": false}],
-        "import/no-unresolved": 0
+        "import/no-unresolved": 0,
+        "no-continue": "off",
+        "no-plusplus": "off"
     }
 }
