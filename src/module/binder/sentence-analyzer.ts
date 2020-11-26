@@ -1,32 +1,32 @@
 import StringSimilarity from 'string-similarity';
-import { OCRSentence } from '../model/ocr-sentence';
+import { OCRSentence } from '../../model/ocr-sentence';
 
 export default class SentenceAnalyzer {
     private static readonly MIN_SUB_SENTENCE_SIMILARITY = 0.8;
 
-    // OCR Text is more accurate.
-    public static getSimilarity(sttText: string, ocrText: string): number {
-        const revised = SentenceAnalyzer.replaceFrequentMisSpelledProperNoun(sttText);
-        const orgSimilarity = StringSimilarity.compareTwoStrings(ocrText, sttText);
-        const revisedSimilarity = StringSimilarity.compareTwoStrings(ocrText, revised);
+    public static getSimilarity(verbalText: string, drawnText: string): number {
+        const revised = this.replaceFrequentMisSpelledProperNoun(verbalText);
 
-        return Math.max(orgSimilarity, revisedSimilarity);
+        return Math.max(
+            StringSimilarity.compareTwoStrings(drawnText, verbalText),
+            StringSimilarity.compareTwoStrings(drawnText, revised),
+        );
     }
 
-    // The sentences are often concatenated from the STT Result due to the missing punctuation.
-    public static isSTTConcatenated(sttText: string, ocrText: string) {
-        const revised = SentenceAnalyzer.replaceFrequentMisSpelledProperNoun(sttText);
+    // The sentences from the audio resource are often concatenated due to the missing punctuation.
+    public static isPartiallyMatched(verbalText: string, drawnText: string) {
+        const revised = SentenceAnalyzer.replaceFrequentMisSpelledProperNoun(verbalText);
         const maxSimilarity = Math.max(
-            SentenceAnalyzer.getSubSentenceSimilarity(sttText, ocrText),
-            SentenceAnalyzer.getSubSentenceSimilarity(revised, ocrText),
+            SentenceAnalyzer.getSubSentenceSimilarity(verbalText, drawnText),
+            SentenceAnalyzer.getSubSentenceSimilarity(revised, drawnText),
         );
 
         return maxSimilarity >= SentenceAnalyzer.MIN_SUB_SENTENCE_SIMILARITY;
     }
 
-    public static getSubSentenceSimilarity(sttText: string, ocrText: string): number {
-        const sttWords = sttText.split(' ');
-        const ocrWords = ocrText.split(' ');
+    public static getSubSentenceSimilarity(verbalText: string, drawnText: string): number {
+        const sttWords = verbalText.split(' ');
+        const ocrWords = drawnText.split(' ');
         let maxSimilarity = 0;
 
         for (const ocrWord of ocrWords) {
@@ -85,7 +85,7 @@ export default class SentenceAnalyzer {
         return text.toLowerCase()
             .replace('beth', 'biff')
             .replace('beef', 'biff')
-            .replace('bits', 'biff')
+            .replace('bits', 'biff\'s')
 
             .replace('keeper', 'kipper')
             .replace('kiper', 'kipper')

@@ -5,4 +5,6 @@ export type STTSentence = {
     startTime: number;
     endTime: number;
     confidence: number;
+    audioPath: string;
+    audioSequence: number;
 }

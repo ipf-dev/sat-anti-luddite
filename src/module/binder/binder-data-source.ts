@@ -1,10 +1,10 @@
 import { ApiResponse } from '@elastic/elasticsearch';
-import ElasticSearch from './aws-elastic-search';
-import { STTSentence } from '../model/stt-sentence';
-import { STTResult } from '../model/stt-result';
-import { OCRResult } from '../model/ocr-result';
-import StringUtil from '../util/string-util';
-import { OCRSentence } from '../model/ocr-sentence';
+import ElasticSearch from '../aws-elastic-search';
+import { STTSentence } from '../../model/stt-sentence';
+import { STTResult } from '../../model/stt-result';
+import { OCRResult } from '../../model/ocr-result';
+import StringUtil from '../../util/string-util';
+import { OCRSentence } from '../../model/ocr-sentence';
 import SentenceAnalyzer from './sentence-analyzer';
 
 /* eslint-disable no-underscore-dangle, no-param-reassign, arrow-body-style, array-callback-return, no-plusplus, space-infix-ops */
@@ -50,10 +50,6 @@ export default class BinderDataSource {
             return result.start_time && result.end_time;
         });
 
-        this.sttResult = this.sttResult.filter((result) => {
-            return result.start_time && result.end_time;
-        });
-
         this.sttSentences = this.sttSentences.filter((sentence) => {
             return sentence.startTime && sentence.endTime;
         });
@@ -61,7 +57,7 @@ export default class BinderDataSource {
         return this;
     }
 
-    // Some numeric data are stored in a string format.
+    // Some numeric fields are stored in a string.
     public typeForce(): this {
         this.sttResult.map((result) => {
             result.start_time = Number(result.start_time);
@@ -171,10 +167,18 @@ export default class BinderDataSource {
                 bool: {
                     must: [
                         { match: { bid } },
-                        { match: { languageCode } },
+                        {
+                            match: {
+                                languageCode: {
+                                    query: languageCode,
+                                    operator: 'and',
+                                },
+                            },
+                        },
                     ],
                 },
             },
+            sort: ['sequence'],
             size: BinderDataSource.MAX_SEARCH_RESULT,
         });
 
@@ -195,16 +199,30 @@ export default class BinderDataSource {
                 bool: {
                     must: [
                         { match: { bid } },
-                        { match: { languageCode } },
+                        {
+                            match: {
+                                languageCode: {
+                                    query: languageCode,
+                                    operator: 'and',
+                                },
+                            },
+                        },
                     ],
                 },
             },
+            sort: ['sequence'],
             size: BinderDataSource.MAX_SEARCH_RESULT,
         });
 
         if (response.statusCode === 200 && response.body?.hits?.hits?.length > 0) {
             for (const doc of response.body.hits.hits) {
-                sentences.push(...doc._source.result);
+                for (const result of doc._source.result) {
+                    sentences.push({
+                        ...result,
+                        audioPath: `source/${doc._id}.mp3`,
+                        audioSequence: doc._source.sequence,
+                    });
+                }
             }
         }
         return sentences;

@@ -1,4 +1,4 @@
-import SentenceAnalyzer from '../../src/module/sentence-analyzer';
+import SentenceAnalyzer from '../../../src/module/binder/sentence-analyzer';
 
 // test('When_CheckSTTConcatenated_come back called biff', () => {
 //     const similarity = SentenceAnalyzer.getSubSentenceSimilarity(
@@ -46,7 +46,7 @@ test('When_CheckSTTConcatenated_kipper read room', () => {
 // });
 
 test('When_CheckSTTConcatenated_chip read the story', () => {
-    const concatenated = SentenceAnalyzer.isSTTConcatenated(
+    const concatenated = SentenceAnalyzer.isPartiallyMatched(
         'kipper went into chips room chip read the storey',
         'chip read the story',
     );
@@ -55,7 +55,7 @@ test('When_CheckSTTConcatenated_chip read the story', () => {
 });
 
 test('When_CheckSTTConcatenated_come back they called', () => {
-    const concatenated = SentenceAnalyzer.isSTTConcatenated(
+    const concatenated = SentenceAnalyzer.isPartiallyMatched(
         'floppy ran out of the wood comeback called biff',
         'come back they called',
     );
@@ -64,7 +64,7 @@ test('When_CheckSTTConcatenated_come back they called', () => {
 });
 
 test('When_CheckSTTConcatenated_kipper read room', () => {
-    const concatenated = SentenceAnalyzer.isSTTConcatenated(
+    const concatenated = SentenceAnalyzer.isPartiallyMatched(
         'kipper went into chips room chip read the storey',
         'kipper read room',
     );
