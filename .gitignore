@@ -11,3 +11,6 @@ environment-variables.yml
 
 # IDE specific directories
 .idea
+
+# Test Output
+test/output

@@ -1,5 +1,6 @@
 import Geometry from '../geometry';
 import StringUtil from '../../util/string-util';
+import SentenceAnalyzer from '../../module/binder/sentence-analyzer';
 
 export type OCRSentenceVO = {
     readonly text: string,
@@ -36,5 +37,9 @@ export default class OCRSentence {
 
         this.tokens.push(...sentence.tokens);
         this.geometry.push(...sentence.geometry);
+    }
+
+    public getSimilarity(textStripped: string) {
+        return SentenceAnalyzer.getSimilarity(textStripped, this.textStripped);
     }
 }

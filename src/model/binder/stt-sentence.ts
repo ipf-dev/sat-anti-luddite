@@ -1,4 +1,6 @@
 import StringUtil from '../../util/string-util';
+import SentenceAnalyzer from '../../module/binder/sentence-analyzer';
+import STTResult from './stt-result';
 
 export type STTSentenceVO = {
     text: string;
@@ -25,5 +27,46 @@ export default class STTSentence {
         this.textStripped = StringUtil.getNormalizedText(result.text);
         this.audioPath = audioPath;
         this.audioSequence = audioSequence;
+    }
+
+    public isPartiallyMatched(textStripped: string): boolean {
+        return SentenceAnalyzer.isPartiallyMatched(this.textStripped, textStripped);
+    }
+
+    public splitMatched(partialText: string, sttResult: STTResult[]): STTSentence[] {
+        const [matched, remain] = SentenceAnalyzer.getPartiallyMatchedWords(this.textStripped, partialText);
+
+        return [
+            this.buildSubSentence(matched, sttResult),
+            this.buildSubSentence(remain, sttResult),
+        ];
+    }
+
+    public buildSubSentence(words: string[], sttResult: STTResult[]): STTSentence {
+        const [startTime, endTime] = this.getTimeRange(words, sttResult);
+
+        return new STTSentence({
+            text: words.join(' '),
+            startTime: startTime,
+            endTime: endTime,
+            confidence: this.confidence,
+        }, this.audioPath, this.audioSequence);
+    }
+
+    public getTimeRange(words: string[], sttResult: STTResult[]): number[] {
+        const timeRange: number[] = new Array(2);
+        const firstWord = words[0];
+        const lastWord = words[words.length - 1];
+
+        for (const stt of sttResult) {
+            if (stt.isInTimeRange(this.audioSequence, this.startTime, this.endTime)) {
+                if (stt.hasWord(firstWord)) {
+                    timeRange[0] = Number(stt.startTime);
+                } else if (stt.hasWord(lastWord)) {
+                    timeRange[1] = Number(stt.endTime);
+                }
+            }
+        }
+        return timeRange;
     }
 }

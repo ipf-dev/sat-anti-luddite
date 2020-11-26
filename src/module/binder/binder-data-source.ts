@@ -90,7 +90,7 @@ export default class BinderDataSource {
             for (const doc of response.body.hits.hits) {
                 for (const item of doc._source.result.items) {
                     if (item.start_time && item.end_time) {
-                        result.push(new STTResult(item));
+                        result.push(new STTResult(item, doc._source.sequence));
                     }
                 }
             }

@@ -12,6 +12,10 @@ export default class SentenceAnalyzer {
         );
     }
 
+    public static getPartiallyMatchedWords(verbalText: string, drawnText: string) {
+        return SentenceAnalyzer.getSimilarPartialSentence(verbalText, drawnText);
+    }
+
     // The sentences from the audio resource are often concatenated due to the missing punctuation.
     public static isPartiallyMatched(verbalText: string, drawnText: string) {
         const revised = SentenceAnalyzer.replaceFrequentMisSpelledProperNoun(verbalText);
@@ -24,25 +28,57 @@ export default class SentenceAnalyzer {
     }
 
     public static getSubSentenceSimilarity(verbalText: string, drawnText: string): number {
-        const sttWords = verbalText.split(' ');
-        const ocrWords = drawnText.split(' ');
+        const verbalWords = verbalText.split(' ');
+        const drawnWords = drawnText.split(' ');
         let maxSimilarity = 0;
 
-        for (const ocrWord of ocrWords) {
-            if (sttWords.includes(ocrWord)) {
-                const ocrIndex = ocrWords.indexOf(ocrWord);
-                const sttIndex = sttWords.indexOf(ocrWord);
+        for (const drawnWord of drawnWords) {
+            if (verbalWords.includes(drawnWord)) {
+                const drawnIndex = drawnWords.indexOf(drawnWord);
+                const verbalIndex = verbalWords.indexOf(drawnWord);
 
-                if ((sttIndex - ocrIndex >= 0) && (sttIndex - ocrIndex + ocrWords.length <= sttWords.length)) {
-                    const start = sttIndex - ocrIndex;
-                    const end = start + ocrWords.length;
-                    const similarity = SentenceAnalyzer.getStringArraySimilarity(ocrWords, sttWords.slice(start, end));
+                if ((verbalIndex - drawnIndex >= 0) && (verbalIndex - drawnIndex + drawnWords.length <= verbalWords.length)) {
+                    const start = verbalIndex - drawnIndex;
+                    const end = start + drawnWords.length;
+                    const similarity = SentenceAnalyzer.getStringArraySimilarity(drawnWords, verbalWords.slice(start, end));
 
                     maxSimilarity = Math.max(maxSimilarity, similarity);
                 }
             }
         }
         return maxSimilarity;
+    }
+
+    public static getSimilarPartialSentence(verbalText: string, drawnText: string): string[][] {
+        const verbalWords = verbalText.split(' ');
+        const drawnWords = drawnText.split(' ');
+        const words: string[][] = [];   // 0: matched, 1: remained
+        let maxSimilarity = 0;
+
+        for (const drawnWord of drawnWords) {
+            if (verbalWords.includes(drawnWord)) {
+                const drawnIndex = drawnWords.indexOf(drawnWord);
+                const verbalIndex = verbalWords.indexOf(drawnWord);
+
+                if ((verbalIndex - drawnIndex >= 0) && (verbalIndex - drawnIndex + drawnWords.length <= verbalWords.length)) {
+                    const start = verbalIndex - drawnIndex;
+                    const end = start + drawnWords.length;
+                    const similarity = SentenceAnalyzer.getStringArraySimilarity(drawnWords, verbalWords.slice(start, end));
+
+                    if (similarity > SentenceAnalyzer.MIN_SUB_SENTENCE_SIMILARITY && similarity > maxSimilarity) {
+                        const remainFront = start;
+                        const remainLast = verbalWords.length - end;
+                        const remainStart = (remainFront > remainLast) ? 0 : end;
+                        const remainEnd = (remainFront > remainLast) ? start : verbalWords.length;
+
+                        words.push(verbalWords.slice(start, end));
+                        words.push(verbalWords.slice(remainStart, remainEnd));
+                        maxSimilarity = similarity;
+                    }
+                }
+            }
+        }
+        return words;
     }
 
     public static getStringArraySimilarity(a: string[], b: string[]) {
