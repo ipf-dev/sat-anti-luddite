@@ -1,5 +1,4 @@
 import StringSimilarity from 'string-similarity';
-import { OCRSentence } from '../../model/ocr-sentence';
 
 export default class SentenceAnalyzer {
     private static readonly MIN_SUB_SENTENCE_SIMILARITY = 0.8;
@@ -46,32 +45,6 @@ export default class SentenceAnalyzer {
         return maxSimilarity;
     }
 
-    public static getSubSentence(sttText: string, ocrText: string): string[] {
-        const sttWords = sttText.split(' ');
-        const ocrWords = ocrText.split(' ');
-        let maxSimilarity = 0;
-        let subSentenceWords: string[] = [];
-
-        for (const ocrWord of ocrWords) {
-            if (sttWords.includes(ocrWord)) {
-                const ocrIndex = ocrWords.indexOf(ocrWord);
-                const sttIndex = sttWords.indexOf(ocrWord);
-
-                if ((sttIndex - ocrIndex >= 0) && (sttIndex - ocrIndex + ocrWords.length <= sttWords.length)) {
-                    const start = sttIndex - ocrIndex;
-                    const end = start + ocrWords.length;
-                    const similarity = SentenceAnalyzer.getStringArraySimilarity(ocrWords, sttWords.slice(start, end));
-
-                    if (maxSimilarity < similarity) {
-                        maxSimilarity = similarity;
-                        subSentenceWords = sttWords.slice(start, end);
-                    }
-                }
-            }
-        }
-        return subSentenceWords;
-    }
-
     public static getStringArraySimilarity(a: string[], b: string[]) {
         let accumulativeSimilarity = 0;
 
@@ -94,10 +67,5 @@ export default class SentenceAnalyzer {
 
             .replace('tip', 'chip')
             .replace('ship', 'chip');
-    }
-
-    public static shouldConcatenate(a: OCRSentence, b: OCRSentence) {
-        return (a.text.startsWith('"') && b.textStripped.startsWith('said'))
-            || (a.text.startsWith('"') && b.textStripped.startsWith('called'));
     }
 }

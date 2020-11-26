@@ -1,4 +1,4 @@
-import CompleteSentence from '../../model/complete-sentence';
+import CompleteSentence from '../../model/binder/complete-sentence';
 
 export default class SequenceGuard {
     private readonly filtered: CompleteSentence[];

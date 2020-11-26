@@ -1,5 +1,5 @@
-import Geometry from './geometry';
-import { OCRSentence } from './ocr-sentence';
+import Geometry from '../geometry';
+import OCRSentence from './ocr-sentence';
 
 export default class CompleteSentence {
     public readonly sentence: string;

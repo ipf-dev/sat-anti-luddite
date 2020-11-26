@@ -1,8 +1,8 @@
-import { STTSentence } from '../../model/stt-sentence';
-import { STTResult } from '../../model/stt-result';
-import { OCRResult } from '../../model/ocr-result';
-import { OCRSentence } from '../../model/ocr-sentence';
-import CompleteSentence from '../../model/complete-sentence';
+import STTSentence from '../../model/binder/stt-sentence';
+import STTResult from '../../model/binder/stt-result';
+import OCRPageResult from '../../model/binder/ocr-page-result';
+import OCRSentence from '../../model/binder/ocr-sentence';
+import CompleteSentence from '../../model/binder/complete-sentence';
 import BinderDataSource from './binder-data-source';
 import SentenceAnalyzer from './sentence-analyzer';
 import SequenceGuard from './sequence-guard';
@@ -11,7 +11,7 @@ import SequenceGuard from './sequence-guard';
 export default class SentenceBinder {
     private static readonly SIMILARITY_THRESHOLD = 0.81;
 
-    private ocrResult: OCRResult[];
+    private ocrResult: OCRPageResult[];
     private sttResult: STTResult[];
     private sttSentences: STTSentence[];
     private readonly completeSentences: CompleteSentence[];
@@ -37,12 +37,7 @@ export default class SentenceBinder {
             ocrResult,
             sttResult,
             sttSentences,
-        } = dataSource.filterNoise()
-            .typeForce()
-            .normalizeText()
-            .defragmentation()
-            .sort()
-            .fetch();
+        } = dataSource.sort().fetch();
 
         this.ocrResult = ocrResult;
         this.sttResult = sttResult;
@@ -65,7 +60,7 @@ export default class SentenceBinder {
         }
     }
 
-    private findBestMatch(ocrPage: OCRResult) {
+    private findBestMatch(ocrPage: OCRPageResult) {
         for (const ocrSentence of ocrPage.sentences) {
             let candidate: STTSentence | null = null;
             let candidateSimilarity = 0;
@@ -98,15 +93,20 @@ export default class SentenceBinder {
         }
     }
 
-    private findPartialMatch(ocrPage: OCRResult) {
+    private findPartialMatch(ocrPage: OCRPageResult) {
         for (const ocrSentence of ocrPage.sentences) {
             for (const sttSentence of this.sttSentences) {
-                if (ocrSentence.consumed || sttSentence.consumed) continue;
+                if (ocrSentence.tokens.length < 3 || ocrSentence.consumed || sttSentence.consumed) continue;
 
                 if (SentenceAnalyzer.isPartiallyMatched(sttSentence.textStripped, ocrSentence.textStripped)) {
-                    console.log('isPartiallyMatched: ', sttSentence.textStripped, ',', ocrSentence.textStripped,
-                        ',', SentenceAnalyzer.getSubSentenceSimilarity(sttSentence.textStripped, ocrSentence.textStripped));
+                    // const { matched, remained } = sttSentence.splitMatched(ocrSentence, this.sttResult);
+
+                    // console.log('isPartiallyMatched: ', ocrPage.page, ',', sttSentence.textStripped, ',', ocrSentence.textStripped,
+                    //     ',', SentenceAnalyzer.getSubSentenceSimilarity(sttSentence.textStripped, ocrSentence.textStripped));
                     // this.appendBoundSentence(ocrPage.page, candidate.startTime, candidate.endTime, ocrSentence);
+
+                    ocrSentence.consumed = true;
+                    sttSentence.consumed = true;
                 }
             }
         }
