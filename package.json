@@ -13,8 +13,9 @@
         "aws-elasticsearch-connector": "^9.0.0",
         "aws-sdk": "^2.728.0",
         "lodash": "^4.17.20",
-        "string-similarity": "^4.0.2",
-        "loglevel": "^1.7.0"
+        "loglevel": "^1.7.0",
+        "mp3-cutter": "^1.0.6",
+        "string-similarity": "^4.0.2"
     },
     "devDependencies": {
         "@iportfolio/eslint-config-iportfolio": "^0.1.1",

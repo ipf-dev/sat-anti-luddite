@@ -1,7 +1,9 @@
+import fs from 'fs';
+
 import AWS from 'aws-sdk';
 import * as S3Client from 'aws-sdk/clients/s3';
 import {
-    Body, ListObjectsV2Request, ObjectList, TagSet, ClientConfiguration
+    Body, ListObjectsV2Request, ObjectList, TagSet, ClientConfiguration,
 } from 'aws-sdk/clients/s3';
 
 export type S3Object = {
@@ -50,6 +52,16 @@ export default class S3 {
         };
         const objects = await this.client.listObjectsV2(params).promise();
         return objects.Contents || [];
+    }
+
+    public async downloadObject({ bucket, key }: GetObjectParam, path: string): Promise<void> {
+        const writeStream = fs.createWriteStream(path);
+        const readStream = this.client.getObject({
+            Bucket: bucket,
+            Key: key,
+        }).createReadStream();
+
+        readStream.pipe(writeStream);
     }
 
     public static getFileNameFromKey(key: string): string {
