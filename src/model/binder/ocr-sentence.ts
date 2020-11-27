@@ -27,6 +27,9 @@ export default class OCRSentence {
 
     public shouldConcatenate(reference: OCRSentence) {
         return (this.text.startsWith('"') && reference.textStripped.startsWith('said'))
+            || (this.text.startsWith('"') && reference.textStripped.startsWith('say'))
+            || (this.text.startsWith('"') && reference.textStripped.startsWith('says'))
+            || (this.text.startsWith('"') && reference.textStripped.startsWith('call'))
             || (this.text.startsWith('"') && reference.textStripped.startsWith('called'));
     }
 

@@ -6,6 +6,8 @@
         "prefer-destructuring": ["error", {"object": true, "array": false}],
         "import/no-unresolved": 0,
         "no-continue": "off",
-        "no-plusplus": "off"
+        "no-plusplus": "off",
+        "no-empty-function": "off",
+        "class-methods-use-this": "off"
     }
 }

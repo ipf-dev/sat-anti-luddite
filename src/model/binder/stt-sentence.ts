@@ -35,11 +35,15 @@ export default class STTSentence {
 
     public splitMatched(partialText: string, sttResult: STTResult[]): STTSentence[] {
         const [matched, remain] = SentenceAnalyzer.getPartiallyMatchedWords(this.textStripped, partialText);
+        const subSentences: STTSentence[] = [];
 
-        return [
-            this.buildSubSentence(matched, sttResult),
-            this.buildSubSentence(remain, sttResult),
-        ];
+        if (matched && matched.length >= 2) {
+            subSentences.push(this.buildSubSentence(matched, sttResult));
+        }
+        if (remain && remain.length >= 2) {
+            subSentences.push(this.buildSubSentence(remain, sttResult));
+        }
+        return subSentences;
     }
 
     public buildSubSentence(words: string[], sttResult: STTResult[]): STTSentence {

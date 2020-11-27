@@ -21,7 +21,7 @@ export default class CompleteSentence {
             + `audio: ${this.audioPath}, audioSequence: ${this.audioSequence}`;
     }
 
-    public toStringMinify(): string {
+    public toMinifyString(): string {
         return `[sentence detail] page: ${this.page}, similarity: ${this.similarity}`
             + `, ocr: ${this.sentence}, stt: ${this.sttSentence}`;
     }

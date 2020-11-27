@@ -48,6 +48,7 @@ export default class BinderDataSource {
             query: {
                 match: { bid },
             },
+            sort: ['page'],
             size: BinderDataSource.MAX_SEARCH_RESULT,
         });
 

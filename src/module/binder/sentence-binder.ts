@@ -19,8 +19,6 @@ export default class SentenceBinder {
     public constructor(
         readonly bid: string,
         readonly languageCode: 'en-GB' | 'en-US',
-        readonly startPage: number,
-        readonly endPage: number,
     ) {
         this.ocrResult = [];
         this.sttResult = [];
@@ -102,14 +100,19 @@ export default class SentenceBinder {
 
                 if (sttSentence.isPartiallyMatched(ocrSentence.textStripped)) {
                     const [matched, remained] = sttSentence.splitMatched(ocrSentence.textStripped, this.sttResult);
-                    const similarity = ocrSentence.getSimilarity(matched.textStripped);
 
-                    this.appendCompleteSentence(ocrPage.page, similarity, matched, ocrSentence);
-                    this.findRemainMatch(remained);
+                    if (matched) {
+                        const similarity = ocrSentence.getSimilarity(matched.textStripped);
 
-                    ocrSentence.consumed = true;
-                    sttSentence.consumed = true;
-                    matched.consumed = true;
+                        this.appendCompleteSentence(ocrPage.page, similarity, matched, ocrSentence);
+
+                        ocrSentence.consumed = true;
+                        sttSentence.consumed = true;
+                        matched.consumed = true;
+                    }
+                    if (remained) {
+                        this.findRemainMatch(remained);
+                    }
                 }
             }
         }
@@ -204,14 +207,14 @@ export default class SentenceBinder {
     // noinspection JSUnusedLocalSymbols
     private printCompleteSentence() {
         for (const sentence of this.completeSentences) {
-            console.log(sentence.toStringMinify());
+            console.log(sentence.toMinifyString());
         }
         console.log('complete sentence count: ', this.completeSentences.length);
     }
 
     // noinspection JSUnusedLocalSymbols
     private writeCompleteSentence() {
-        const path = 'test/output/complete-sentence.json';
+        const path = `test/output/complete-sentence-${this.bid}.json`;
 
         fs.writeFileSync(path, JSON.stringify(this.completeSentences));
     }
@@ -225,7 +228,7 @@ export default class SentenceBinder {
     private async teardown(): Promise<void> {
         // this.printIncompleteSentence();
         // this.printCompleteSentence();
-        // this.writeCompleteSentence();
+        this.writeCompleteSentence();
 
         this.sendSentenceDatabase();
     }
