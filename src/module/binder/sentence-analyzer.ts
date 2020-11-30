@@ -3,34 +3,34 @@ import StringSimilarity from 'string-similarity';
 export default class SentenceAnalyzer {
     private static readonly MIN_SUB_SENTENCE_SIMILARITY = 0.8;
 
-    public static getSimilarity(verbalText: string, drawnText: string): number {
+    public static getSimilarity(verbalText: string, writtenText: string): number {
         const verbalRevised = this.replaceFrequentMisSpelledProperNoun(verbalText);
 
         return Math.max(
-            StringSimilarity.compareTwoStrings(drawnText, verbalText),
-            StringSimilarity.compareTwoStrings(drawnText, verbalRevised),
+            StringSimilarity.compareTwoStrings(writtenText, verbalText),
+            StringSimilarity.compareTwoStrings(writtenText, verbalRevised),
         );
     }
 
-    public static getPartiallyMatchedWords(verbalText: string, drawnText: string): string[][] {
-        return SentenceAnalyzer.getSimilarPartialSentence(verbalText, drawnText);
+    public static getPartiallyMatchedWords(verbalText: string, writtenText: string): string[][] {
+        return SentenceAnalyzer.getSimilarPartialSentence(verbalText, writtenText);
     }
 
-    public static getSimilarPartialSentence(verbalText: string, drawnText: string): string[][] {
+    public static getSimilarPartialSentence(verbalText: string, writtenText: string): string[][] {
         const verbalWords = verbalText.split(' ');
-        const drawnWords = drawnText.split(' ');
+        const writtenWords = writtenText.split(' ');
         const words: string[][] = [];   // 0: matched, 1: remained
         let maxSimilarity = 0;
 
-        for (const drawnWord of drawnWords) {
-            if (verbalWords.includes(drawnWord)) {
-                const drawnIndex = drawnWords.indexOf(drawnWord);
-                const verbalIndex = verbalWords.indexOf(drawnWord);
+        for (const writtenWord of writtenWords) {
+            if (verbalWords.includes(writtenWord)) {
+                const writtenIndex = writtenWords.indexOf(writtenWord);
+                const verbalIndex = verbalWords.indexOf(writtenWord);
 
-                if ((verbalIndex - drawnIndex >= 0) && (verbalIndex - drawnIndex + drawnWords.length <= verbalWords.length)) {
-                    const start = verbalIndex - drawnIndex;
-                    const end = start + drawnWords.length;
-                    const similarity = SentenceAnalyzer.getStringArraySimilarity(drawnWords, verbalWords.slice(start, end));
+                if ((verbalIndex - writtenIndex >= 0) && (verbalIndex - writtenIndex + writtenWords.length <= verbalWords.length)) {
+                    const start = verbalIndex - writtenIndex;
+                    const end = start + writtenWords.length;
+                    const similarity = SentenceAnalyzer.getStringArraySimilarity(writtenWords, verbalWords.slice(start, end));
 
                     if (similarity > SentenceAnalyzer.MIN_SUB_SENTENCE_SIMILARITY && similarity > maxSimilarity) {
                         const remainFront = start;
@@ -49,29 +49,29 @@ export default class SentenceAnalyzer {
     }
 
     // The sentences from the audio resource are often concatenated due to the missing punctuation.
-    public static isPartiallyMatched(verbalText: string, drawnText: string): boolean {
+    public static isPartiallyMatched(verbalText: string, writtenText: string): boolean {
         const verbalRevised = SentenceAnalyzer.replaceFrequentMisSpelledProperNoun(verbalText);
         const maxSimilarity = Math.max(
-            SentenceAnalyzer.getSubSentenceSimilarity(verbalText, drawnText),
-            SentenceAnalyzer.getSubSentenceSimilarity(verbalRevised, drawnText),
+            SentenceAnalyzer.getSubSentenceSimilarity(verbalText, writtenText),
+            SentenceAnalyzer.getSubSentenceSimilarity(verbalRevised, writtenText),
         );
 
         return maxSimilarity >= SentenceAnalyzer.MIN_SUB_SENTENCE_SIMILARITY;
     }
 
-    public static getSubSentenceSimilarity(verbalText: string, drawnText: string): number {
+    public static getSubSentenceSimilarity(verbalText: string, writtenText: string): number {
         const verbalWords = verbalText.split(' ');
-        const drawnWords = drawnText.split(' ');
+        const writtenWords = writtenText.split(' ');
         let maxSimilarity = 0;
 
-        for (let i = 0; i < drawnWords.length; i++) {
-            if (verbalWords.includes(drawnWords[i])) {
-                const verbalIndex = verbalWords.indexOf(drawnWords[i]);
+        for (let i = 0; i < writtenWords.length; i++) {
+            if (verbalWords.includes(writtenWords[i])) {
+                const verbalIndex = verbalWords.indexOf(writtenWords[i]);
 
-                if ((verbalIndex - i >= 0) && (verbalIndex - i + drawnWords.length <= verbalWords.length)) {
+                if ((verbalIndex - i >= 0) && (verbalIndex - i + writtenWords.length <= verbalWords.length)) {
                     const start = verbalIndex - i;
-                    const end = start + drawnWords.length;
-                    const similarity = SentenceAnalyzer.getStringArraySimilarity(drawnWords, verbalWords.slice(start, end));
+                    const end = start + writtenWords.length;
+                    const similarity = SentenceAnalyzer.getStringArraySimilarity(writtenWords, verbalWords.slice(start, end));
 
                     maxSimilarity = Math.max(maxSimilarity, similarity);
                 }
