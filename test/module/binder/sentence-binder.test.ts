@@ -4,7 +4,7 @@ const TIMEOUT = 1000 * 60;
 const bid = process.env.BID || '';
 
 test('When_Execute_SentenceBinder', async () => {
-    const sentenceBinder = new SentenceBinder(bid, 'en-US');
+    const sentenceBinder = new SentenceBinder(bid, 'en-GB');
 
     await sentenceBinder.execute();
 }, TIMEOUT);

@@ -9,6 +9,7 @@ export type OCRSentenceVO = {
 };
 
 export default class OCRSentence {
+    public page: number;
     public text: string;
     public confidence: number;
     public geometry: Geometry[];
@@ -16,7 +17,8 @@ export default class OCRSentence {
     public textStripped: string;
     public tokens: string[];
 
-    public constructor(sentence: OCRSentenceVO) {
+    public constructor(page: number, sentence: OCRSentenceVO) {
+        this.page = page;
         this.text = sentence.text;
         this.confidence = sentence.confidence;
         this.geometry = sentence.geometry;
@@ -25,7 +27,9 @@ export default class OCRSentence {
         this.tokens = this.textStripped.split(' ');
     }
 
-    public shouldConcatenate(reference: OCRSentence) {
+    public shouldConcatenate(reference: OCRSentence): boolean {
+        if (this.page !== reference.page) return false;
+
         return (this.text.startsWith('"') && reference.textStripped.startsWith('said'))
             || (this.text.startsWith('"') && reference.textStripped.startsWith('say'))
             || (this.text.startsWith('"') && reference.textStripped.startsWith('says'))

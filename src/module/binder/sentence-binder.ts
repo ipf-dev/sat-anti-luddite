@@ -2,7 +2,6 @@ import fs from 'fs';
 
 import STTSentence from '../../model/binder/stt-sentence';
 import STTResult from '../../model/binder/stt-result';
-import OCRPageResult from '../../model/binder/ocr-page-result';
 import OCRSentence from '../../model/binder/ocr-sentence';
 import CompleteSentence from '../../model/binder/complete-sentence';
 import BinderDataSource from './binder-data-source';
@@ -11,18 +10,18 @@ import SequenceGuard from './sequence-guard';
 export default class SentenceBinder {
     private static readonly SIMILARITY_THRESHOLD = 0.81;
 
-    private ocrResult: OCRPageResult[];
     private sttResult: STTResult[];
     private sttSentences: STTSentence[];
+    private ocrSentences: OCRSentence[];
     private readonly completeSentences: CompleteSentence[];
 
     public constructor(
         readonly bid: string,
         readonly languageCode: 'en-GB' | 'en-US',
     ) {
-        this.ocrResult = [];
         this.sttResult = [];
         this.sttSentences = [];
+        this.ocrSentences = [];
         this.completeSentences = [];
     }
 
@@ -32,36 +31,33 @@ export default class SentenceBinder {
         await dataSource.load(this.bid, this.languageCode);
 
         const {
-            ocrResult,
             sttResult,
             sttSentences,
-        } = dataSource.sort().fetch();
+            ocrSentences,
+        } = dataSource
+            .defragmentation()
+            .sort()
+            .fetch();
 
-        this.ocrResult = ocrResult;
         this.sttResult = sttResult;
         this.sttSentences = sttSentences;
+        this.ocrSentences = ocrSentences;
     }
 
     public async execute(): Promise<void> {
         await this.setup();
 
-        this.findBestMatches();
+        this.findBestMatch();
         this.revokeTangledSequenceSentence();
-        this.findPartialMatches();
+        this.findSTTSentenceContainOCRSentence();
         this.revokeTangledSequenceSentence();
         this.sortCompleteSentence();
 
         await this.teardown();
     }
 
-    private findBestMatches() {
-        for (const ocrPageResult of this.ocrResult) {
-            this.findBestMatch(ocrPageResult);
-        }
-    }
-
-    private findBestMatch(ocrPage: OCRPageResult) {
-        for (const ocrSentence of ocrPage.sentences) {
+    private findBestMatch() {
+        for (const ocrSentence of this.ocrSentences) {
             let candidate: STTSentence | null = null;
             let candidateSimilarity = 0;
 
@@ -80,22 +76,14 @@ export default class SentenceBinder {
                 candidate.consumed = true;
                 ocrSentence.consumed = true;
 
-                this.appendCompleteSentence(ocrPage.page, candidateSimilarity, candidate, ocrSentence);
+                this.appendCompleteSentence(ocrSentence.page, candidateSimilarity, candidate, ocrSentence);
             }
-            candidate = null;
-            candidateSimilarity = 0;
         }
     }
 
-    private findPartialMatches() {
-        for (const ocrPageResult of this.ocrResult) {
-            this.findPartialMatch(ocrPageResult);
-        }
-    }
-
-    private findPartialMatch(ocrPage: OCRPageResult) {
-        for (const ocrSentence of ocrPage.sentences) {
-            for (const sttSentence of this.sttSentences) {
+    private findSTTSentenceContainOCRSentence() {
+        for (const sttSentence of this.sttSentences) {
+            for (const ocrSentence of this.ocrSentences) {
                 if (ocrSentence.tokens.length < 3 || ocrSentence.consumed || sttSentence.consumed) continue;
 
                 if (sttSentence.isPartiallyMatched(ocrSentence.textStripped)) {
@@ -104,7 +92,7 @@ export default class SentenceBinder {
                     if (matched) {
                         const similarity = ocrSentence.getSimilarity(matched.textStripped);
 
-                        this.appendCompleteSentence(ocrPage.page, similarity, matched, ocrSentence);
+                        this.appendCompleteSentence(ocrSentence.page, similarity, matched, ocrSentence);
 
                         ocrSentence.consumed = true;
                         sttSentence.consumed = true;
@@ -118,16 +106,41 @@ export default class SentenceBinder {
         }
     }
 
+    // private findOCRSentenceContainSTTSentence() {
+    //     for (const ocrPageResult of this.ocrResult) {
+    //         for (const ocrSentence of ocrPageResult.sentences) {
+    //             for (const sttSentence of this.sttSentences) {
+    //                 if (ocrSentence.tokens.length < 3 || ocrSentence.consumed || sttSentence.consumed) continue;
+    //
+    //                 if (sttSentence.isPartiallyMatched(ocrSentence.textStripped)) {
+    //                     const [matched, remained] = sttSentence.splitMatched(ocrSentence.textStripped, this.sttResult);
+    //
+    //                     if (matched) {
+    //                         const similarity = ocrSentence.getSimilarity(matched.textStripped);
+    //
+    //                         this.appendCompleteSentence(ocrPageResult.page, similarity, matched, ocrSentence);
+    //
+    //                         ocrSentence.consumed = true;
+    //                         sttSentence.consumed = true;
+    //                         matched.consumed = true;
+    //                     }
+    //                     if (remained) {
+    //                         this.findRemainMatch(remained);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+
     private findRemainMatch(remain: STTSentence) {
-        for (const ocrPage of this.ocrResult) {
-            for (const ocrSentence of ocrPage.sentences) {
-                const similarity = ocrSentence.getSimilarity(remain.textStripped);
+        for (const ocrSentence of this.ocrSentences) {
+            const similarity = ocrSentence.getSimilarity(remain.textStripped);
 
-                if (similarity > SentenceBinder.SIMILARITY_THRESHOLD) {
-                    this.appendCompleteSentence(ocrPage.page, similarity, remain, ocrSentence);
+            if (similarity > SentenceBinder.SIMILARITY_THRESHOLD) {
+                this.appendCompleteSentence(ocrSentence.page, similarity, remain, ocrSentence);
 
-                    ocrSentence.consumed = true;
-                }
+                ocrSentence.consumed = true;
             }
         }
     }
@@ -147,14 +160,10 @@ export default class SentenceBinder {
     }
 
     private revokeConsumeFlag(sentence: CompleteSentence) {
-        for (const ocrPageResult of this.ocrResult) {
-            if (sentence.page !== ocrPageResult.page) continue;
-
-            for (const ocrSentence of ocrPageResult.sentences) {
-                if (ocrSentence.text === sentence.sentence) {
-                    ocrSentence.consumed = false;
-                    break;
-                }
+        for (const ocrSentence of this.ocrSentences) {
+            if (ocrSentence.page === sentence.page && ocrSentence.text === sentence.sentence) {
+                ocrSentence.consumed = false;
+                break;
             }
         }
         for (const sttSentence of this.sttSentences) {
@@ -188,35 +197,48 @@ export default class SentenceBinder {
         });
     }
 
+    private filterIncompleteVerbalSentences(): STTSentence[] {
+        const incompleteSentences: STTSentence[] = [];
+        const { audioSequence, startTime } = this.completeSentences[0];
+
+        for (const sentence of this.sttSentences) {
+            if (sentence.consumed
+                || sentence.isPrevious(audioSequence, startTime)
+                || sentence.textStripped.split(' ').length < 2) continue;
+
+            incompleteSentences.push(sentence);
+        }
+        return incompleteSentences;
+    }
+
     // noinspection JSUnusedLocalSymbols
     private printIncompleteSentence() {
-        let unboundCount = 0;
+        const sentences = this.filterIncompleteVerbalSentences();
 
-        for (const ocrResult of this.ocrResult) {
-            for (const sentence of ocrResult.sentences) {
-                if (!sentence.consumed) {
-                    unboundCount++;
-
-                    console.log(`sentence: ${sentence.text}, ${sentence.confidence}, ${ocrResult.page}`);
-                }
-            }
-        }
-        console.log('complete sentence count: ', unboundCount);
+        console.log('incomplete sentence count: ', sentences.length);
     }
 
     // noinspection JSUnusedLocalSymbols
     private printCompleteSentence() {
-        for (const sentence of this.completeSentences) {
-            console.log(sentence.toMinifyString());
-        }
+        // for (const sentence of this.completeSentences) {
+        //     console.log(sentence.toMinifyString());
+        // }
         console.log('complete sentence count: ', this.completeSentences.length);
+    }
+
+    private writeInCompleteSentence() {
+        fs.writeFileSync(
+            `test/output/report/incomplete-stt-sentence-${this.bid}.json`,
+            JSON.stringify(this.filterIncompleteVerbalSentences()),
+        );
     }
 
     // noinspection JSUnusedLocalSymbols
     private writeCompleteSentence() {
-        const path = `test/output/complete-sentence-${this.bid}.json`;
-
-        fs.writeFileSync(path, JSON.stringify(this.completeSentences));
+        fs.writeFileSync(
+            `test/output/report/complete-sentence-${this.bid}.json`,
+            JSON.stringify(this.completeSentences),
+        );
     }
 
     // eslint-disable-next-line
@@ -226,8 +248,9 @@ export default class SentenceBinder {
     }
 
     private async teardown(): Promise<void> {
-        // this.printIncompleteSentence();
-        // this.printCompleteSentence();
+        this.printIncompleteSentence();
+        this.printCompleteSentence();
+        this.writeInCompleteSentence();
         this.writeCompleteSentence();
 
         this.sendSentenceDatabase();

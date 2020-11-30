@@ -2,46 +2,72 @@ import { ApiResponse } from '@elastic/elasticsearch';
 import ElasticSearch from '../aws-elastic-search';
 import STTSentence from '../../model/binder/stt-sentence';
 import STTResult from '../../model/binder/stt-result';
-import OCRPageResult from '../../model/binder/ocr-page-result';
+import OCRSentence from '../../model/binder/ocr-sentence';
 
 /* eslint-disable no-param-reassign, no-underscore-dangle */
 export default class BinderDataSource {
     private static readonly MAX_SEARCH_RESULT = 200;
 
-    private ocrResult: OCRPageResult[];
     private sttResult: STTResult[];
     private sttSentences: STTSentence[];
+    private ocrSentences: OCRSentence[];
 
     constructor() {
-        this.ocrResult = [];
         this.sttResult = [];
         this.sttSentences = [];
+        this.ocrSentences = [];
     }
 
     public async load(bid: string, languageCode: 'en-GB' | 'en-US') {
-        this.ocrResult = await BinderDataSource.getOCRResult(bid);
         this.sttResult = await BinderDataSource.getSTTResult(bid, languageCode);
         this.sttSentences = await BinderDataSource.getSTTSentence(bid, languageCode);
+        this.ocrSentences = await BinderDataSource.getOCRSentence(bid);
     }
 
     public fetch() {
         return {
-            ocrResult: this.ocrResult,
             sttResult: this.sttResult,
             sttSentences: this.sttSentences,
+            ocrSentences: this.ocrSentences,
         };
     }
 
     public sort(): this {
-        this.ocrResult?.sort((a: OCRPageResult, b: OCRPageResult) => (a.page > b.page ? 1 : -1));
-        this.sttResult?.sort((a, b) => (a.startTime > b.startTime ? 1 : -1));
-        this.sttSentences?.sort((a, b) => (a.startTime > b.startTime ? 1 : -1));
+        this.ocrSentences?.sort((a: OCRSentence, b: OCRSentence) => (a.page > b.page ? 1 : -1));
+
+        this.sttResult?.sort((a, b) => {
+            if (a.audioSequence === b.audioSequence) {
+                return a.startTime > b.startTime ? 1 : -1;
+            }
+            return a.audioSequence > b.audioSequence ? 1 : -1;
+        });
+
+        this.sttSentences?.sort((a, b) => {
+            if (a.audioSequence === b.audioSequence) {
+                return a.startTime > b.startTime ? 1 : -1;
+            }
+            return a.audioSequence > b.audioSequence ? 1 : -1;
+        });
 
         return this;
     }
 
-    private static async getOCRResult(bid: string): Promise<OCRPageResult[]> {
-        const result: OCRPageResult[] = [];
+    // While tokenizing sentence, some verbal text are split to multiple sentences.
+    // e.g. "Oh no!", said Chip. > ["Oh no!", said Chip.]
+    public defragmentation(): this {
+        const lastIndex = this.ocrSentences.length - 1;
+
+        for (let i = 0; i < lastIndex; i++) {
+            if (this.ocrSentences[i].shouldConcatenate(this.ocrSentences[i + 1])) {
+                this.ocrSentences[i].concatenate(this.ocrSentences[i + 1]);
+                this.ocrSentences[i + 1].consumed = true;
+            }
+        }
+        return this;
+    }
+
+    private static async getOCRSentence(bid: string): Promise<OCRSentence[]> {
+        const sentences: OCRSentence[] = [];
         const es = new ElasticSearch();
         const response: ApiResponse = await es.search({
             index: 'ocr-sentence',
@@ -54,13 +80,14 @@ export default class BinderDataSource {
 
         if (response.statusCode === 200 && response.body?.hits?.hits?.length > 0) {
             for (const doc of response.body.hits.hits) {
-                result.push(new OCRPageResult(
-                    doc._source.page,
-                    doc._source.result,
-                ));
+                const page = doc._source.page;
+
+                for (const sentence of doc._source.result) {
+                    sentences.push(new OCRSentence(page, sentence));
+                }
             }
         }
-        return result;
+        return sentences;
     }
 
     private static async getSTTResult(bid: string, languageCode: 'en-GB' | 'en-US'): Promise<STTResult[]> {
