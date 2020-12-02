@@ -1,22 +1,36 @@
-import { Handler, S3EventRecord } from 'aws-lambda';
-import { S3Event } from 'aws-lambda/trigger/s3';
+import { Handler } from 'aws-lambda';
 import log from 'loglevel';
 
 import AntiLudditeHandler from './anti-luddite-handler';
 import Transcribe from './module/aws-transcribe';
-import S3 from './module/aws-s3';
-import STTFileMetadata from './model/stt-file-metadata';
+import { LanguageCode } from './model/language-code';
+import ElasticSearch from './module/aws-elastic-search';
 
 AntiLudditeHandler.init();
 const transcribe = new Transcribe();
 
-// eslint-disable-next-line import/prefer-default-export
-export const handler: Handler = async (event: S3Event, context, callback) => {
-    const records = event.Records;
-    const transcribingPromises = records.map(startTranscriptionJobForS3EventRecord);
+const pronounceCodeMap = {
+    'en-GB': 'UK',
+    'en-US': 'US',
+};
+
+/* eslint-disable  import/prefer-default-export, no-await-in-loop */
+export const handler: Handler = async (event, context, callback) => {
+    const {
+        bucket, bid, languageCode, audios,
+    }: {
+        bucket: string,
+        bid: string,
+        languageCode: LanguageCode,
+        audios: { sequence:number, s3Key: string }[],
+    } = event;
+
+    await clearPreviousHistory(bid);
 
     try {
-        await Promise.all(transcribingPromises);
+        for (const audio of audios) {
+            await startTranscribeJob(bid, languageCode, bucket, audio);
+        }
         callback(null, { message: 'Start transcription job successfully' });
     } catch (err) {
         log.error('Error starting transcription job:', JSON.stringify(err));
@@ -24,16 +38,29 @@ export const handler: Handler = async (event: S3Event, context, callback) => {
     }
 };
 
-async function startTranscriptionJobForS3EventRecord(record: S3EventRecord) {
-    const bucket = record.s3.bucket.name;
-    const { key } = record.s3.object;
-    const fileName = S3.getFileNameFromKey(key);
-    const fileMetadata = new STTFileMetadata(fileName);
+async function startTranscribeJob(
+    bid: string,
+    languageCode: LanguageCode,
+    bucket: string,
+    audio: { sequence: number, s3Key: string },
+) {
+    const pronounce = pronounceCodeMap[languageCode];
+    const transcribeJobName = `${bid}_${pronounce}_${audio.sequence}-${Date.now()}`;
 
-    return transcribe.startTranscriptionJob({
-        jobName: fileMetadata.getTranscribeJobName(),
+    await transcribe.startTranscriptionJob({
+        jobName: transcribeJobName,
         bucket: bucket,
-        key: key,
-        languageCode: fileMetadata.getTranscribeLanguageCode(),
+        key: audio.s3Key,
+        languageCode: languageCode,
     });
+}
+
+async function clearPreviousHistory(bid: string) {
+    const es = new ElasticSearch();
+    const query = {
+        match: { bid },
+    };
+
+    await es.delete({ index: 'stt-result', query: query });
+    await es.delete({ index: 'stt-sentence', query: query });
 }

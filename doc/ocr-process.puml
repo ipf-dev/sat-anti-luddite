@@ -2,11 +2,23 @@
 skinparam responseMessageBelowArrow true
 
 participant SAT
+participant Textract
+participant "request-ocr-analysis-and-save-result"
 participant "ocr-body-filter"
 participant "ocr-sent-tokenize"
 database ElasticSearch
 
-SAT -> "ocr-body-filter": Invoke via SNS
+SAT -> "request-ocr-analysis-and-save-result": Invoke
+activate "request-ocr-analysis-and-save-result"
+
+"request-ocr-analysis-and-save-result" -> Textract: Request OCR analysis
+activate Textract
+"request-ocr-analysis-and-save-result" <-- Textract: Return result
+deactivate Textract
+
+"request-ocr-analysis-and-save-result" -> ElasticSearch: Save to <ocr-result>
+"request-ocr-analysis-and-save-result" -> "ocr-body-filter": Invoke via SNS
+deactivate "request-ocr-analysis-and-save-result"
 activate "ocr-body-filter"
 
 "ocr-body-filter" -> ElasticSearch: Query <ocr-result>

@@ -31,14 +31,7 @@ provider:
 functions:
   request-stt-analysis:
     handler: src/request-stt-analysis.handler
-    events:
-      - s3:
-          bucket: ${file(environment-variables.yml):STT_TRIGGER_BUCKET}
-          event: s3:ObjectCreated:*
-          rules:
-            - prefix: source/
-            - suffix: .mp3
-          existing: true
+    timeout: 120
   save-stt-result:
     handler: src/save-stt-result.handler
     events:
@@ -57,6 +50,7 @@ functions:
       - sns: sat-anti-luddite-ocr-body-filter
   request-ocr-analysis-and-save-result:
     handler: src/request-ocr-analysis-and-save-result.handler
+    timeout: 420
   invoke-ocr-function-by-bid:
     handler: src/invoke-ocr-function-by-bid.handler
 

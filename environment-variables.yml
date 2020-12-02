@@ -1,0 +1,7 @@
+STT_OUTPUT_BUCKET: sat-anti-luddite-stt-result
+ELASTIC_SEARCH_HOST: https://search-sat-anti-luddite-6cmsptt26mkqeswa2ye6hgkngi.ap-northeast-2.es.amazonaws.com
+TEXTRACT_REGION: ap-northeast-2
+TEXTRACT_INPUT_BUCKET: spindle-resources
+SNS_OCR_SENT_TOKENIZE: arn:aws:sns:ap-northeast-2:572836591883:sat-anti-luddite-ocr-sent-tokenize
+SNS_STT_SENT_TOKENIZE: arn:aws:sns:ap-northeast-2:572836591883:sat-anti-luddite-stt-sent-tokenize
+SNS_OCR_BODY_FILTER: arn:aws:sns:ap-northeast-2:572836591883:sat-anti-luddite-ocr-body-filter

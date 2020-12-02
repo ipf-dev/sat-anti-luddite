@@ -6,7 +6,6 @@ package-lock.json
 
 # Serverless directories
 .serverless
-environment-variables.yml
 .build
 
 # IDE specific directories

@@ -1,0 +1,15 @@
+{
+    "bucket": "spindle-test-resources",
+    "bid": "TPSRT206X",
+    "languageCode": "en-GB",
+    "audios": [
+        {
+            "sequence": 1,
+            "s3Key": "40be0683333c2/do-not-publish/TPSBW2SH1_hope.mp3"
+        },
+        {
+            "sequence": 2,
+            "s3Key": "40be0683333c2/do-not-publish/TPSBW2SH1_ordinary.mp3"
+        }
+    ]
+}
