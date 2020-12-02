@@ -17,6 +17,11 @@ type SearchParam = {
     filter_path?: string[];
 };
 
+type DeleteParam = {
+    index: string;
+    query: object;
+};
+
 type GetParam = {
     index: string;
     id: string;
@@ -72,6 +77,17 @@ export default class ElasticSearch {
         };
 
         return this.client.get(params);
+    }
+
+    public async delete({ index, query }: DeleteParam): Promise<ApiResponse> {
+        const params: RequestParams.DeleteByQuery = {
+            index: index,
+            body: {
+                query,
+            },
+        };
+
+        return this.client.delete_by_query(params);
     }
 }
 

@@ -4,6 +4,7 @@ import log from 'loglevel';
 import AntiLudditeHandler from './anti-luddite-handler';
 import Transcribe from './module/aws-transcribe';
 import { LanguageCode } from './model/language-code';
+import ElasticSearch from './module/aws-elastic-search';
 
 AntiLudditeHandler.init();
 const transcribe = new Transcribe();
@@ -23,6 +24,8 @@ export const handler: Handler = async (event, context, callback) => {
         languageCode: LanguageCode,
         audios: { sequence:number, s3Key: string }[],
     } = event;
+
+    await clearPreviousHistory(bid);
 
     try {
         for (const audio of audios) {
@@ -50,4 +53,14 @@ async function startTranscribeJob(
         key: audio.s3Key,
         languageCode: languageCode,
     });
+}
+
+async function clearPreviousHistory(bid: string) {
+    const es = new ElasticSearch();
+    const query = {
+        match: { bid },
+    };
+
+    await es.delete({ index: 'stt-result', query: query });
+    await es.delete({ index: 'stt-sentence', query: query });
 }
