@@ -3,7 +3,6 @@ import Geometry from '../geometry';
 export default class CompleteSentence {
     public constructor(
         readonly page: number,
-        readonly similarity: number,
         readonly startTime: number,
         readonly endTime: number,
         readonly sttSentence: string,
@@ -16,14 +15,12 @@ export default class CompleteSentence {
     }
 
     public toString(): string {
-        return `[sentence detail] page: ${this.page}, similarity: ${this.similarity}`
-            + `, ocr: ${this.sentence}, stt: ${this.sttSentence}, start: ${this.startTime}, end: ${this.endTime}, `
-            + `audio: ${this.audioPath}, audioSequence: ${this.audioSequence}`;
+        return `[sentence detail] page: ${this.page}, ocr: ${this.sentence}, stt: ${this.sttSentence}`
+            + `, start: ${this.startTime}, end: ${this.endTime}, audio: ${this.audioPath}, audioSequence: ${this.audioSequence}`;
     }
 
     public toMinifyString(): string {
-        return `[sentence detail] page: ${this.page}, similarity: ${this.similarity}`
-            + `, ocr: ${this.sentence}, stt: ${this.sttSentence}`;
+        return `[sentence detail] page: ${this.page}, ocr: ${this.sentence}, stt: ${this.sttSentence}`;
     }
 
     public isPrevious(reference: CompleteSentence): boolean {

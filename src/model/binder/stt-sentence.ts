@@ -73,4 +73,14 @@ export default class STTSentence {
         }
         return timeRange;
     }
+
+    public isPrevious(sequence: number, startTime: number): boolean {
+        return ((this.audioSequence < sequence)
+            || (this.audioSequence === sequence && this.startTime < startTime));
+    }
+
+    public isNext(sequence: number, startTime: number): boolean {
+        return ((this.audioSequence > sequence)
+            || (this.audioSequence === sequence && this.startTime > startTime));
+    }
 }
