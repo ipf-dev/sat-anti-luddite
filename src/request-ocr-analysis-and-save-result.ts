@@ -27,7 +27,7 @@ export const handler: Handler = async (event, context, callback) => {
 
         // The AWS Textract Quota is limited to 1 tps.
         // In order to avoid ProvisionedThroughputExceededException, we need to throttle the requests.
-        await sleep(1000);
+        await sleep(3000);
     }
     callback(null, documentIds);
 };

@@ -3,12 +3,64 @@
     "bucket": "spindle-test-resources",
     "documents": [
         {
+            "page": 1,
+            "s3Key": "5fc60778a1422/img/0001.jpg"
+        },
+        {
+            "page": 2,
+            "s3Key": "5fc60778a1422/img/0002.jpg"
+        },
+        {
+            "page": 3,
+            "s3Key": "5fc60778a1422/img/0003.jpg"
+        },
+        {
+            "page": 4,
+            "s3Key": "5fc60778a1422/img/0004.jpg"
+        },
+        {
+            "page": 5,
+            "s3Key": "5fc60778a1422/img/0005.jpg"
+        },
+        {
+            "page": 6,
+            "s3Key": "5fc60778a1422/img/0006.jpg"
+        },
+        {
             "page": 7,
             "s3Key": "5fc60778a1422/img/0007.jpg"
         },
         {
             "page": 8,
             "s3Key": "5fc60778a1422/img/0008.jpg"
+        },
+        {
+            "page": 9,
+            "s3Key": "5fc60778a1422/img/0009.jpg"
+        },
+        {
+            "page": 10,
+            "s3Key": "5fc60778a1422/img/0010.jpg"
+        },
+        {
+            "page": 11,
+            "s3Key": "5fc60778a1422/img/0011.jpg"
+        },
+        {
+            "page": 12,
+            "s3Key": "5fc60778a1422/img/0012.jpg"
+        },
+        {
+            "page": 13,
+            "s3Key": "5fc60778a1422/img/0013.jpg"
+        },
+        {
+            "page": 14,
+            "s3Key": "5fc60778a1422/img/0014.jpg"
+        },
+        {
+            "page": 15,
+            "s3Key": "5fc60778a1422/img/0015.jpg"
         }
     ]
 }
