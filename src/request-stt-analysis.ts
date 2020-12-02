@@ -1,30 +1,66 @@
-import { Handler, S3EventRecord } from 'aws-lambda';
+import { Handler } from 'aws-lambda';
 import log from 'loglevel';
 
 import AntiLudditeHandler from './anti-luddite-handler';
 import Transcribe from './module/aws-transcribe';
-import S3 from './module/aws-s3';
-import STTFileMetadata from './model/stt-file-metadata';
+import { LanguageCode } from './model/language-code';
+import ElasticSearch from './module/aws-elastic-search';
 
 AntiLudditeHandler.init();
 const transcribe = new Transcribe();
 
-// eslint-disable-next-line import/prefer-default-export
+const pronounceCodeMap = {
+    'en-GB': 'UK',
+    'en-US': 'US',
+};
+
+/* eslint-disable  import/prefer-default-export, no-await-in-loop */
 export const handler: Handler = async (event, context, callback) => {
-    const { bucket, s3Key } = event;
-    const fileName = S3.getFileNameFromKey(s3Key);
-    const fileMetadata = new STTFileMetadata(fileName);
+    const {
+        bucket, bid, languageCode, audios,
+    }: {
+        bucket: string,
+        bid: string,
+        languageCode: LanguageCode,
+        audios: { sequence:number, s3Key: string }[],
+    } = event;
+
+    await clearPreviousHistory(bid);
 
     try {
-        await transcribe.startTranscriptionJob({
-            jobName: fileMetadata.getTranscribeJobName(),
-            bucket: bucket,
-            key: s3Key,
-            languageCode: fileMetadata.getTranscribeLanguageCode(),
-        });
+        for (const audio of audios) {
+            await startTranscribeJob(bid, languageCode, bucket, audio);
+        }
         callback(null, { message: 'Start transcription job successfully' });
     } catch (err) {
         log.error('Error starting transcription job:', JSON.stringify(err));
         callback(err, { message: 'Error starting transcription job' });
     }
 };
+
+async function startTranscribeJob(
+    bid: string,
+    languageCode: LanguageCode,
+    bucket: string,
+    audio: { sequence: number, s3Key: string },
+) {
+    const pronounce = pronounceCodeMap[languageCode];
+    const transcribeJobName = `${bid}_${pronounce}_${audio.sequence}-${Date.now()}`;
+
+    await transcribe.startTranscriptionJob({
+        jobName: transcribeJobName,
+        bucket: bucket,
+        key: audio.s3Key,
+        languageCode: languageCode,
+    });
+}
+
+async function clearPreviousHistory(bid: string) {
+    const es = new ElasticSearch();
+    const query = {
+        match: { bid },
+    };
+
+    await es.delete({ index: 'stt-result', query: query });
+    await es.delete({ index: 'stt-sentence', query: query });
+}
