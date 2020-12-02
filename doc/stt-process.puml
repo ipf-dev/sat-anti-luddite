@@ -1,6 +1,7 @@
 @startuml
 skinparam responseMessageBelowArrow true
 
+participant SAT
 participant S3
 participant Transcribe
 participant "request-stt-analysis"
@@ -8,11 +9,16 @@ participant "save-stt-result"
 participant "stt-sent-tokenize"
 database ElasticSearch
 
-S3 -> "request-stt-analysis": Invoke via SNS when image uploaded
-activate "request-stt-analysis"
+SAT -> S3: Upload mp3
 
+activate SAT
+SAT -> "request-stt-analysis": Invoke
+deactivate SAT
+
+activate "request-stt-analysis"
 "request-stt-analysis" -> Transcribe: Request STT analysis
 deactivate "request-stt-analysis"
+
 activate Transcribe
 Transcribe -> "save-stt-result": Invoke via SNS when transcribe job completed
 deactivate Transcribe
