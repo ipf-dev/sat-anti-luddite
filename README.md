@@ -30,7 +30,7 @@ S3 버킷에 음원 파일 업로드시, S3 Object의 파일명은 `{BID}_{US or
 로컬 환경에서 함수 호출 시에는 아래의 명령어를 사용합니다.
 
 ```shell script
-serverless invoke local --function request-stt-analysis --data '{"bucket":"your-s3-bucket", "s3Key": "path/to/object/TPSBC023_UK_01.mp3"}'
+serverless invoke local --function request-stt-analysis --path test/params/stt-analysis-request.json
 ```
 
 ### save-stt-result
