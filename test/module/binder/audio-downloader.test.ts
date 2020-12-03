@@ -1,28 +1,19 @@
 import fs from 'fs';
 
-import CompleteSentence from '../../../src/model/binder/complete-sentence';
+import CompleteSentence, { CompleteSentenceBuilder } from '../../../src/model/binder/complete-sentence';
 import AudioDownloader from '../../../src/module/binder/audio-downloader';
 
-const bid = 'TPSRT206X';
-const folder = '5fc60778a1422';
-const bucket = 'spindle-test-resources';
-const path = `test/output/report/complete-sentence-${bid}.json`;
-const json = fs.readFileSync(path, 'utf-8');
+const bid = process.env.TEST_BID || '';
+const folder = process.env.TEST_FOLDER || '';
+const bucket = process.env.TEST_BUCKET || '';
+const json = fs.readFileSync(`test/output/report/complete-sentence-${bid}.json`, 'utf-8');
 const rows = JSON.parse(json);
+
 const sentences: CompleteSentence[] = [];
 const downloader = new AudioDownloader(bid, folder, bucket);
 
 for (const row of rows) {
-    sentences.push(new CompleteSentence(
-        row.page,
-        row.language,
-        row.startTime,
-        row.endTime,
-        row.sttSentence,
-        row.audioSequence,
-        row.sentence,
-        row.geometry,
-    ));
+    sentences.push(new CompleteSentenceBuilder().buildFromJSON(row));
 }
 
 beforeAll(() => {
@@ -42,7 +33,7 @@ test('When_Aggregate_Audio_Keys', () => {
 test('When_Download_Audios', () => {
     const files = downloader.aggregateFiles(sentences);
 
-    downloader.downloadFiles(bucket, files);
+    downloader.downloadFiles(files);
 
     for (const file of files) {
         const filepath = `test/output/${file}`;

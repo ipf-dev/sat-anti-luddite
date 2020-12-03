@@ -22,21 +22,23 @@ export default class AudioDownloader {
         return filenames;
     }
 
-    public async downloadFiles(bucket: string, filenames: Set<string>) {
+    public async downloadFiles(filenames: Set<string>) {
         for (const filename of filenames) {
             // eslint-disable-next-line
-            await this.downloadFile(bucket, filename);
+            await this.downloadFile(filename);
         }
     }
 
-    // noinspection JSMethodCanBeStatic
-    private async downloadFile(bucket: string, filename: string) {
+    private async downloadFile(filename: string) {
         const path = `test/output/${filename}`;
         const key = `${this.folder}/do-not-publish/${filename}`;
         const s3 = new S3();
 
         if (fs.existsSync(path)) fs.unlinkSync(path);
 
-        await s3.downloadObject({ bucket, key }, path);
+        await s3.downloadObject({
+            bucket: this.bucket,
+            key: key,
+        }, path);
     }
 }

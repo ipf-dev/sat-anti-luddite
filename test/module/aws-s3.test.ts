@@ -27,3 +27,15 @@ test('When_DownloadFileFromS3', async () => {
     }
     expect(fs.existsSync(path)).toBeTruthy();
 });
+
+test('When_UploadFileToS3', async () => {
+    const s3 = new S3();
+    const bucket = process.env.TEST_BUCKET || '';
+    const key = '5fc60778a1422/test/test.mp3';
+
+    await s3.putObject({
+        bucket: bucket,
+        key: key,
+        contentType: 'audio/mpeg',
+    }, path);
+});

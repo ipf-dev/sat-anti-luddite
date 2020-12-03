@@ -46,4 +46,33 @@ export default class CompleteSentence {
 
         return `${pronunciation}_p${this.page}_${normalized}.mp3`;
     }
+
+
+    /**
+     *  Audio XML Example
+     *  <Audio Rect="165,24,101,101" Icon="1,10" autoplay="on" invisible="on" dimming="on" group="4">
+     *      <File Path="combined.mp3" Language="US" Start="00:05.005" End="00:06.006"/>
+     *      <File Path="combined.mp3" Language="GB" Start="00:07.007" End="00:08.008"/>
+     *      <Subtitle Path="sample_script.vtt" Language="en-us"/>
+     *      <Subtitle Path="sample_script_with_text_styling.vtt" Language="en-uk"/>
+     *  </Audio>
+     */
+    public generateXML(): string {
+        return '';
+    }
+}
+
+export class CompleteSentenceBuilder {
+    public buildFromJSON(row: any): CompleteSentence {
+        return new CompleteSentence(
+            row.page,
+            row.language,
+            row.startTime,
+            row.endTime,
+            row.sttSentence,
+            row.audioSequence,
+            row.sentence,
+            row.geometry,
+        );
+    }
 }
