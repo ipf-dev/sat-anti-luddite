@@ -1,4 +1,4 @@
-import Geometry from '../geometry';
+import Geometry, { BoundingBox } from '../geometry';
 import StringUtil from '../../util/string-util';
 import { Language } from '../language';
 
@@ -47,18 +47,46 @@ export default class CompleteSentence {
         return `${pronunciation}_p${this.page}_${normalized}.mp3`;
     }
 
+    public generateXML(pageWidth: number, pageHeight: number): string[] {
+        const filename = this.getSlicedAudioFilename();
+        const pronunciation = this.language.pronunciation;
+        const xml: string[] = [];
 
-    /**
-     *  Audio XML Example
-     *  <Audio Rect="165,24,101,101" Icon="1,10" autoplay="on" invisible="on" dimming="on" group="4">
-     *      <File Path="combined.mp3" Language="US" Start="00:05.005" End="00:06.006"/>
-     *      <File Path="combined.mp3" Language="GB" Start="00:07.007" End="00:08.008"/>
-     *      <Subtitle Path="sample_script.vtt" Language="en-us"/>
-     *      <Subtitle Path="sample_script_with_text_styling.vtt" Language="en-uk"/>
-     *  </Audio>
-     */
-    public generateXML(): string {
+        if (this.geometry && this.geometry.length > 0) {
+            const group = this.getGroupId();
+
+            for (const geometry of this.geometry) {
+                const {
+                    left, top, width, height,
+                } = this.getRect(pageWidth, pageHeight, geometry.boundingBox);
+
+                // noinspection HtmlUnknownAttribute
+                xml.push(`<Audio Rect="${left},${top},${width},${height}" Icon="0" autoplay="" invisible="" dimming="" group="${group}">
+                              <File Path="${filename}" Language="${pronunciation}"/>
+                          </Audio>`);
+            }
+        }
+        return xml;
+    }
+
+    private getGroupId(): string | number {
+        if (this.geometry.length > 1) {
+            return Math.ceil(Math.random() * 1000);
+        }
         return '';
+    }
+
+    private getRect(
+        pageWidth: number,
+        pageHeight: number,
+        box: BoundingBox,
+    ): { left: number, top: number, width: number, height: number } {
+        return {
+            left: Math.floor(pageWidth * box.left),
+            top: Math.floor(pageHeight * box.top),
+            width: Math.floor(pageWidth * box.width),
+            height: Math.floor(pageHeight * box.height),
+        };
     }
 }
 

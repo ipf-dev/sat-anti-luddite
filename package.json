@@ -12,6 +12,7 @@
         "@elastic/elasticsearch-mock": "^0.3.0",
         "aws-elasticsearch-connector": "^9.0.0",
         "aws-sdk": "^2.728.0",
+        "axios": "^0.21.0",
         "lodash": "^4.17.20",
         "loglevel": "^1.7.0",
         "mp3-cutter": "^1.0.6",
