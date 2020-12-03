@@ -1,5 +1,7 @@
 import fs from 'fs';
+import log from 'loglevel';
 
+import { Language } from '../../model/language';
 import STTSentence from '../../model/binder/stt-sentence';
 import STTResult from '../../model/binder/stt-result';
 import OCRSentence from '../../model/binder/ocr-sentence';
@@ -17,7 +19,7 @@ export default class SentenceBinder {
 
     public constructor(
         readonly bid: string,
-        readonly languageCode: 'en-GB' | 'en-US',
+        readonly language: Language,
     ) {
         this.sttResult = [];
         this.sttSentences = [];
@@ -26,9 +28,9 @@ export default class SentenceBinder {
     }
 
     private async setup(): Promise<void> {
-        const dataSource = new BinderDataSource();
+        const dataSource = new BinderDataSource(this.language);
 
-        await dataSource.load(this.bid, this.languageCode);
+        await dataSource.load(this.bid);
 
         const {
             sttResult,
@@ -60,7 +62,7 @@ export default class SentenceBinder {
 
     private findBestMatch() {
         for (const ocrSentence of this.ocrSentences) {
-            const candidate = this.findBestMatchCandidate(ocrSentence);
+            const candidate = this.findBestMatchedSTT(ocrSentence);
 
             if (candidate) {
                 candidate.consumed = true;
@@ -71,7 +73,7 @@ export default class SentenceBinder {
         }
     }
 
-    private findBestMatchCandidate(ocrSentence: OCRSentence): STTSentence | null {
+    private findBestMatchedSTT(ocrSentence: OCRSentence): STTSentence | null {
         let candidate: STTSentence | null = null;
         let candidateSimilarity = 0;
 
@@ -151,17 +153,19 @@ export default class SentenceBinder {
         }
     }
 
-    private appendCompleteSentence(page: number, sttSentence: STTSentence, sentence: OCRSentence) {
-        this.completeSentences.push(new CompleteSentence(
+    private appendCompleteSentence(page: number, sttSentence: STTSentence, ocrSentence: OCRSentence) {
+        const sentence = new CompleteSentence(
             page,
+            this.language,
             sttSentence.startTime,
             sttSentence.endTime,
             sttSentence.text,
-            sttSentence.audioPath,
             sttSentence.audioSequence,
-            sentence.text,
-            sentence.geometry,
-        ));
+            ocrSentence.text,
+            ocrSentence.geometry,
+        );
+
+        this.completeSentences.push(sentence);
     }
 
     private sortCompleteSentence() {
@@ -187,17 +191,21 @@ export default class SentenceBinder {
         return incompleteSentences;
     }
 
+    public getCompleteSentences(): CompleteSentence[] {
+        return this.completeSentences;
+    }
+
     private printIncompleteSentence() {
         const sentences = this.filterIncompleteVerbalSentences();
 
-        console.log('incomplete sentence count: ', sentences.length);
+        log.info('incomplete sentence count: ', sentences.length);
     }
 
     private printCompleteSentence() {
         // for (const sentence of this.completeSentences) {
         //     console.log(sentence.toMinifyString());
         // }
-        console.log('complete sentence count: ', this.completeSentences.length);
+        log.info('complete sentence count: ', this.completeSentences.length);
     }
 
     private writeInCompleteSentence() {
@@ -214,17 +222,10 @@ export default class SentenceBinder {
         );
     }
 
-    private sendSentenceDatabase() {
-        // TODO: Filter sentence which contains 3~12 words. For sentence database.
-        // TODO: Filter sentence are perfect matching. For sentence database.
-    }
-
     private async teardown(): Promise<void> {
         this.printIncompleteSentence();
         this.printCompleteSentence();
         this.writeInCompleteSentence();
         this.writeCompleteSentence();
-
-        this.sendSentenceDatabase();
     }
 }

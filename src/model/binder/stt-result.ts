@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
 import StringUtil from '../../util/string-util';
+import { Language } from '../language';
 
 export type STTResultVO = {
     start_time: number | string;
@@ -18,12 +19,14 @@ export default class STTResult {
     endTime: number | string;
     audioSequence: number;
     alternatives: STTResultAlternative[];
+    language: Language;
 
-    public constructor(result: STTResultVO, audioSequence: number) {
+    public constructor(result: STTResultVO, audioSequence: number, language: Language) {
         this.startTime = Number(result.start_time);
         this.endTime = Number(result.end_time);
         this.alternatives = result.alternatives;
         this.audioSequence = audioSequence;
+        this.language = language;
 
         for (const alternative of this.alternatives) {
             alternative.confidence = Number(alternative.confidence);

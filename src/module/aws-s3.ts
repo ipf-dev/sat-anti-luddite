@@ -54,14 +54,18 @@ export default class S3 {
         return objects.Contents || [];
     }
 
-    public async downloadObject({ bucket, key }: GetObjectParam, path: string): Promise<void> {
-        const writeStream = fs.createWriteStream(path);
-        const readStream = this.client.getObject({
-            Bucket: bucket,
-            Key: key,
-        }).createReadStream();
+    public downloadObject({ bucket, key }: GetObjectParam, path: string): Promise<void> {
+        return new Promise((resolve) => {
+            const writeStream = fs.createWriteStream(path);
+            const readStream = this.client.getObject({
+                Bucket: bucket,
+                Key: key,
+            }).createReadStream();
 
-        readStream.pipe(writeStream);
+            readStream.pipe(writeStream).on('finish', () => {
+                resolve();
+            });
+        });
     }
 
     public static getFileNameFromKey(key: string): string {

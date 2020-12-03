@@ -3,6 +3,7 @@ import ElasticSearch from '../aws-elastic-search';
 import STTSentence from '../../model/binder/stt-sentence';
 import STTResult from '../../model/binder/stt-result';
 import OCRSentence from '../../model/binder/ocr-sentence';
+import { Language } from '../../model/language';
 
 /* eslint-disable no-param-reassign, no-underscore-dangle */
 export default class BinderDataSource {
@@ -12,16 +13,16 @@ export default class BinderDataSource {
     private sttSentences: STTSentence[];
     private ocrSentences: OCRSentence[];
 
-    constructor() {
+    constructor(readonly language: Language) {
         this.sttResult = [];
         this.sttSentences = [];
         this.ocrSentences = [];
     }
 
-    public async load(bid: string, languageCode: 'en-GB' | 'en-US') {
-        this.sttResult = await BinderDataSource.getSTTResult(bid, languageCode);
-        this.sttSentences = await BinderDataSource.getSTTSentence(bid, languageCode);
-        this.ocrSentences = await BinderDataSource.getOCRSentence(bid);
+    public async load(bid: string) {
+        this.sttResult = await this.getSTTResult(bid);
+        this.sttSentences = await this.getSTTSentence(bid);
+        this.ocrSentences = await this.getOCRSentence(bid);
     }
 
     public fetch() {
@@ -66,7 +67,7 @@ export default class BinderDataSource {
         return this;
     }
 
-    private static async getOCRSentence(bid: string): Promise<OCRSentence[]> {
+    private async getOCRSentence(bid: string): Promise<OCRSentence[]> {
         const sentences: OCRSentence[] = [];
         const es = new ElasticSearch();
         const response: ApiResponse = await es.search({
@@ -90,7 +91,7 @@ export default class BinderDataSource {
         return sentences;
     }
 
-    private static async getSTTResult(bid: string, languageCode: 'en-GB' | 'en-US'): Promise<STTResult[]> {
+    private async getSTTResult(bid: string): Promise<STTResult[]> {
         const result: STTResult[] = [];
         const es = new ElasticSearch();
         const response: ApiResponse = await es.search({
@@ -102,7 +103,7 @@ export default class BinderDataSource {
                         {
                             match: {
                                 languageCode: {
-                                    query: languageCode,
+                                    query: this.language.code,
                                     operator: 'and',
                                 },
                             },
@@ -116,9 +117,11 @@ export default class BinderDataSource {
 
         if (response.statusCode === 200 && response.body?.hits?.hits?.length > 0) {
             for (const doc of response.body.hits.hits) {
+                const sequence = doc._source.sequence;
+
                 for (const item of doc._source.result.items) {
                     if (item.start_time && item.end_time) {
-                        result.push(new STTResult(item, doc._source.sequence));
+                        result.push(new STTResult(item, sequence, this.language));
                     }
                 }
             }
@@ -126,7 +129,7 @@ export default class BinderDataSource {
         return result;
     }
 
-    private static async getSTTSentence(bid: string, languageCode: 'en-GB' | 'en-US'): Promise<STTSentence[]> {
+    private async getSTTSentence(bid: string): Promise<STTSentence[]> {
         const sentences: STTSentence[] = [];
         const es = new ElasticSearch();
         const response: ApiResponse = await es.search({
@@ -138,7 +141,7 @@ export default class BinderDataSource {
                         {
                             match: {
                                 languageCode: {
-                                    query: languageCode,
+                                    query: this.language.code,
                                     operator: 'and',
                                 },
                             },
@@ -152,12 +155,14 @@ export default class BinderDataSource {
 
         if (response.statusCode === 200 && response.body?.hits?.hits?.length > 0) {
             for (const doc of response.body.hits.hits) {
+                const sequence = doc._source.sequence;
+
                 for (const sentence of doc._source.result) {
                     if (sentence.startTime && sentence.endTime) {
                         sentences.push(new STTSentence(
+                            this.language,
+                            sequence,
                             sentence,
-                            `source/${doc._id}.mp3`,
-                            doc._source.sequence,
                         ));
                     }
                 }

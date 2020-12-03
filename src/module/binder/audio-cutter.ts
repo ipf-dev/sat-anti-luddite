@@ -1,9 +1,10 @@
 import fs from 'fs';
-// @ts-ignore
+import log from 'loglevel';
+
+// @ts-ignore, mp3-cutter does not provide @types/mp3-cutter
 import MP3Cutter from 'mp3-cutter';
 
 import CompleteSentence from '../../model/binder/complete-sentence';
-import StringUtil from '../../util/string-util';
 
 export default class AudioCutter {
     private static readonly SILENCE_DURATION = 0.2;
@@ -17,20 +18,21 @@ export default class AudioCutter {
 
     public async cut() {
         for (const sentence of this.sentences) {
-            const path = `test/output/${sentence.audioPath}`;
+            const sourceName = sentence.getSourceFilename(this.bid);
+            const sourcePath = `test/output/${sourceName}`;
+            const targetName = sentence.getSlicedAudioFilename();
+            const targetPath = `test/output/${this.bid}/${targetName}`;
 
-            MP3Cutter.cut({
-                src: path,
-                target: `test/output/${this.bid}/${AudioCutter.getFilename(sentence)}`,
-                start: sentence.startTime - AudioCutter.SILENCE_DURATION,
-                end: sentence.endTime + AudioCutter.SILENCE_DURATION,
-            });
+            try {
+                MP3Cutter.cut({
+                    src: sourcePath,
+                    target: targetPath,
+                    start: sentence.startTime - AudioCutter.SILENCE_DURATION,
+                    end: sentence.endTime + AudioCutter.SILENCE_DURATION,
+                });
+            } catch (err) {
+                log.error(err);
+            }
         }
-    }
-
-    public static getFilename(sentence: CompleteSentence) {
-        const normalizedSentence = StringUtil.getNormalizedText(sentence.sentence).replace(' ', '_');
-
-        return `p${sentence.page}_${normalizedSentence}.mp3`;
     }
 }

@@ -4,42 +4,39 @@ import S3 from '../aws-s3';
 import CompleteSentence from '../../model/binder/complete-sentence';
 
 export default class AudioDownloader {
-    public sentences: CompleteSentence[];
-    public audioKeys: Set<string>;
-
-    constructor(sentences: CompleteSentence[]) {
-        this.sentences = sentences;
-        this.audioKeys = this.aggregateAudioKeys(sentences);
+    constructor(
+        readonly bid: string,
+        readonly folder: string,
+        readonly bucket: string,
+    ) {
     }
 
-    // eslint-disable-next-line
-    public aggregateAudioKeys(sentences: CompleteSentence[]): Set<string> {
-        const keys = new Set<string>();
+    public aggregateFiles(sentences: CompleteSentence[]): Set<string> {
+        const filenames = new Set<string>();
 
         for (const sentence of sentences) {
-            keys.add(sentence.audioPath);
+            const filename = sentence.getSourceFilename(this.bid);
+
+            filenames.add(filename);
         }
-        return keys;
+        return filenames;
     }
 
-    public getAudioKeys(): Set<string> {
-        return this.audioKeys;
+    public async downloadFiles(bucket: string, filenames: Set<string>) {
+        for (const filename of filenames) {
+            // eslint-disable-next-line
+            await this.downloadFile(bucket, filename);
+        }
     }
 
-    public async downloadFiles() {
+    // noinspection JSMethodCanBeStatic
+    private async downloadFile(bucket: string, filename: string) {
+        const path = `test/output/${filename}`;
+        const key = `${this.folder}/do-not-publish/${filename}`;
         const s3 = new S3();
 
-        for (const key of this.audioKeys) {
-            const bucket = process.env.STT_OUTPUT_BUCKET;
-            const path = `test/output/${key}`;
+        if (fs.existsSync(path)) fs.unlinkSync(path);
 
-            if (fs.existsSync(path)) {
-                fs.unlinkSync(path);
-            }
-            if (bucket) {
-                // eslint-disable-next-line
-                await s3.downloadObject({ bucket, key }, path);
-            }
-        }
+        await s3.downloadObject({ bucket, key }, path);
     }
 }

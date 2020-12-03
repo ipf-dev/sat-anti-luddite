@@ -1,6 +1,7 @@
 import StringUtil from '../../util/string-util';
 import SentenceAnalyzer from '../../module/binder/sentence-analyzer';
 import STTResult from './stt-result';
+import { Language } from '../language';
 
 export type STTSentenceVO = {
     text: string;
@@ -16,17 +17,17 @@ export default class STTSentence {
     public startTime: number;
     public endTime: number;
     public confidence: number;
-    public audioPath: string;
-    public audioSequence: number;
 
-    public constructor(result: STTSentenceVO, audioPath: string, audioSequence: number) {
+    public constructor(
+        readonly language: Language,
+        readonly audioSequence: number,
+        result: STTSentenceVO,
+    ) {
         this.startTime = Number(result.startTime);
         this.endTime = Number(result.endTime);
         this.confidence = Number(result.confidence);
         this.text = result.text;
         this.textStripped = StringUtil.getNormalizedText(result.text);
-        this.audioPath = audioPath;
-        this.audioSequence = audioSequence;
     }
 
     public isPartiallyMatched(textStripped: string): boolean {
@@ -49,12 +50,12 @@ export default class STTSentence {
     public buildSubSentence(words: string[], sttResult: STTResult[]): STTSentence {
         const [startTime, endTime] = this.getTimeRange(words, sttResult);
 
-        return new STTSentence({
+        return new STTSentence(this.language, this.audioSequence, {
             text: words.join(' '),
             startTime: startTime,
             endTime: endTime,
             confidence: this.confidence,
-        }, this.audioPath, this.audioSequence);
+        });
     }
 
     public getTimeRange(words: string[], sttResult: STTResult[]): number[] {
