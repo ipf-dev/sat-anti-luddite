@@ -53,6 +53,9 @@ functions:
     timeout: 420
   invoke-ocr-function-by-bid:
     handler: src/invoke-ocr-function-by-bid.handler
+  request-bind-sentence:
+    handler: src/request-bind-sentence.handler
+    timeout: 300
 
 package:
   exclude:

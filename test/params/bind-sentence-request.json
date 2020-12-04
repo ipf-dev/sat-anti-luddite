@@ -1,0 +1,9 @@
+{
+    "bid": "TPSRT206X",
+    "folder": "5fc60778a1422",
+    "bucket": "spindle-test-resources",
+    "pageWidth": 1536,
+    "pageHeight": 1764,
+    "endpoint": "http://local.spindlebooks.com/api/editor/element",
+    "accessToken": "should-be-provided-by-sat"
+}

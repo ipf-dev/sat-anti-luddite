@@ -5,11 +5,7 @@
     "audios": [
         {
             "sequence": 1,
-            "s3Key": "40be0683333c2/do-not-publish/TPSBW2SH1_hope.mp3"
-        },
-        {
-            "sequence": 2,
-            "s3Key": "40be0683333c2/do-not-publish/TPSBW2SH1_ordinary.mp3"
+            "s3Key": "5fc60778a1422/do-not-publish/TPSRT206X_UK_1.mp3"
         }
     ]
 }

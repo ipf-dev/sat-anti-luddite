@@ -2,7 +2,7 @@ import WordBlock from './word-block';
 
 const HEIGHT_ADJUST_PROPORTION = 0.15;
 
-type BoundingBox = {
+export type BoundingBox = {
     width: number;
     height: number;
     left: number;

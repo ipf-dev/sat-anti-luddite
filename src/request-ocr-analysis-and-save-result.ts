@@ -17,6 +17,8 @@ export const handler: Handler = async (event, context, callback) => {
     const bucket = event.bucket || process.env.TEXTRACT_INPUT_BUCKET;
     const documentIds: string[] = [];
 
+    await clearPreviousHistory(bid);
+
     for (const { page, s3Key } of documents) {
         const ocrResult = await detectDocumentText(bucket, s3Key);
         const documentId = await indexOcrResult(bid, page, ocrResult);
@@ -58,6 +60,16 @@ async function invokeBodyFilter(message: any): Promise<void>  {
     const sns = new SNS();
     if (typeof arn === 'undefined') return;
     await sns.publish({ message, arn });
+}
+
+async function clearPreviousHistory(bid: string) {
+    const es = new ElasticSearch();
+    const query = {
+        match: { bid },
+    };
+
+    await es.delete({ index: 'ocr-result', query: query });
+    await es.delete({ index: 'ocr-sentence', query: query });
 }
 
 function sleep(ms: number) {

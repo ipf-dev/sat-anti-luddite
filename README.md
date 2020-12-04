@@ -58,6 +58,13 @@ Textract의 OCR 기술로 인식된 결과 텍스트를 Elastic Search의 `ocr-r
 serverless invoke local --function ocr-body-filter --data '{"Records": [{"Sns":{"Message":"{\"documentId\":\"your-ocr-result-document-id\"}"}}]}'
 ```
 
+### request-bind-sentence
+OCR 인식 결과와 STT 인식 결과를 분석 후 조합하여, SAT Audio Element를 생성합니다.
+
+```shell script
+serverless invoke local --function request-bind-sentence --path test/params/bind-sentence-request.json
+```
+
 ## Unit testing
 Jest 프레임워크를 사용합니다. 테스트 파일은 `test` 폴더 하위에 `{filename}.test.ts` 이름으로 생성합니다. `_init.js` 스크립트는 각 테스트 파일의 테스트 수행 전에 실행되어 환경 변수 설정의 역할을 합니다. 
 
