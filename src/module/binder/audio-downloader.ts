@@ -30,7 +30,7 @@ export default class AudioDownloader {
     }
 
     private async downloadFile(filename: string) {
-        const path = `test/output/${filename}`;
+        const path = `/tmp/output/${filename}`;
         const key = `${this.folder}/do-not-publish/${filename}`;
         const s3 = new S3();
 

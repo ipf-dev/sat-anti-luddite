@@ -20,7 +20,7 @@ export default class AudioUploader {
 
     private async uploadFile(sentence: CompleteSentence) {
         const filename = sentence.getSlicedAudioFilename();
-        const path = `test/output/${this.bid}/${filename}`;
+        const path = `/tmp/output/${this.bid}/${filename}`;
         const key = `${this.folder}/resource/${filename}`;
         const s3 = new S3();
 

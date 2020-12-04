@@ -25,6 +25,8 @@ export default class SentenceBinder {
         this.sttSentences = [];
         this.ocrSentences = [];
         this.completeSentences = [];
+
+        fs.mkdirSync('/tmp/output/report', { recursive: true });
     }
 
     private async setup(): Promise<void> {
@@ -210,14 +212,14 @@ export default class SentenceBinder {
 
     private writeInCompleteSentence() {
         fs.writeFileSync(
-            `test/output/report/incomplete-stt-sentence-${this.bid}.json`,
+            `/tmp/output/report/incomplete-stt-sentence-${this.bid}.json`,
             JSON.stringify(this.filterIncompleteVerbalSentences()),
         );
     }
 
     private writeCompleteSentence() {
         fs.writeFileSync(
-            `test/output/report/complete-sentence-${this.bid}.json`,
+            `/tmp/output/report/complete-sentence-${this.bid}.json`,
             JSON.stringify(this.completeSentences),
         );
     }

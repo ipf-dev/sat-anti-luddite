@@ -2,7 +2,7 @@ import fs from 'fs';
 
 import S3 from '../../src/module/aws-s3';
 
-const path = 'test/output/TPSRT206_UK_01.mp3';
+const path = '/tmp/output/TPSRT206_UK_01.mp3';
 
 test('When_HavePath_Expect_ExcludePath', async () => {
     const result = S3.getFileNameFromKey('path/to/the/file/find-me.mp3');

@@ -13,15 +13,15 @@ export default class AudioCutter {
         readonly bid: string,
         readonly sentences: CompleteSentence[],
     ) {
-        fs.mkdirSync(`test/output/${this.bid}`, { recursive: true });
+        fs.mkdirSync(`/tmp/output/${this.bid}`, { recursive: true });
     }
 
     public async cut() {
         for (const sentence of this.sentences) {
             const sourceName = sentence.getSourceFilename(this.bid);
-            const sourcePath = `test/output/${sourceName}`;
+            const sourcePath = `/tmp/output/${sourceName}`;
             const targetName = sentence.getSlicedAudioFilename();
-            const targetPath = `test/output/${this.bid}/${targetName}`;
+            const targetPath = `/tmp/output/${this.bid}/${targetName}`;
 
             try {
                 MP3Cutter.cut({

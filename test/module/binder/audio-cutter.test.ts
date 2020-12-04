@@ -4,7 +4,7 @@ import CompleteSentence, { CompleteSentenceBuilder } from '../../../src/model/bi
 import AudioCutter from '../../../src/module/binder/audio-cutter';
 
 const bid = process.env.TEST_BID || '';
-const json = fs.readFileSync(`test/output/report/complete-sentence-${bid}.json`, 'utf-8');
+const json = fs.readFileSync(`/tmp/output/report/complete-sentence-${bid}.json`, 'utf-8');
 const rows = JSON.parse(json);
 
 const sentences: CompleteSentence[] = [];
