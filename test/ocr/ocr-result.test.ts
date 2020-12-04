@@ -1,7 +1,7 @@
 import { ApiResponse } from '@elastic/elasticsearch';
 import ElasticSearchMock from '../../src/common/aws/aws-elastic-search-mock';
+import { RawBlock } from '../../src/ocr/model/raw-block';
 import OCRResult from '../../src/ocr/ocr-result';
-import { RawBlock } from '../../src/ocr/raw-block';
 
 const es = new ElasticSearchMock();
 

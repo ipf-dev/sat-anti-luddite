@@ -1,7 +1,7 @@
 import fs from 'fs';
 import log from 'loglevel';
 
-import { Language } from '../common/type/language';
+import { Language } from '../common/model/language';
 import STTSentence from './model/stt-sentence';
 import STTResult from './model/stt-result';
 import OCRSentence from './model/ocr-sentence';

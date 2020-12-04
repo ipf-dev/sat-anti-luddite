@@ -1,4 +1,4 @@
-import { Geometry } from '../../common/type/geometry';
+import { Geometry } from '../../common/model/geometry';
 import StringUtil from '../../common/util/string-util';
 import SentenceAnalyzer from '../sentence-analyzer';
 

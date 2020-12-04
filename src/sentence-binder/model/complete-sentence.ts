@@ -1,6 +1,6 @@
-import { Geometry, BoundingBox } from '../../common/type/geometry';
+import { Geometry, BoundingBox } from '../../common/model/geometry';
 import StringUtil from '../../common/util/string-util';
-import { Language } from '../../common/type/language';
+import { Language } from '../../common/model/language';
 
 export default class CompleteSentence {
     public constructor(

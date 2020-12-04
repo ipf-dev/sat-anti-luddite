@@ -1,6 +1,6 @@
 import { ApiResponse } from '@elastic/elasticsearch';
 import ElasticSearch from '../common/aws/aws-elastic-search';
-import { Language } from '../common/type/language';
+import { Language } from '../common/model/language';
 import STTSentence from './model/stt-sentence';
 import STTResult from './model/stt-result';
 import OCRSentence from './model/ocr-sentence';

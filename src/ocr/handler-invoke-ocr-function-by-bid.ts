@@ -8,7 +8,7 @@ import { PublishResponse } from 'aws-sdk/clients/sns';
 import AntiLudditeHandler from '../common/anti-luddite-handler';
 import ElasticSearch from '../common/aws/aws-elastic-search';
 import SNS from '../common/aws/aws-sns';
-import { Dictionary } from '../common/type/dictionary';
+import { Dictionary } from '../common/model/dictionary';
 
 const sourceIndex: Dictionary<string> = {
     'ocr-body-filter': 'ocr-result',

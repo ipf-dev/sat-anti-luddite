@@ -1,7 +1,7 @@
 import AWS from 'aws-sdk';
 import * as TranscribeClient  from 'aws-sdk/clients/transcribeservice';
 import { StartTranscriptionJobRequest } from 'aws-sdk/clients/transcribeservice';
-import { LanguageCode } from '../type/language-code';
+import { LanguageCode } from '../model/language-code';
 
 export type TranscribeEvent = {
     detail: {

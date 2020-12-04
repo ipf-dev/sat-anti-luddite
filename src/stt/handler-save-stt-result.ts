@@ -7,7 +7,7 @@ import ElasticSearch from '../common/aws/aws-elastic-search';
 import S3 from '../common/aws/aws-s3';
 import SNS from '../common/aws/aws-sns';
 import { TranscribeEvent } from '../common/aws/aws-transcribe';
-import STTJobMetadata from './stt-job-metadata';
+import STTJobMetadata from './model/stt-job-metadata';
 
 AntiLudditeHandler.init();
 const es = new ElasticSearch();

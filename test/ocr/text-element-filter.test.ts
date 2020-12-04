@@ -1,9 +1,9 @@
 import { ApiResponse } from '@elastic/elasticsearch';
 import ElasticSearchMock from '../../src/common/aws/aws-elastic-search-mock';
+import { RawBlock } from '../../src/ocr/model/raw-block';
+import LineBlock from '../../src/ocr/model/line-block';
+import WordBlock from '../../src/ocr/model/word-block';
 import TextElementFilter from '../../src/ocr/text-element-filter';
-import { RawBlock } from '../../src/ocr/raw-block';
-import LineBlock from '../../src/ocr/line-block';
-import WordBlock from '../../src/ocr/word-block';
 
 const es = new ElasticSearchMock();
 

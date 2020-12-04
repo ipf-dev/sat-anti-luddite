@@ -4,7 +4,7 @@ import { Handler } from 'aws-lambda';
 import log from 'loglevel';
 
 import AntiLudditeHandler from '../common/anti-luddite-handler';
-import { Language } from '../common/type/language';
+import { Language } from '../common/model/language';
 import SentenceBinder from './sentence-binder';
 import AudioDownloader from './audio-downloader';
 import AudioCutter from './audio-cutter';

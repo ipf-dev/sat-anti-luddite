@@ -1,10 +1,10 @@
 import log from 'loglevel';
 
-import MathUtil from '../common/util/math-util';
+import MathUtil from '../../common/util/math-util';
+import TextAnatomy from '../text-anatomy';
 import { RawBlock } from './raw-block';
 import Geometry from './geometry';
 import Relationship from './relationship';
-import TextAnatomy from './text-anatomy';
 
 type BlockType = 'PAGE' | 'LINE' | 'WORD';
 

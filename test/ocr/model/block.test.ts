@@ -1,5 +1,5 @@
-import { RawBlock } from '../../src/ocr/raw-block';
-import Block from '../../src/ocr/block';
+import { RawBlock } from '../../../src/ocr/model/raw-block';
+import Block from '../../../src/ocr/model/block';
 
 const HEIGHT_ADJUST_PROPORTION = 0.15;
 const rawBlock: RawBlock = {

@@ -1,9 +1,9 @@
 import assert from 'assert';
 
-import { RawBlock } from './raw-block';
-import LineBlock from './line-block';
-import WordBlock from './word-block';
-import { FilteredTextElements } from './filtered-text-elements';
+import { RawBlock } from './model/raw-block';
+import LineBlock from './model/line-block';
+import WordBlock from './model/word-block';
+import { FilteredTextElements } from './model/filtered-text-elements';
 import TextElementFilter from './text-element-filter';
 
 export type OCRBodyFilterResult = {

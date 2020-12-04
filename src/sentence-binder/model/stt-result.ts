@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import StringUtil from '../../common/util/string-util';
-import { Language } from '../../common/type/language';
+import { Language } from '../../common/model/language';
 
 export type STTResultVO = {
     start_time: number | string;

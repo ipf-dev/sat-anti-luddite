@@ -1,4 +1,4 @@
-import Geometry from '../../src/ocr/geometry';
+import Geometry from '../../../src/ocr/model/geometry';
 
 const HEIGHT_ADJUST_PROPORTION = 0.15;
 const rawGeometry = {

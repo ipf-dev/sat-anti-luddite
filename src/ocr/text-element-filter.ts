@@ -1,10 +1,10 @@
 import ArrayUtil from '../common/util/array-util';
-import LineBlock from './line-block';
-import WordBlock from './word-block';
-import Paragraph from './paragraph';
+import LineBlock from './model/line-block';
+import WordBlock from './model/word-block';
+import Paragraph from './model/paragraph';
 import {
     TextElements, FilteredTextElements,
-} from './filtered-text-elements';
+} from './model/filtered-text-elements';
 import ParagraphDetector from './paragraph-detector';
 
 export default class TextElementFilter {

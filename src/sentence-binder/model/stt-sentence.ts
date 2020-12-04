@@ -1,5 +1,5 @@
 import StringUtil from '../../common/util/string-util';
-import { Language } from '../../common/type/language';
+import { Language } from '../../common/model/language';
 import SentenceAnalyzer from '../sentence-analyzer';
 import STTResult from './stt-result';
 

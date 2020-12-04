@@ -4,7 +4,7 @@ import log from 'loglevel';
 import AntiLudditeHandler from '../common/anti-luddite-handler';
 import Transcribe from '../common/aws/aws-transcribe';
 import ElasticSearch from '../common/aws/aws-elastic-search';
-import { LanguageCode } from '../common/type/language-code';
+import { LanguageCode } from '../common/model/language-code';
 
 AntiLudditeHandler.init();
 const transcribe = new Transcribe();

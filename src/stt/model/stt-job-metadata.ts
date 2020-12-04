@@ -1,4 +1,4 @@
-import { LanguageCode } from '../common/type/language-code';
+import { LanguageCode } from '../../common/model/language-code';
 
 export default class STTJobMetadata {
     private readonly documentId: string;

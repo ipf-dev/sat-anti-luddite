@@ -7,7 +7,7 @@ test('When_Delete_Document_From_ES_With_QueryDSL', async () => {
         index: 'stt-sentence',
         query: {
             match: {
-                bid: 'TPSRT206X',
+                bid: 'NONEXISTBID',
             },
         },
     });
