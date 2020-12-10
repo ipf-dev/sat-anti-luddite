@@ -21,7 +21,7 @@ SAT Anti Luddite는 음성/이미지 인식 기술을 이용하여 Spindle Books
 |SNS_OCR_SENT_TOKENIZE|ocr-sent-tokenize 함수를 invoke 하기 위한 SNS Topic ARN|
 |SNS_STT_SENT_TOKENIZE|stt-sent-tokenize 함수를 invoke 하기 위한 SNS Topic ARN|
 
-## Lambda functions
+## STT
 ### request-stt-analysis
 S3 버킷에 업로드된 음원 파일에 대한 Transcribe 분석 작업을 요청합니다.
 
@@ -42,6 +42,7 @@ Transcribe 작업 완료 이벤트를 수신하여, 분석 결과물인 JSON 파
 serverless invoke local --function save-stt-result --data '{"detail": {"TranscriptionJobStatus": "COMPLETED","TranscriptionJobName": "TPSRT206X_UK_1-1607062899121"}}'
 ```
 
+## OCR
 ### request-ocr-analysis-and-save-result
 S3 버킷에 저장된 이미지로 Textract OCR 분석 요청 수행한 뒤 그 결과를 Elastic Search의 `ocr-result` index에 저장합니다. SNS 퍼블리시를 통해 `ocr-body-filter` 함수를 호출한 뒤 종료합니다.
 
@@ -58,11 +59,29 @@ Textract의 OCR 기술로 인식된 결과 텍스트를 Elastic Search의 `ocr-r
 serverless invoke local --function ocr-body-filter --data '{"Records": [{"Sns":{"Message":"{\"documentId\":\"your-ocr-result-document-id\"}"}}]}'
 ```
 
+## Sentence Binder
+
 ### request-bind-sentence
 OCR 인식 결과와 STT 인식 결과를 분석 후 조합하여, SAT Audio Element를 생성합니다.
 
 ```shell script
 serverless invoke local --function request-bind-sentence --path test/params/bind-sentence-request.json
+```
+
+## Playable Sentence API
+
+### get-playable-sentence
+재생 가능한 문장 조회
+
+```shell script
+serverless invoke local --function get-playable-sentence --path test/params/get-playable-sentence.json
+```
+
+### add-playable-sentence
+재생 가능한 문장 추가
+
+```shell script
+serverless invoke local --function add-playable-sentence --path test/params/add-playable-sentence.json
 ```
 
 ## Unit testing

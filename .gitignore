@@ -14,3 +14,4 @@ package-lock.json
 # Test Output
 test/output
 tmp/output
+coverage

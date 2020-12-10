@@ -47,7 +47,7 @@ async function fetchSourceByBid(bid: string, index: string) {
         index: index,
         query: { term: { bid: bid } },
         size: 100,
-        filter_path: ['hits.hits'],
+        filterPath: ['hits.hits'],
     });
     return esResult.body.hits.hits;
 }
