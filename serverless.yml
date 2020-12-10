@@ -52,11 +52,22 @@ functions:
     handler: src/ocr/handler-request-ocr-analysis-and-save-result.handler
     timeout: 420
   invoke-ocr-function-by-bid:
-    handler: src/invoke-ocr-function-by-bid.handler
+    handler: src/ocr/handler-invoke-ocr-function-by-bid.handler
   request-bind-sentence:
     handler: src/sentence-binder/handler-request-bind-sentence.handler
     timeout: 300
-
+  add-playable-sentence:
+    handler: src/playable-sentence/handler.add
+    events:
+      - http:
+          path: api/sentence
+          method: post
+  get-playable-sentence:
+    handler: src/playable-sentence/handler.get
+    events:
+      - http:
+          path: api/sentence
+          method: get
 package:
   exclude:
     - '*.yml'

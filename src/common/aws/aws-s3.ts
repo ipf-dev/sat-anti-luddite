@@ -3,7 +3,8 @@ import fs from 'fs';
 import AWS from 'aws-sdk';
 import * as S3Client from 'aws-sdk/clients/s3';
 import {
-    Body, ListObjectsV2Request, ObjectList, TagSet, ClientConfiguration, ContentType,
+    Body, ListObjectsV2Request, ObjectList, TagSet, ClientConfiguration,
+    ContentType, ObjectCannedACL,
 } from 'aws-sdk/clients/s3';
 
 export type S3Object = {
@@ -18,7 +19,8 @@ export type S3Directory = {
 type GetObjectParam = S3Object;
 type GetObjectTaggingParam = S3Object;
 type PutObjectParam = {
-    contentType: ContentType
+    contentType: ContentType,
+    acl?: ObjectCannedACL;
 } & S3Object;
 
 export default class S3 {
@@ -71,13 +73,16 @@ export default class S3 {
         });
     }
 
-    public async putObject({ bucket, key, contentType }: PutObjectParam, path: string): Promise<void> {
+    public async putObject({
+        bucket, key, contentType, acl,
+    }: PutObjectParam, path: string): Promise<void> {
         return new Promise((resolve, reject) => {
             this.client.putObject({
                 Bucket: bucket,
                 Key: key,
                 ContentType: contentType,
                 Body: fs.readFileSync(path),
+                ...acl && { ACL: acl },
             }, (err, data) => {
                 if (err) {
                     reject();

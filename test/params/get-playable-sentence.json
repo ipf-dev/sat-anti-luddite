@@ -1,0 +1,8 @@
+{
+    "queryStringParameters": {
+        "bid": "",
+        "includes": "story",
+        "from": 0,
+        "size": 10
+    }
+}

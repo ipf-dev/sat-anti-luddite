@@ -1,32 +1,11 @@
 import AWS from 'aws-sdk';
 import { Client, ApiResponse, RequestParams } from '@elastic/elasticsearch';
 
+import {
+    IndexParam, GetParam, DeleteParam, SearchParam,
+} from './aws-elastic-search-param';
+
 const AWSConnector = require('aws-elasticsearch-connector');
-
-type IndexParam = {
-    index: string;
-    body: object;
-    id: string | undefined;
-};
-
-type SearchParam = {
-    index: string;
-    query: object;
-    sort?: object;
-    size?: number;
-    // eslint-disable-next-line camelcase
-    filter_path?: string[];
-};
-
-type DeleteParam = {
-    index: string;
-    query: object;
-};
-
-type GetParam = {
-    index: string;
-    id: string;
-};
 
 export default class ElasticSearch {
     private client: Client;
@@ -58,17 +37,26 @@ export default class ElasticSearch {
         return this.client.index(params);
     }
 
-    public async search({ index, query, sort, size, filter_path }: SearchParam): Promise<ApiResponse> {
+    public async search({
+        index, query, sort, size, filterPath,
+    }: SearchParam): Promise<ApiResponse> {
         const params: RequestParams.Search = {
             index: index,
             body: {
                 query, sort,
             },
             size: size,
-            filter_path: filter_path,
+            filter_path: filterPath,
         };
 
         return this.client.search(params);
+    }
+
+    public async searchWithBody(index: string, body: object): Promise<ApiResponse> {
+        return this.client.search({
+            index: index,
+            body: body,
+        });
     }
 
     public async get({ index, id }: GetParam): Promise<ApiResponse> {
@@ -90,5 +78,13 @@ export default class ElasticSearch {
 
         return this.client.delete_by_query(params);
     }
-}
 
+    public async bulk(index: string, body: any[]): Promise<Record<string, any>> {
+        const { body: result } = await this.client.bulk({
+            index,
+            body,
+        });
+
+        return result;
+    }
+}
