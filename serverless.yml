@@ -30,10 +30,10 @@ provider:
 
 functions:
   request-stt-analysis:
-    handler: src/request-stt-analysis.handler
+    handler: src/stt/handler-request-stt-analysis.handler
     timeout: 120
   save-stt-result:
-    handler: src/save-stt-result.handler
+    handler: src/stt/handler-save-stt-result.handler
     events:
       - cloudwatchEvent:
           event:
@@ -45,16 +45,16 @@ functions:
               TranscriptionJobStatus:
                 - COMPLETED
   ocr-body-filter:
-    handler: src/ocr-body-filter.handler
+    handler: src/ocr/handler-ocr-body-filter.handler
     events:
       - sns: sat-anti-luddite-ocr-body-filter
   request-ocr-analysis-and-save-result:
-    handler: src/request-ocr-analysis-and-save-result.handler
+    handler: src/ocr/handler-request-ocr-analysis-and-save-result.handler
     timeout: 420
   invoke-ocr-function-by-bid:
     handler: src/invoke-ocr-function-by-bid.handler
   request-bind-sentence:
-    handler: src/request-bind-sentence.handler
+    handler: src/sentence-binder/handler-request-bind-sentence.handler
     timeout: 300
 
 package:

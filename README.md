@@ -39,7 +39,7 @@ Transcribe 작업 완료 이벤트를 수신하여, 분석 결과물인 JSON 파
 로컬 환경에서 함수 호출 시에는 아래의 명령어를 사용합니다.
 
 ```shell script
-serverless invoke local --function save-stt-result --data '{"detail": {"TranscriptionJobStatus": "COMPLETED","TranscriptionJobName": "your-transcription-job-name"}}'
+serverless invoke local --function save-stt-result --data '{"detail": {"TranscriptionJobStatus": "COMPLETED","TranscriptionJobName": "TPSRT206X_UK_1-1607062899121"}}'
 ```
 
 ### request-ocr-analysis-and-save-result
