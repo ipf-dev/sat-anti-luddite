@@ -5,6 +5,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda
 import { HttpStatus } from '../common/model/http-status';
 import ApiResponseBuilder from '../common/model/api-response';
 import SentenceService from './sentence-service';
+import Authorizer from './authorizer';
 
 export default class SentenceController {
     private readonly sentenceService: SentenceService;
@@ -14,6 +15,14 @@ export default class SentenceController {
     }
 
     async add(event: APIGatewayProxyEvent, context?: Context): Promise<APIGatewayProxyResult> {
+        try {
+            Authorizer.authorize(event);
+        } catch (e) {
+            return ApiResponseBuilder
+                .error(HttpStatus.UNAUTHORIZED, 'Unauthorized')
+                .print();
+        }
+
         try {
             const params: any = event.body ? JSON.parse(event.body) : { sentence: [] };
             await this.sentenceService.add(params.sentence);
@@ -35,6 +44,14 @@ export default class SentenceController {
     }
 
     async get(event: APIGatewayProxyEvent, context?: Context): Promise<APIGatewayProxyResult> {
+        try {
+            Authorizer.authorize(event);
+        } catch (e) {
+            return ApiResponseBuilder
+                .error(HttpStatus.UNAUTHORIZED, 'Unauthorized')
+                .print();
+        }
+
         try {
             const param = event.queryStringParameters || {};
             const data = await this.sentenceService.get(param);
