@@ -1,0 +1,9 @@
+{
+    "Records": [
+        {
+            "Sns": {
+                "Message": "{\"documentId\":\"your-ocr-result-document-id\"}"
+            }
+        }
+    ]
+}

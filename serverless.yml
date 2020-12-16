@@ -1,11 +1,16 @@
 service: sat-anti-luddite
-frameworkVersion: '>=1.34 <2.0.0'
+frameworkVersion: '1.61.2' # plugin 이슈 https://github.com/serverless-heaven/serverless-aws-alias/issues/181
 
 plugins:
   - serverless-plugin-typescript
+  - serverless-aws-alias
+
+custom:
+  environment: ${opt:alias, self:provider.stage}
 
 provider:
   name: aws
+  stage: 'stage'
   runtime: nodejs12.x
   profile: ipf
   region: ap-northeast-2
@@ -15,7 +20,7 @@ provider:
     environment: common
     owner: hpark
   role: arn:aws:iam::572836591883:role/sat-anti-luddite-lambda
-  environment: ${file(environment-variables.yml)}
+  environment: ${file(environment-variables.yml):${self:custom.environment}}
   stackName: sat-anti-luddite-stack
   stackTags:
     service: sat
@@ -25,7 +30,7 @@ provider:
     name: ipf-release-ci-seoul
     tags:
       service: sat
-      environment: common
+      environment: ${self:custom.environment}
       owner: hpark
 
 functions:

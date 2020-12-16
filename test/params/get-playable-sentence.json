@@ -4,5 +4,8 @@
         "includes": "story",
         "from": 0,
         "size": 10
+    },
+    "headers": {
+        "x-api-key": "4TbU8CkDrs2RQk7uDuNWV2"
     }
 }
