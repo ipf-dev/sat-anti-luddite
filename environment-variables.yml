@@ -5,7 +5,6 @@ default: &default
   TEXTRACT_INPUT_BUCKET: spindle-resources
   SNS_OCR_SENT_TOKENIZE: arn:aws:sns:ap-northeast-2:572836591883:sat-anti-luddite-ocr-sent-tokenize
   SNS_STT_SENT_TOKENIZE: arn:aws:sns:ap-northeast-2:572836591883:sat-anti-luddite-stt-sent-tokenize
-  SNS_OCR_BODY_FILTER: arn:aws:sns:ap-northeast-2:572836591883:sat-anti-luddite-ocr-body-filter
   PLAYABLE_SENTENCE_BUCKET: playable-sentence
 
   # TESTING VARIABLES
@@ -16,7 +15,9 @@ default: &default
 stage:
   <<: *default
   PLAYABLE_SENTENCE_API_KEY: 4TbU8CkDrs2RQk7uDuNWV2
+  SNS_OCR_BODY_FILTER: arn:aws:sns:ap-northeast-2:572836591883:sat-anti-luddite-ocr-body-filter-stage
 
 production:
   <<: *default
   PLAYABLE_SENTENCE_API_KEY: wu76dxucjuQ2Pg4vfVg4G5
+  SNS_OCR_BODY_FILTER: arn:aws:sns:ap-northeast-2:572836591883:sat-anti-luddite-ocr-body-filter-production
