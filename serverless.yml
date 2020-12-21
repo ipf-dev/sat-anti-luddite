@@ -24,7 +24,7 @@ provider:
   stackName: sat-anti-luddite-stack
   stackTags:
     service: sat
-    environment: common
+    environment: ${self:custom.environment}
     owner: hpark
   deploymentBucket:
     name: ipf-release-ci-seoul
