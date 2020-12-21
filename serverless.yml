@@ -21,7 +21,7 @@ provider:
     owner: hpark
   role: arn:aws:iam::572836591883:role/sat-anti-luddite-lambda
   environment: ${file(environment-variables.yml):${self:custom.environment}}
-  stackName: sat-anti-luddite-stack
+  stackName: ${self:service}-stack
   stackTags:
     service: sat
     environment: ${self:custom.environment}
@@ -35,9 +35,11 @@ provider:
 
 functions:
   request-stt-analysis:
+    name: ${self:service}-request-stt-analysis
     handler: src/stt/handler-request-stt-analysis.handler
     timeout: 120
   save-stt-result:
+    name: ${self:service}-save-stt-result
     handler: src/stt/handler-save-stt-result.handler
     events:
       - cloudwatchEvent:
@@ -50,24 +52,30 @@ functions:
               TranscriptionJobStatus:
                 - COMPLETED
   ocr-body-filter:
+    name: ${self:service}-ocr-body-filter
     handler: src/ocr/handler-ocr-body-filter.handler
     events:
       - sns: sat-anti-luddite-ocr-body-filter
   request-ocr-analysis-and-save-result:
+    name: ${self:service}-request-ocr-analysis-and-save-result
     handler: src/ocr/handler-request-ocr-analysis-and-save-result.handler
     timeout: 420
   invoke-ocr-function-by-bid:
+    name: ${self:service}-invoke-ocr-function-by-bid
     handler: src/ocr/handler-invoke-ocr-function-by-bid.handler
   request-bind-sentence:
+    name: ${self:service}-request-bind-sentence
     handler: src/sentence-binder/handler-request-bind-sentence.handler
     timeout: 300
   add-playable-sentence:
+    name: ${self:service}-add-playable-sentence
     handler: src/playable-sentence/handler.add
     events:
       - http:
           path: api/sentence
           method: post
   get-playable-sentence:
+    name: ${self:service}-get-playable-sentence
     handler: src/playable-sentence/handler.get
     events:
       - http:
