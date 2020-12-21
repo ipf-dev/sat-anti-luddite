@@ -1,10 +1,7 @@
 default: &default
   STT_OUTPUT_BUCKET: sat-audio-authoring
-  ELASTIC_SEARCH_HOST: https://search-sat-anti-luddite-6cmsptt26mkqeswa2ye6hgkngi.ap-northeast-2.es.amazonaws.com
   TEXTRACT_REGION: ap-northeast-2
   TEXTRACT_INPUT_BUCKET: spindle-resources
-  SNS_OCR_SENT_TOKENIZE: arn:aws:sns:ap-northeast-2:572836591883:sat-anti-luddite-ocr-sent-tokenize
-  SNS_STT_SENT_TOKENIZE: arn:aws:sns:ap-northeast-2:572836591883:sat-anti-luddite-stt-sent-tokenize
   PLAYABLE_SENTENCE_BUCKET: playable-sentence
 
   # TESTING VARIABLES
@@ -14,10 +11,16 @@ default: &default
 
 stage:
   <<: *default
+  ELASTIC_SEARCH_HOST: https://search-sat-stage-anti-luddite-ccybc63h3f65mernaaxc7yryie.ap-northeast-2.es.amazonaws.com
   PLAYABLE_SENTENCE_API_KEY: 4TbU8CkDrs2RQk7uDuNWV2
   SNS_OCR_BODY_FILTER: arn:aws:sns:ap-northeast-2:572836591883:sat-anti-luddite-ocr-body-filter-stage
+  SNS_OCR_SENT_TOKENIZE: arn:aws:sns:ap-northeast-2:572836591883:sat-anti-luddite-ocr-sent-tokenize-stage
+  SNS_STT_SENT_TOKENIZE: arn:aws:sns:ap-northeast-2:572836591883:sat-anti-luddite-stt-sent-tokenize-stage
 
 production:
   <<: *default
+  ELASTIC_SEARCH_HOST: https://search-sat-prod-anti-luddite-s2kxzzso4x7ubni7ikq4dreccu.ap-northeast-2.es.amazonaws.com
   PLAYABLE_SENTENCE_API_KEY: wu76dxucjuQ2Pg4vfVg4G5
   SNS_OCR_BODY_FILTER: arn:aws:sns:ap-northeast-2:572836591883:sat-anti-luddite-ocr-body-filter-production
+  SNS_OCR_SENT_TOKENIZE: arn:aws:sns:ap-northeast-2:572836591883:sat-anti-luddite-ocr-sent-tokenize-production
+  SNS_STT_SENT_TOKENIZE: arn:aws:sns:ap-northeast-2:572836591883:sat-anti-luddite-stt-sent-tokenize-production
