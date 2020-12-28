@@ -25,7 +25,7 @@ export const handler: Handler = async (event, context, callback) => {
         audios: { sequence:number, s3Key: string }[],
     } = event;
 
-    await clearPreviousHistory(bid);
+    await clearPreviousHistory(bid, languageCode);
 
     try {
         for (const audio of audios) {
@@ -55,10 +55,22 @@ async function startTranscribeJob(
     });
 }
 
-async function clearPreviousHistory(bid: string) {
+async function clearPreviousHistory(bid: string, languageCode: string) {
     const es = new ElasticSearch();
     const query = {
-        match: { bid },
+        bool: {
+            must: [
+                { match: { bid } },
+                {
+                    match: {
+                        languageCode: {
+                            query: languageCode,
+                            operator: 'and',
+                        },
+                    },
+                },
+            ],
+        },
     };
 
     await es.delete({ index: 'stt-result', query: query });
