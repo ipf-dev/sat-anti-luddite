@@ -13,14 +13,14 @@ class ApiResponse {
         this.data = data;
     }
 
-    public print(): APIGatewayProxyResult {
+    public getAPIGatewayProxyResult(): APIGatewayProxyResult {
         return {
             statusCode: this.statusCode,
-            body: this.printBody(),
+            body: this.getResponseBody(),
         };
     }
 
-    private printBody(): string {
+    private getResponseBody(): string {
         if (!this.message && !this.data) return '';
         return JSON.stringify({
             ...this.message && { message: this.message },

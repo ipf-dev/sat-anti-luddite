@@ -1,11 +1,16 @@
+type ObjectArray  = {
+    [index: string]: any;
+}[];
+
 export default class ArrayUtil {
     public static exclude(excludedArr: any[], from: any[]) {
         return from.filter((item) => !excludedArr.includes(item));
     }
 
-    public static removeDuplicatesByProperty(array: any[], prop: string) {
+    public static removeDuplicatesByProperty(array: ObjectArray, prop: string): any[] {
+        const propValues = array.map((item) => item[prop]);
         return array.filter(
-            (value, index, arr) => arr.map((mapValue) => mapValue[prop]).indexOf(value[prop]) === index,
+            (item: any, index) => propValues.indexOf(item[prop]) === index,
         );
     }
 }

@@ -20,26 +20,29 @@ export default class SentenceController {
         } catch (e) {
             return ApiResponseBuilder
                 .error(HttpStatus.UNAUTHORIZED, 'Unauthorized')
-                .print();
+                .getAPIGatewayProxyResult();
         }
 
         try {
-            const params: any = event.body ? JSON.parse(event.body) : { sentence: [] };
-            await this.sentenceService.add(params.sentence);
+            if (event.body) {
+                const params: any = JSON.parse(event.body);
+                await this.sentenceService.add(params.sentence);
+            }
+
             return ApiResponseBuilder
                 .success(HttpStatus.CREATED)
-                .print();
+                .getAPIGatewayProxyResult();
         } catch (e) {
             log.error(e.stack);
             if (e instanceof assert.AssertionError) {
                 return ApiResponseBuilder
                     .error(HttpStatus.BAD_REQUEST, e.message)
-                    .print();
+                    .getAPIGatewayProxyResult();
             }
 
             return ApiResponseBuilder
                 .error(HttpStatus.INTERNAL_SERVER_ERROR, `${e.name}: ${e.message}`)
-                .print();
+                .getAPIGatewayProxyResult();
         }
     }
 
@@ -49,24 +52,24 @@ export default class SentenceController {
         } catch (e) {
             return ApiResponseBuilder
                 .error(HttpStatus.UNAUTHORIZED, 'Unauthorized')
-                .print();
+                .getAPIGatewayProxyResult();
         }
 
         try {
             const param = event.queryStringParameters || {};
             const data = await this.sentenceService.get(param);
-            return ApiResponseBuilder.success(HttpStatus.OK, data).print();
+            return ApiResponseBuilder.success(HttpStatus.OK, data).getAPIGatewayProxyResult();
         } catch (e) {
             log.error(e.stack);
             if (e instanceof assert.AssertionError) {
                 return ApiResponseBuilder
                     .error(HttpStatus.BAD_REQUEST, e.message)
-                    .print();
+                    .getAPIGatewayProxyResult();
             }
 
             return ApiResponseBuilder
                 .error(HttpStatus.INTERNAL_SERVER_ERROR, `${e.name}: ${e.message}`)
-                .print();
+                .getAPIGatewayProxyResult();
         }
     }
 }

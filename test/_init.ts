@@ -3,13 +3,12 @@ import fs from 'fs';
 import log from 'loglevel';
 
 try {
-    const doc = yaml.safeLoad(fs.readFileSync('environment-variables.yml', 'utf8'));
-    if (typeof doc === 'object') {
-        process.env = {
-            ...process.env,
-            ...doc,
-        };
-    }
+    const doc: any = yaml.safeLoad(fs.readFileSync('environment-variables.yml', 'utf8'));
+    const stage = doc.stage || {};
+    process.env = {
+        ...process.env,
+        ...stage,
+    };
 } catch (e) {
     log.error(e);
 }
