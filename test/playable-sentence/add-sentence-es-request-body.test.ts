@@ -1,11 +1,10 @@
-import UpdateSentenceRequestBuilder from '../../src/playable-sentence/update-sentence-request-builder';
+import AddSentenceEsRequestBody from '../../src/playable-sentence/add-sentence-es-request-body';
 import PlayableSentenceWithId from '../../src/playable-sentence/model/playable-sentence-with-id';
 
 test('When_EmptySentence_Expect_EmptyResult', () => {
     const sentences: PlayableSentenceWithId[] = [
     ];
-    const builder = new UpdateSentenceRequestBuilder('playable-sentence', sentences);
-    const result = builder.build();
+    const result = AddSentenceEsRequestBody.generate('playable-sentence', sentences);
 
     expect(result).toEqual([]);
 });
@@ -15,8 +14,7 @@ test('When_SentencesWithoutId_Expect_IndexWithoutId', () => {
         new PlayableSentenceWithId('Biff looked at the dragon\'s tail.', []),
         new PlayableSentenceWithId('She took off her belt.', []),
     ];
-    const builder = new UpdateSentenceRequestBuilder('playable-sentence', sentences);
-    const result = builder.build();
+    const result = AddSentenceEsRequestBody.generate('playable-sentence', sentences);
 
     expect(result.length).toEqual(4);
     expect(result).toEqual(
@@ -44,8 +42,7 @@ test('When_SentencesWithId_Expect_IndexWithId', () => {
             'non-exist-document-2',
         ),
     ];
-    const builder = new UpdateSentenceRequestBuilder('playable-sentence', sentences);
-    const result = builder.build();
+    const result = AddSentenceEsRequestBody.generate('playable-sentence', sentences);
 
     expect(result.length).toEqual(4);
     expect(result).toEqual(

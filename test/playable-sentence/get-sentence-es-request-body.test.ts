@@ -1,8 +1,7 @@
-import GetSentenceRequestBuilder from '../../src/playable-sentence/get-sentence-request-builder';
+import GetSentenceEsRequestBody from '../../src/playable-sentence/get-sentence-es-request-body';
 
 test('When_BuildWithNoParam_Expect_EmptyQuery', () => {
-    const builder = new GetSentenceRequestBuilder({});
-    const result: any = builder.build().toJSON();
+    const result: any = GetSentenceEsRequestBody.generate({});
 
     expect(result).toEqual({
         query: {
@@ -12,8 +11,7 @@ test('When_BuildWithNoParam_Expect_EmptyQuery', () => {
 });
 
 test('When_BuildWithBid_Expect_IncludeBid', () => {
-    const builder = new GetSentenceRequestBuilder({ bid: 'TESTBID' });
-    const result: any = builder.build().toJSON();
+    const result: any = GetSentenceEsRequestBody.generate({ bid: 'TESTBID' });
 
     expect(result).toEqual({
         query: {
@@ -27,8 +25,7 @@ test('When_BuildWithBid_Expect_IncludeBid', () => {
 });
 
 test('When_BuildWithText_Expect_IncludeText', () => {
-    const builder = new GetSentenceRequestBuilder({ text: 'Floppy barked and barked' });
-    const result: any = builder.build().toJSON();
+    const result: any = GetSentenceEsRequestBody.generate({ text: 'Floppy barked and barked' });
 
     expect(result).toEqual({
         query: {
@@ -42,13 +39,12 @@ test('When_BuildWithText_Expect_IncludeText', () => {
 });
 
 test('When_BuildWithMultipleParams_Expect_IncludeAll', () => {
-    const builder = new GetSentenceRequestBuilder({
+    const result: any = GetSentenceEsRequestBody.generate({
         bid: 'TESTBID',
         includes: 'special',
         from: 30,
         size: 30,
     });
-    const result: any = builder.build().toJSON();
 
     expect(result).toEqual({
         query: {

@@ -22,7 +22,7 @@ export default class SentenceService {
 
     public async add(param: any[]): Promise<void> {
         const sentences = await this.prepareSentences(param);
-        await this.uploadSentences(sentences);
+        await this.addSentences(sentences);
     }
 
     private async prepareSentences(param: any[]): Promise<PlayableSentence[]> {
@@ -35,13 +35,13 @@ export default class SentenceService {
         );
     }
 
-    private async uploadSentences(sentences: PlayableSentence[]): Promise<void> {
+    private async addSentences(sentences: PlayableSentence[]): Promise<void> {
         const sentencesWithDuplicateId: PlayableSentenceWithId[] = await Promise.all(sentences.map(async (sentence) => {
             const duplicateId = await this.sentenceDataSource.findDuplicateId(sentence);
             return PlayableSentenceWithId.buildFromSentence(sentence, duplicateId);
         }));
         log.debug('SentenceService.uploadSentences', sentencesWithDuplicateId);
 
-        await this.sentenceDataSource.upload(sentencesWithDuplicateId);
+        await this.sentenceDataSource.add(sentencesWithDuplicateId);
     }
 }

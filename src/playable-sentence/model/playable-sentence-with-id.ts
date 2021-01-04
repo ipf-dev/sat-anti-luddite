@@ -7,11 +7,11 @@ export default class PlayableSentenceWithId {
         public audio: Audio[],
         public readonly bid?: string,
         public readonly page?: number,
-        public id?: string,
+        public id?: string | null,
     ) {
     }
 
-    public static buildFromSentence(sentence: PlayableSentence, id?: string) {
+    public static buildFromSentence(sentence: PlayableSentence, id?: string | null) {
         return new PlayableSentenceWithId(
             sentence.text, sentence.audio, sentence.bid, sentence.page,
             id,
