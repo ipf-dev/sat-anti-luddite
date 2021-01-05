@@ -23,3 +23,12 @@ test('When_Get_Expect_HaveResults', async () => {
         expect.arrayContaining([]),
     );
 });
+
+test('When_GetUnauthorized_Expect_Http401', async () => {
+    const rawData = fs.readFileSync('test/params/get-playable-sentence-unauthorized.json', 'utf8');
+    const param = JSON.parse(rawData);
+    const result = await invoke(get, param);
+    const body = JSON.parse(result.body);
+
+    expect(result.statusCode).toEqual(401);
+});
