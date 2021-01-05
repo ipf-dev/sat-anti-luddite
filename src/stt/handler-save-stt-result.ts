@@ -7,7 +7,6 @@ import ElasticSearch from '../common/aws/aws-elastic-search';
 import S3 from '../common/aws/aws-s3';
 import SNS from '../common/aws/aws-sns';
 import { TranscribeEvent } from '../common/aws/aws-transcribe';
-import STTJobMetadata from './model/stt-job-metadata';
 
 AntiLudditeHandler.init();
 const es = new ElasticSearch();
@@ -16,23 +15,20 @@ const s3 = new S3();
 // eslint-disable-next-line import/prefer-default-export
 export const handler: Handler = async (event: TranscribeEvent, context, callback) => {
     const jobName = getJobName(event);
-    const jobMetadata = new STTJobMetadata(jobName);
-    const sttResult = await fetchSTTResult(jobName);
-    const documentId = jobMetadata.getDocumentId();
-    const esIndexParam = {
+    const documentId = jobName.split('-')[0];
+    const result = await fetchSTTResult(jobName);
+    const esUpdateParam = {
         index: 'stt-result',
         body: {
-            bid: jobMetadata.getBid(),
-            jobName: sttResult.jobName,
-            languageCode: jobMetadata.getTranscribeLanguageCode(),
-            sequence: jobMetadata.getSequenceNumber(),
-            result: sttResult.results,
+            doc: {
+                result: result.results,
+            },
         },
         id: documentId,
     };
 
     try {
-        await es.index(esIndexParam);
+        await es.update(esUpdateParam);
 
         await publishResultToSNS({ documentId });
 
