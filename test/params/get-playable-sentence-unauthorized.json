@@ -1,0 +1,11 @@
+{
+    "queryStringParameters": {
+        "bid": "",
+        "includes": "story",
+        "from": 0,
+        "size": 10
+    },
+    "headers": {
+        "x-api-key": "this-is-an-invalid-api-key"
+    }
+}
