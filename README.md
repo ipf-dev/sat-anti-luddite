@@ -31,7 +31,7 @@ serverless invoke local --function {function-name} --path test/params/{function-
 
 | Lambda function      | Description                                                                                                                                                                                                                                                                                                                                                                  |
 |----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| request-stt-analysis | S3 버킷에 업로드된 음원 파일에 대한 Transcribe 분석 작업을 요청합니다. S3 버킷에 음원 파일 업로드시, S3 Object의 파일명은 `{BID}_{US or UK}_{SEQ}.mp3` 으로 합니다. (e.g. TPSBS90_US_01.mp3) 파일명은 그대로 Elastic Search의 `stt-result`와 `stt-sentence` index에서 도큐먼트 아이디가 됩니다. 또한 US or UK 값에 따라 음원 분석 작업 시의 언어코드 설정이 달라집니다.                                                    |
+| request-stt-analysis | S3 버킷에 업로드된 음원 파일에 대한 Transcribe 분석 작업을 요청합니다.                                                    |
 | save-stt-result      | Transcribe 작업 완료 이벤트를 수신하여, 분석 결과물인 JSON 파일을 Elastic Search의 `stt-result`  index에 저장합니다. SNS 퍼블리시를 통해 `stt-sent-tokenize` 함수를 호출한 뒤 종료합니다.                                                                                                                                                                                                           |
 
 ### [OCR](./doc/ocr_process.png)

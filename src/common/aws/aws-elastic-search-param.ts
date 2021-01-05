@@ -12,12 +12,18 @@ export type SearchParam = {
     filterPath?: string[];
 };
 
-export type DeleteParam = {
-    index: string;
-    query: object;
-};
-
 export type GetParam = {
     index: string;
     id: string;
+};
+
+export type UpdateParam = {
+    index: string;
+    body: object;
+    id: string;
+}
+
+export type DeleteParam = {
+    index: string;
+    query: object;
 };

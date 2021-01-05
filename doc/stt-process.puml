@@ -16,6 +16,7 @@ SAT -> "request-stt-analysis": Invoke
 deactivate SAT
 
 activate "request-stt-analysis"
+"request-stt-analysis" -> ElasticSearch: Save metadata to <stt-result>
 "request-stt-analysis" -> Transcribe: Request STT analysis
 deactivate "request-stt-analysis"
 

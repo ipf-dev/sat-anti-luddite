@@ -2,7 +2,7 @@ import AWS from 'aws-sdk';
 import { Client, ApiResponse, RequestParams } from '@elastic/elasticsearch';
 
 import {
-    IndexParam, GetParam, DeleteParam, SearchParam,
+    IndexParam, SearchParam, GetParam, UpdateParam, DeleteParam,
 } from './aws-elastic-search-param';
 
 const AWSConnector = require('aws-elasticsearch-connector');
@@ -66,6 +66,10 @@ export default class ElasticSearch {
         };
 
         return this.client.get(params);
+    }
+
+    public async update({ index, body, id }: UpdateParam): Promise<ApiResponse> {
+        return this.client.update({ index, body, id });
     }
 
     public async delete({ index, query }: DeleteParam): Promise<ApiResponse> {
